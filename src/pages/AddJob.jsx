@@ -351,7 +351,7 @@ const AddJob = () => {
         // posting;
         try {
             const response = await axios.post(
-                "https://job-portal-server-theta-olive.vercel.app/api/jobs",
+                "https://job-portal-client-ashen.vercel.app/api/jobs",
                 newJob,
                 {
                     withCredentials: true,

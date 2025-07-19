@@ -317,7 +317,7 @@ const EditJob = () => {
         queryKey: ["updateJob"],
         queryFn: () =>
             getSingleHandler(
-                `https://job-portal-server-theta-olive.vercel.app/api/jobs/${id}`
+                `https://job-portal-client-ashen.vercel.app/api/jobs/${id}`
             ),
     });
 
@@ -421,7 +421,7 @@ const EditJob = () => {
         // posting;
         updateJobMutation.mutate({
             body: updateJob,
-            url: `https://job-portal-server-theta-olive.vercel.app/api/jobs/${id}`,
+            url: `https://job-portal-client-ashen.vercel.app/api/jobs/${id}`,
         });
     };
 

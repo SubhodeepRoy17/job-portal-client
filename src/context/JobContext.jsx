@@ -33,7 +33,7 @@ const JobContext = ({ children }) => {
     const updateJobStatus = async (jobId, status, comment) => {
         try {
             const response = await axios.patch(
-                `https://job-portal-server-theta-olive.vercel.app/api/jobs/${jobId}/status`,
+                `https://job-portal-client-ashen.vercel.app/api/jobs/${jobId}/status`,
                 { visibility_status: status, admin_comment: comment },
                 { withCredentials: true }
             );
@@ -58,7 +58,7 @@ const JobContext = ({ children }) => {
 
     useEffect(() => {
         handleJobFetch(
-            `https://job-portal-server-theta-olive.vercel.app/api/jobs?page=1`
+            `https://job-portal-client-ashen.vercel.app/api/jobs?page=1`
         );
     }, [user?.role, user?.id]);
 

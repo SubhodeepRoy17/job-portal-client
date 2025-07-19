@@ -119,7 +119,7 @@ const CertificateForm = ({ certificate, fetchCertificates }) => {
         try {
             if (certificate && certificate.id) {
                 const response = await axios.patch(
-                    `https://job-portal-server-theta-olive.vercel.app/api/certificates/${certificate.id}`,
+                    `https://job-portal-client-ashen.vercel.app/api/certificates/${certificate.id}`,
                     formData,
                     {
                         withCredentials: true,
@@ -136,7 +136,7 @@ const CertificateForm = ({ certificate, fetchCertificates }) => {
                 });
             } else {
                 const response = await axios.post(
-                    `https://job-portal-server-theta-olive.vercel.app/api/certificates`,
+                    `https://job-portal-client-ashen.vercel.app/api/certificates`,
                     formData,
                     {
                         withCredentials: true,
@@ -194,7 +194,7 @@ const CertificateForm = ({ certificate, fetchCertificates }) => {
             setLoading(true);
             try {
                 await axios.delete(
-                    `https://job-portal-server-theta-olive.vercel.app/api/certificates/${certificate.id}`,
+                    `https://job-portal-client-ashen.vercel.app/api/certificates/${certificate.id}`,
                     { withCredentials: true }
                 );
                 await fetchCertificates();

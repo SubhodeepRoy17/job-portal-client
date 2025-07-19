@@ -38,7 +38,7 @@ const Register = () => {
             const user = { full_name, username, email, password, signup_type: "e" };
             try {
                 const response = await axios.post(
-                    "https://job-portal-server-theta-olive.vercel.app/api/auth/register",
+                    "https://job-portal-client-ashen.vercel.app/api/auth/register",
                     user
                 );
 
@@ -70,7 +70,7 @@ const Register = () => {
             }
 
             // Send Google user data to your backend
-            const response = await axios.post("https://job-portal-server-theta-olive.vercel.app/api/auth/google", {
+            const response = await axios.post("https://job-portal-client-ashen.vercel.app/api/auth/google", {
                 email: user.email,
                 full_name: user.displayName,
                 profile_photo: user.photoURL,

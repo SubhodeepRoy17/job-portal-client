@@ -139,7 +139,7 @@ const EducationForm = ({ education, fetchEducation }) => {
         try {
             if (education && education.id) {
                 const response = await axios.patch(
-                    `https://job-portal-server-theta-olive.vercel.app/api/education/${education.id}`,
+                    `https://job-portal-client-ashen.vercel.app/api/education/${education.id}`,
                     formData,
                     {
                         withCredentials: true,
@@ -158,7 +158,7 @@ const EducationForm = ({ education, fetchEducation }) => {
                 });
             } else {
                 const response = await axios.post(
-                    `https://job-portal-server-theta-olive.vercel.app/api/education`,
+                    `https://job-portal-client-ashen.vercel.app/api/education`,
                     formData,
                     {
                         withCredentials: true,
@@ -214,7 +214,7 @@ const EducationForm = ({ education, fetchEducation }) => {
             setLoading(true);
             try {
                 await axios.delete(
-                    `https://job-portal-server-theta-olive.vercel.app/api/education/${education.id}`,
+                    `https://job-portal-client-ashen.vercel.app/api/education/${education.id}`,
                     { withCredentials: true }
                 );
                 await fetchEducation();

@@ -49,7 +49,7 @@ const JobCard = ({ job }) => {
         };
         try {
             const response = await postHandler({
-                url: "https://job-portal-server-theta-olive.vercel.app/api/application/apply",
+                url: "https://job-portal-client-ashen.vercel.app/api/application/apply",
                 body: appliedJob,
             });
             toast.success("Application submitted successfully!", {

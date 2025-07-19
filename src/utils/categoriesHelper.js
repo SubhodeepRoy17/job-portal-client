@@ -1,7 +1,7 @@
 
 export const fetchCategoriesByName = async (searchTerm) => {
   try {
-    const response = await fetch(`https://job-portal-server-theta-olive.vercel.app/api/categories/search?q=${encodeURIComponent(searchTerm)}`, {
+    const response = await fetch(`https://job-portal-client-ashen.vercel.app/api/categories/search?q=${encodeURIComponent(searchTerm)}`, {
       credentials: 'include',
     });
 
@@ -26,7 +26,7 @@ export const fetchCategoriesByIds = async (ids) => {
   try {
     if (!ids || !Array.isArray(ids) || ids.length === 0) return [];
     
-    const response = await fetch('https://job-portal-server-theta-olive.vercel.app/api/categories/by-ids', {
+    const response = await fetch('https://job-portal-client-ashen.vercel.app/api/categories/by-ids', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export const convertCategoriesToIds = async (categoryNames) => {
   if (!categoryNames || categoryNames.length === 0) return [];
   
   try {
-    const response = await fetch('https://job-portal-server-theta-olive.vercel.app/api/categories/by-ids', {
+    const response = await fetch('https://job-portal-client-ashen.vercel.app/api/categories/by-ids', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export const convertCategoriesToIds = async (categoryNames) => {
 
 export const fetchSuggestedCategories = async (searchTerm) => {
   try {
-    const response = await fetch(`https://job-portal-server-theta-olive.vercel.app/api/categories/suggested`, {
+    const response = await fetch(`https://job-portal-client-ashen.vercel.app/api/categories/suggested`, {
       credentials: 'include'
     });
 

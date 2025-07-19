@@ -52,7 +52,7 @@ const DashboardLayout = () => {
     const handleLogout = async () => {
         try {
             const response = await axios.post(
-                "https://job-portal-server-theta-olive.vercel.app/api/auth/logout",
+                "https://job-portal-client-ashen.vercel.app/api/auth/logout",
                 { withCredentials: true }
             );
             Swal.fire({

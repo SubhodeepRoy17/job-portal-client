@@ -49,7 +49,7 @@ const Settings = () => {
 
         try {
             const res = await axios.patch(
-                "https://job-portal-server-theta-olive.vercel.app/api/auth/status",
+                "https://job-portal-client-ashen.vercel.app/api/auth/status",
                 { ac_status: newStatus },
                 { withCredentials: true }
             );

@@ -41,7 +41,7 @@ const UserHomePage = () => {
 
         let promises = [];
         promises.push(
-          axios.get("https://job-portal-server-theta-olive.vercel.app/api/user-profile/skills", 
+          axios.get("https://job-portal-client-ashen.vercel.app/api/user-profile/skills", 
             { withCredentials: true })
             .then(res => {
               return { skills: res.data.skills || res.data || [] };
@@ -53,7 +53,7 @@ const UserHomePage = () => {
 
         if (user.role === 3) {
           promises = promises.concat([
-            axios.get("https://job-portal-server-theta-olive.vercel.app/api/user-profile", 
+            axios.get("https://job-portal-client-ashen.vercel.app/api/user-profile", 
               { withCredentials: true })
               .then(res => {
                 return { 
@@ -66,7 +66,7 @@ const UserHomePage = () => {
               .catch(() => {
                 return {};
               }),
-            axios.get("https://job-portal-server-theta-olive.vercel.app/api/education", 
+            axios.get("https://job-portal-client-ashen.vercel.app/api/education", 
               { withCredentials: true })
               .then(res => {
                 return { education: res.data.result || res.data || [] };
@@ -74,7 +74,7 @@ const UserHomePage = () => {
               .catch(() => {
                 return { education: [] };
               }),
-            axios.get("https://job-portal-server-theta-olive.vercel.app/api/work-experience", 
+            axios.get("https://job-portal-client-ashen.vercel.app/api/work-experience", 
               { withCredentials: true })
               .then(res => {
                 return { workExperiences: res.data.result || res.data || [] };
@@ -82,7 +82,7 @@ const UserHomePage = () => {
               .catch(() => {
                 return { workExperiences: [] };
               }),
-            axios.get("https://job-portal-server-theta-olive.vercel.app/api/certificates", 
+            axios.get("https://job-portal-client-ashen.vercel.app/api/certificates", 
               { withCredentials: true })
               .then(res => {
                 return { certificates: res.data.result || res.data || [] };
@@ -90,7 +90,7 @@ const UserHomePage = () => {
               .catch(() => {
                 return { certificates: [] };
               }),
-            axios.get("https://job-portal-server-theta-olive.vercel.app/api/projects", 
+            axios.get("https://job-portal-client-ashen.vercel.app/api/projects", 
               { withCredentials: true })
               .then(res => {
                 return { projects: res.data.result || res.data || [] };
@@ -101,7 +101,7 @@ const UserHomePage = () => {
           ]);
         } else if (user.role === 2) {
           promises.push(
-            axios.get("https://job-portal-server-theta-olive.vercel.app/api/recruiter-profile", 
+            axios.get("https://job-portal-client-ashen.vercel.app/api/recruiter-profile", 
               { withCredentials: true })
               .then(res => {
                 return { recruiterProfile: res.data };

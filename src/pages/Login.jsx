@@ -31,7 +31,7 @@ const Login = () => {
         setIsLoading(true);
         try {
             const response = await axios.post(
-                "https://job-portal-server-theta-olive.vercel.app/api/auth/login",
+                "https://job-portal-client-ashen.vercel.app/api/auth/login",
                 data,
                 {
                     withCredentials: true,

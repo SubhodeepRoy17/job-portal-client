@@ -15,7 +15,7 @@ const SearchAndFilter = () => {
     const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
-        const baseUrl = "https://job-portal-server-theta-olive.vercel.app/api/jobs?page=1&limit=5";
+        const baseUrl = "https://job-portal-client-ashen.vercel.app/api/jobs?page=1&limit=5";
         let url = baseUrl;
         const queryParams = {};
 

@@ -20,7 +20,7 @@ const ManageUsers = () => {
     } = useQuery({
         queryKey: ["users"],
         queryFn: () =>
-            getAllHandler(`https://job-portal-server-theta-olive.vercel.app/api/users`),
+            getAllHandler(`https://job-portal-client-ashen.vercel.app/api/users`),
     });
 
     const updateUserModal = (id, role) => {
@@ -43,7 +43,7 @@ const ManageUsers = () => {
         const updateUser = { id, role };
         try {
             const response = await axios.patch(
-                `https://job-portal-server-theta-olive.vercel.app/api/admin/update-role`,
+                `https://job-portal-client-ashen.vercel.app/api/admin/update-role`,
                 updateUser,
                 { withCredentials: true }
             );

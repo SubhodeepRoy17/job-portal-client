@@ -23,7 +23,7 @@ const ManageJobs = () => {
         queryKey: ["my-jobs"],
         queryFn: () =>
             getAllHandler(
-                `https://job-portal-server-theta-olive.vercel.app/api/jobs/my-jobs`
+                `https://job-portal-client-ashen.vercel.app/api/jobs/my-jobs`
             ),
     });
 
@@ -46,7 +46,7 @@ const ManageJobs = () => {
     const deleteJobHandler = async (id) => {
         try {
             await axios.delete(
-                `https://job-portal-server-theta-olive.vercel.app/api/jobs/${id}`,
+                `https://job-portal-client-ashen.vercel.app/api/jobs/${id}`,
                 { withCredentials: true }
             );
             refetch();
