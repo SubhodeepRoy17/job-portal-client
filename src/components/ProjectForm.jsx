@@ -248,7 +248,7 @@ const ProjectForm = ({ project, fetchProjects }) => {
         try {
             if (project && project.id) {
                 const response = await axios.patch(
-                    `https://job-portal-client-ashen.vercel.app/api/projects/${project.id}`,
+                    `https://job-portal-server-six-eosin.vercel.app/api/projects/${project.id}`,
                     formData,
                     {
                         withCredentials: true,
@@ -265,7 +265,7 @@ const ProjectForm = ({ project, fetchProjects }) => {
                 });
             } else {
                 const response = await axios.post(
-                    `https://job-portal-client-ashen.vercel.app/api/projects`,
+                    `https://job-portal-server-six-eosin.vercel.app/api/projects`,
                     formData,
                     {
                         withCredentials: true,
@@ -323,7 +323,7 @@ const ProjectForm = ({ project, fetchProjects }) => {
             setLoading(true);
             try {
                 await axios.delete(
-                    `https://job-portal-client-ashen.vercel.app/api/projects/${project.id}`,
+                    `https://job-portal-server-six-eosin.vercel.app/api/projects/${project.id}`,
                     { withCredentials: true }
                 );
                 await fetchProjects();

@@ -32,7 +32,7 @@ const Recruiter = () => {
         queryKey: ["rec-jobs"],
         queryFn: async () => {
             const response = await axios.get(
-                `https://job-portal-client-ashen.vercel.app/api/application/recruiter-jobs`,
+                `https://job-portal-server-six-eosin.vercel.app/api/application/recruiter-jobs`,
                 {
                     withCredentials: true,
                 }
@@ -46,7 +46,7 @@ const Recruiter = () => {
         queryFn: async () => {
             if (!selectedApplicant) return null;
             const response = await axios.get(
-                `https://job-portal-client-ashen.vercel.app/api/users/${selectedApplicant}`,
+                `https://job-portal-server-six-eosin.vercel.app/api/users/${selectedApplicant}`,
                 { withCredentials: true }
             );
             return response.data.result;
@@ -59,7 +59,7 @@ const Recruiter = () => {
         queryFn: async () => {
             if (!selectedApplicant) return null;
             const response = await axios.get(
-                `https://job-portal-client-ashen.vercel.app/api/education/user/${selectedApplicant}`,
+                `https://job-portal-server-six-eosin.vercel.app/api/education/user/${selectedApplicant}`,
                 { withCredentials: true }
             );
             return response.data.result;
@@ -71,7 +71,7 @@ const Recruiter = () => {
         mutationFn: ({ id, recruiter_id, status }) => 
             updateHandler({
                 body: { status },
-                url: `https://job-portal-client-ashen.vercel.app/api/application/${id}`
+                url: `https://job-portal-server-six-eosin.vercel.app/api/application/${id}`
             }),
         onSuccess: (data) => {
             queryClient.invalidateQueries(["rec-jobs"]);

@@ -15,7 +15,7 @@ const Applicant = () => {
         queryKey: ["my-jobs"],
         queryFn: async () => {
             const response = await axios.get(
-                `https://job-portal-client-ashen.vercel.app/api/application/applicant-jobs`,
+                `https://job-portal-server-six-eosin.vercel.app/api/application/applicant-jobs`,
                 { withCredentials: true }
             );
             return response?.data?.result;

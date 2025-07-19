@@ -328,7 +328,7 @@ const EditProfile = () => {
       const fetchUserProfile = async () => {
         try {
           const response = await axios.get(
-            "https://job-portal-client-ashen.vercel.app/api/user-profile",
+            "https://job-portal-server-six-eosin.vercel.app/api/user-profile",
             { withCredentials: true }
           );
           setUserProfile(response.data);
@@ -352,13 +352,13 @@ const EditProfile = () => {
         let response;
         if (user?.role === 3) {
           response = await axios.get(
-            "https://job-portal-client-ashen.vercel.app/api/user-profile/skills",
+            "https://job-portal-server-six-eosin.vercel.app/api/user-profile/skills",
             { withCredentials: true }
           );
           setSkills(response.data.skills || []);
         } else if (user?.role === 2) {
           response = await axios.get(
-            "https://job-portal-client-ashen.vercel.app/api/recruiter-profile/skills",
+            "https://job-portal-server-six-eosin.vercel.app/api/recruiter-profile/skills",
             { withCredentials: true }
           );
           setSkills(response.data.skills || []);
@@ -437,7 +437,7 @@ const EditProfile = () => {
   const fetchWorkExperiences = async () => {
     try {
       const response = await axios.get(
-        "https://job-portal-client-ashen.vercel.app/api/work-experience",
+        "https://job-portal-server-six-eosin.vercel.app/api/work-experience",
         { withCredentials: true }
       );
       setWorkExperiences(response.data);
@@ -469,7 +469,7 @@ const EditProfile = () => {
 
     try {
       await axios.patch(
-        "https://job-portal-client-ashen.vercel.app/api/users/update-resume",
+        "https://job-portal-server-six-eosin.vercel.app/api/users/update-resume",
         { resume: resumeLink },
         { 
           withCredentials: true,
@@ -533,7 +533,7 @@ const EditProfile = () => {
       const fetchRecruiterProfile = async () => {
         try {
           const response = await axios.get(
-            "https://job-portal-client-ashen.vercel.app/api/recruiter-profile",
+            "https://job-portal-server-six-eosin.vercel.app/api/recruiter-profile",
             { withCredentials: true }
           );
           const profile = response.data.result;
@@ -567,7 +567,7 @@ const EditProfile = () => {
       const resetVerification = async () => {
         try {
           await axios.patch(
-            "https://job-portal-client-ashen.vercel.app/api/users/update-mobile-edit",
+            "https://job-portal-server-six-eosin.vercel.app/api/users/update-mobile-edit",
             {},
             { withCredentials: true }
           );
@@ -626,7 +626,7 @@ const EditProfile = () => {
 
       // First update user data
       await axios.patch(
-        `https://job-portal-client-ashen.vercel.app/api/users/update`,
+        `https://job-portal-server-six-eosin.vercel.app/api/users/update`,
         updateUser,
         { 
           withCredentials: true,
@@ -639,7 +639,7 @@ const EditProfile = () => {
       // Then update recruiter-specific data if recruiter
       if (user?.role === 2) {
         await axios.patch(
-          "https://job-portal-client-ashen.vercel.app/api/recruiter-profile",
+          "https://job-portal-server-six-eosin.vercel.app/api/recruiter-profile",
           {
             purpose: data.purpose,
             designation: data.designation,
@@ -728,7 +728,7 @@ const EditProfile = () => {
 
     try {
       await axios.patch(
-        "https://job-portal-client-ashen.vercel.app/api/user-profile/social-links",
+        "https://job-portal-server-six-eosin.vercel.app/api/user-profile/social-links",
         { social_links: socialLinks },
         { withCredentials: true }
       );
@@ -757,7 +757,7 @@ const EditProfile = () => {
   const fetchEducation = async () => {
     try {
       const response = await axios.get(
-        "https://job-portal-client-ashen.vercel.app/api/education",
+        "https://job-portal-server-six-eosin.vercel.app/api/education",
         { withCredentials: true }
       );
       setEducation(response.data.result);
@@ -769,7 +769,7 @@ const EditProfile = () => {
   const fetchCertificates = async () => {
     try {
       const response = await axios.get(
-        "https://job-portal-client-ashen.vercel.app/api/certificates",
+        "https://job-portal-server-six-eosin.vercel.app/api/certificates",
         { withCredentials: true }
       );
       setCertificates(response.data.result);
@@ -781,7 +781,7 @@ const EditProfile = () => {
   const fetchProjects = async () => {
     try {
       const response = await axios.get(
-        "https://job-portal-client-ashen.vercel.app/api/projects",
+        "https://job-portal-server-six-eosin.vercel.app/api/projects",
         { withCredentials: true }
       );
       setProjects(response.data.result);
@@ -793,7 +793,7 @@ const EditProfile = () => {
   const fetchUserProfile = async () => {
     try {
       const response = await axios.get(
-        "https://job-portal-client-ashen.vercel.app/api/user-profile",
+        "https://job-portal-server-six-eosin.vercel.app/api/user-profile",
         { withCredentials: true }
       );
       const profile = response.data;
@@ -838,7 +838,7 @@ const EditProfile = () => {
 
     try {
       await axios.patch(
-        "https://job-portal-client-ashen.vercel.app/api/user-profile/about",
+        "https://job-portal-server-six-eosin.vercel.app/api/user-profile/about",
         { about: aboutText, full_address: fullAddress },
         { withCredentials: true }
       );
@@ -891,7 +891,7 @@ const EditProfile = () => {
 
     try {
       await axios.patch(
-        "https://job-portal-client-ashen.vercel.app/api/user-profile/social-links",
+        "https://job-portal-server-six-eosin.vercel.app/api/user-profile/social-links",
         { social_links: candidateSocialLinks },
         { withCredentials: true }
       );
@@ -997,7 +997,7 @@ const EditProfile = () => {
       if (credential) {
         const updatedMobile = watch("mobile_no");
         await axios.patch(
-          "https://job-portal-client-ashen.vercel.app/api/users/update-mobile-verification",
+          "https://job-portal-server-six-eosin.vercel.app/api/users/update-mobile-verification",
           { 
             mobile_no: updatedMobile,
             is_mo_verified: true 
@@ -1049,13 +1049,13 @@ const EditProfile = () => {
     try {
       if (user?.role === 3) {
         await axios.patch(
-          "https://job-portal-client-ashen.vercel.app/api/user-profile/skills",
+          "https://job-portal-server-six-eosin.vercel.app/api/user-profile/skills",
           { skills: skills },
           { withCredentials: true }
         );
       } else if (user?.role === 2) {
         await axios.patch(
-          "https://job-portal-client-ashen.vercel.app/api/recruiter-profile/skills",
+          "https://job-portal-server-six-eosin.vercel.app/api/recruiter-profile/skills",
           { skills: skills },
           { withCredentials: true }
         );

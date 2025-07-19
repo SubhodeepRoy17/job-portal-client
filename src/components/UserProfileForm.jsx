@@ -380,7 +380,7 @@ const UserProfileForm = ({ profile, fetchProfile }) => {
       };
 
       try {
-        const API_BASE_URL = 'https://job-portal-client-ashen.vercel.app';
+        const API_BASE_URL = 'https://job-portal-server-six-eosin.vercel.app';
         
         if (profile) {
           await axios.patch(`${API_BASE_URL}/api/user-profile`, payload, { withCredentials: true });

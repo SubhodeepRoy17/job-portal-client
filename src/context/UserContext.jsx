@@ -12,7 +12,7 @@ const UserContext = ({ children }) => {
         setUserLoading(true);
         try {
             const response = await axios.get(
-                `https://job-portal-client-ashen.vercel.app/api/auth/me`,
+                `https://job-portal-server-six-eosin.vercel.app/api/auth/me`,
                 { withCredentials: true }
             );
             setUserError({ status: false, message: "" });
@@ -28,7 +28,7 @@ const UserContext = ({ children }) => {
         setUserLoading(true);
         try {
             const response = await axios.post(
-                "https://job-portal-client-ashen.vercel.app/api/auth/google",
+                "https://job-portal-server-six-eosin.vercel.app/api/auth/google",
                 {
                     email: googleUser.email,
                     full_name: googleUser.displayName,
@@ -64,7 +64,7 @@ const UserContext = ({ children }) => {
     const handleLogout = async () => {
         try {
             await axios.post(
-                "https://job-portal-client-ashen.vercel.app/api/auth/logout",
+                "https://job-portal-server-six-eosin.vercel.app/api/auth/logout",
                 {},
                 { withCredentials: true }
             );

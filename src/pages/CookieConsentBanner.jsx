@@ -28,7 +28,7 @@ const CookieConsentBanner = () => {
 
   const enableThirdPartyCookies = async () => {
     try {
-      await fetch("https://job-portal-client-ashen.vercel.app/api/auth/cookie-test", {
+      await fetch("https://job-portal-server-six-eosin.vercel.app/api/auth/cookie-test", {
         method: "GET",
         credentials: "include",
       });

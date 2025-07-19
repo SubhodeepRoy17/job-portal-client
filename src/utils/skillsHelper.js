@@ -1,7 +1,7 @@
 // Fetch skills by search term (GET request)
 export const fetchSkillsByName = async (searchTerm) => {
   try {
-    const response = await fetch(`https://job-portal-client-ashen.vercel.app/api/skills/search?q=${encodeURIComponent(searchTerm)}`, {
+    const response = await fetch(`https://job-portal-server-six-eosin.vercel.app/api/skills/search?q=${encodeURIComponent(searchTerm)}`, {
       credentials: 'include',
     });
 
@@ -27,7 +27,7 @@ export const fetchSkillsByIds = async (ids) => {
   try {
     if (!ids || !Array.isArray(ids) || ids.length === 0) return [];
     
-    const response = await fetch('https://job-portal-client-ashen.vercel.app/api/skills/by-ids', {
+    const response = await fetch('https://job-portal-server-six-eosin.vercel.app/api/skills/by-ids', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ export const convertSkillsToIds = async (skillNames) => {
   if (!skillNames || skillNames.length === 0) return [];
   
   try {
-    const response = await fetch('https://job-portal-client-ashen.vercel.app/api/skills/by-ids', {
+    const response = await fetch('https://job-portal-server-six-eosin.vercel.app/api/skills/by-ids', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
@@ -76,7 +76,7 @@ export const convertSkillsToIds = async (skillNames) => {
 
 export const fetchSuggestedSkills = async () => {
   try {
-    const response = await fetch('https://job-portal-client-ashen.vercel.app/api/skills/suggested', {
+    const response = await fetch('https://job-portal-server-six-eosin.vercel.app/api/skills/suggested', {
       credentials: 'include'
     });
 

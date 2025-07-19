@@ -298,7 +298,7 @@ const WorkExperienceForm = ({ experience, fetchExperiences }) => {
     };
 
     try {
-      const API_BASE_URL = 'https://job-portal-client-ashen.vercel.app';
+      const API_BASE_URL = 'https://job-portal-server-six-eosin.vercel.app';
       
       if (experience && experience.id) {
         await axios.patch(
@@ -368,7 +368,7 @@ const WorkExperienceForm = ({ experience, fetchExperiences }) => {
       setLoading(true);
       try {
         await axios.delete(
-          `https://job-portal-client-ashen.vercel.app/api/work-experience/${experience.id}`,
+          `https://job-portal-server-six-eosin.vercel.app/api/work-experience/${experience.id}`,
           { withCredentials: true }
         );
         await fetchExperiences();

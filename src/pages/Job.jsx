@@ -39,7 +39,7 @@ const Job = () => {
         error,
     } = useQuery({
         queryKey: ["job", id],
-        queryFn: () => getSingleHandler(`https://job-portal-client-ashen.vercel.app/api/jobs/${id}`),
+        queryFn: () => getSingleHandler(`https://job-portal-server-six-eosin.vercel.app/api/jobs/${id}`),
     });
 
     // Fetch skill names and categories from their IDs
@@ -74,7 +74,7 @@ const Job = () => {
         };
         try {
             const response = await postHandler({
-                url: "https://job-portal-client-ashen.vercel.app/api/application/apply",
+                url: "https://job-portal-server-six-eosin.vercel.app/api/application/apply",
                 body: appliedJob,
             });
             toast.success("Application submitted successfully!", {
