@@ -10,7 +10,7 @@ const Certificates = () => {
         <Wrapper>
             <div className="certificates-container">
                 <div className="top-bar">
-                    <button className="back-button" onClick={() => navigate('/')}>
+                    <button className="back-button" onClick={() => navigate(-1)}>
                         <FiArrowLeft />
                     </button>
                     <h1 className="title">Certificates</h1>

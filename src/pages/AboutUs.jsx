@@ -10,7 +10,7 @@ const AboutUs = () => {
         <Wrapper>
             <div className="container">
                 <div className="top-bar">
-                    <button className="back-btn" onClick={() => navigate('/')}>
+                    <button className="back-btn" onClick={() => navigate(-1)}>
                         <FiArrowLeft />
                     </button>
                     <h1>About Us</h1>

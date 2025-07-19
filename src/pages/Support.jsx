@@ -12,7 +12,7 @@ const Support = () => {
                 <div className="top-bar">
                     <button 
                         className="back-button"
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate(-1)}
                     >
                         <FiArrowLeft />
                     </button>

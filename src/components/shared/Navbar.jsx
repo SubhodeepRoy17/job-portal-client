@@ -1,21 +1,169 @@
-/* eslint-disable react/prop-types */
 import styled from "styled-components";
 import Logo from "../Logo";
 import avatar from "../../assets/media/avatar.jpg";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUserContext } from "../../context/UserContext";
-import { FiBell, FiMoreVertical } from "react-icons/fi";
-import { FaWhatsapp, FaTwitter, FaLinkedinIn, FaInstagram } from "react-icons/fa";
+import { FiBell, FiMoreVertical, FiUser, FiSettings, FiHelpCircle, FiLogOut } from "react-icons/fi";
+import { FaWhatsapp, FaTwitter, FaLinkedinIn, FaInstagram, FaUserShield, FaBriefcase, FaUsers, FaLock, FaFileContract } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
+import { IoMdSchool, IoMdDocument, IoMdInformationCircle, IoMdPeople, IoIosStats } from "react-icons/io";
+import { RiShareBoxLine, RiCoinsLine, RiMenuAddFill } from "react-icons/ri";
+import { MdWorkOutline, MdManageAccounts } from "react-icons/md";
 import { useState } from "react";
-import { collapseToast } from "react-toastify";
+
+const CommonLinks = [
+  {
+    text: "Referrals",
+    path: "referrals",
+    icon: <RiShareBoxLine />,
+  },
+  {
+    text: "Courses",
+    path: "courses",
+    icon: <IoMdSchool />,
+  },
+  {
+    text: "Certificates",
+    path: "certificates",
+    icon: <IoMdDocument />,
+  },
+  {
+    text: "HireNext Coins",
+    path: "coins",
+    icon: <RiCoinsLine />,
+  },
+  {
+    text: "Support",
+    path: "support",
+    icon: <FiHelpCircle />,
+  },
+  {
+    text: "Privacy Policy",
+    path: "privacy-policy",
+    icon: <FaLock />,
+  },
+  {
+    text: "Terms of use",
+    path: "terms",
+    icon: <FaFileContract />,
+  },
+  {
+    text: "Disclaimer Disclosure",
+    path: "disclaimer",
+    icon: <IoMdInformationCircle />,
+  },
+  {
+    text: "About us",
+    path: "about",
+    icon: <IoMdPeople />,
+  },
+  {
+    text: "Settings",
+    path: "settings",
+    icon: <FiSettings />,
+  },
+  {
+    text: "FAQs",
+    path: "faqs",
+    icon: <FiHelpCircle />,
+  },
+  {
+    text: "Logout",
+    key: "logout",
+    icon: <FiLogOut className="logout-icon" />,
+  }
+];
+
+const AdminLinks = [
+  {
+    text: "Profile",
+    path: ".",
+    icon: <FiUser />,
+  },
+  {
+    text: "All Jobs",
+    path: "all-jobs",
+    icon: <MdWorkOutline />
+  },
+  {
+    text: "stats",
+    path: "stats",
+    icon: <IoIosStats />,
+  },
+  {
+    text: "admin",
+    path: "admin",
+    icon: <FaUserShield />,
+  },
+  {
+    text: "manage jobs (admin)",
+    path: "manage-jobs-admin",
+    icon: <FaBriefcase />,
+  },
+  {
+    text: "manage users",
+    path: "manage-users",
+    icon: <FaUsers />,
+  },
+  ...CommonLinks
+];
+
+const RecruiterLinks = [
+  {
+    text: "Profile",
+    path: ".",
+    icon: <FiUser />,
+  },
+  {
+    text: "All Jobs",
+    path: "all-jobs",
+    icon: <MdWorkOutline />
+  },
+  {
+    text: "add job",
+    path: "add-jobs",
+    icon: <RiMenuAddFill />,
+  },
+  {
+    text: "manage jobs",
+    path: "manage-jobs",
+    icon: <MdManageAccounts />,
+  },
+  {
+    text: "Applications",
+    path: "my-jobs",
+    icon: <FaBriefcase />,
+  },
+  ...CommonLinks
+];
+
+const UserLinks = [
+  {
+    text: "Profile",
+    path: ".",
+    icon: <FiUser />,
+  },
+  {
+    text: "All Jobs",
+    path: "all-jobs",
+    icon: <MdWorkOutline />
+  },
+  {
+    text: "Applications",
+    path: "my-jobs",
+    icon: <FaBriefcase />,
+  },
+  ...CommonLinks
+];
 
 const Navbar = ({ navbarRef }) => {
-    const { user } = useUserContext();
+    const { user, handleLogout } = useUserContext();
     const navigate = useNavigate();
     const profilePhoto = user?.profile_photo;
     const [showSheet, setShowSheet] = useState(false);
+    const [showInfoDrawer, setShowInfoDrawer] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
+    const [isInfoClosing, setIsInfoClosing] = useState(false);
 
     const handleClose = () => {
         setIsClosing(true);
@@ -23,6 +171,34 @@ const Navbar = ({ navbarRef }) => {
             setShowSheet(false);
             setIsClosing(false);
         }, 300);
+    };
+
+    const handleInfoClose = () => {
+        setIsInfoClosing(true);
+        setTimeout(() => {
+            setShowInfoDrawer(false);
+            setIsInfoClosing(false);
+        }, 300);
+    };
+
+    const getLinks = () => {
+        if (!user) return [];
+        switch(user.role) {
+            case 1: return AdminLinks;
+            case 2: return RecruiterLinks;
+            case 3: return UserLinks;
+            default: return UserLinks;
+        }
+    };
+
+    const handleLinkClick = (item) => {
+        if (item.key === "logout") {
+            handleLogout();
+            navigate("/login");
+        } else if (item.path) {
+            navigate(`/dashboard/${item.path}`);
+            handleInfoClose();
+        }
     };
 
     return (
@@ -43,7 +219,7 @@ const Navbar = ({ navbarRef }) => {
                             <FaWhatsapp className="whatsapp-icon" />
                         </div>
 
-                        <div className="icon-button">
+                        <div className="icon-button" onClick={() => setShowInfoDrawer(true)}>
                             <FiMoreVertical className="icon" />
                         </div>
 
@@ -104,6 +280,34 @@ const Navbar = ({ navbarRef }) => {
                                 </div>
                                 <span className="label instagram-label">Instagram</span>
                             </a>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Info Drawer */}
+            {showInfoDrawer && (
+                <div className="info-overlay" onClick={handleInfoClose}>
+                    <div
+                        className={`info-drawer ${isInfoClosing ? "slideRight" : "slideLeft"}`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="drawer-header">
+                            <button className="close-button" onClick={handleInfoClose}>
+                                <IoClose />
+                            </button>
+                        </div>
+                        <div className="drawer-content">
+                            {getLinks().map((item, index) => (
+                                <div 
+                                    key={index} 
+                                    className="drawer-item"
+                                    onClick={() => handleLinkClick(item)}
+                                >
+                                    <span className="drawer-icon">{item.icon}</span>
+                                    <span className="drawer-text">{item.text}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -288,7 +492,7 @@ const Wrapper = styled.div`
 
     .social-icon {
         font-size: 20px;
-        color: white; /* Ensures icons are white */
+        color: white;
     }
 
     .label {
@@ -328,22 +532,100 @@ const Wrapper = styled.div`
         color: #E1306C;
     }
 
-    @media screen and (max-width: 600px) {
-        .social-box {
-            width: 60px;
-        }
+    /* Info Drawer Styles */
+    .info-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: flex-end;
+        z-index: 9999;
+    }
 
-        .icon-container {
-            width: 40px;
-            height: 40px;
-        }
+    .info-drawer {
+        background: white;
+        width: 280px;
+        height: 100%;
+        padding: 20px;
+        position: relative;
+        animation-duration: 0.3s;
+        animation-fill-mode: both;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
 
-        .social-icon {
-            font-size: 18px;
-        }
+    .slideLeft {
+        animation-name: slideLeft;
+    }
 
-        .label {
-            font-size: 11px;
+    .slideRight {
+        animation-name: slideRight;
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 20px;
+    }
+
+    .drawer-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        height: calc(100% - 40px);
+    }
+
+    .drawer-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: #f5f5f5;
+        }
+    }
+
+    .drawer-icon {
+        font-size: 20px;
+        color: #555;
+        display: flex;
+    }
+
+    .drawer-text {
+        font-size: 15px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .logout-icon {
+        color: #ff4444;
+    }
+
+    @keyframes slideLeft {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0%);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideRight {
+        from {
+            transform: translateX(0%);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
         }
     }
 
@@ -418,6 +700,24 @@ const Wrapper = styled.div`
 
         .label {
             font-size: 11px;
+        }
+
+        /* Info drawer mobile adjustments */
+        .info-drawer {
+            width: 250px;
+        }
+
+        .drawer-item {
+            padding: 8px 10px;
+            gap: 12px;
+        }
+
+        .drawer-icon {
+            font-size: 18px;
+        }
+
+        .drawer-text {
+            font-size: 14px;
         }
     }
 `;
