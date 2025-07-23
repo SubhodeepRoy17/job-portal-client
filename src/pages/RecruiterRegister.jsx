@@ -402,7 +402,6 @@ const Wrapper = styled.div`
     }
 
     button[type="submit"] {
-        width: 50%;
         min-width: 100px;
         padding: 8px;
         font-size: 16px;
