@@ -12,8 +12,8 @@ import { FcGoogle } from "react-icons/fc";
 import { signInWithGoogle } from "../utils/googleAuth";
 import CookieConsentBanner from "./CookieConsentBanner";
 
-const Login = () => {
-    const { handleFetchMe, handleGoogleAuth } = useUserContext();
+const RecruiterLogin = () => {
+    const { handleFetchMe, handleGoogleAuthRecruiter } = useUserContext();
     const {
         register,
         handleSubmit,
@@ -31,7 +31,7 @@ const Login = () => {
         setIsLoading(true);
         try {
             const response = await axios.post(
-                "https://job-portal-server-six-eosin.vercel.app/api/auth/login",
+                "https://job-portal-server-six-eosin.vercel.app/api/auth/login-recruiter",
                 data,
                 {
                     withCredentials: true,
@@ -76,7 +76,7 @@ const Login = () => {
             const { user, error } = await signInWithGoogle();
             if (error) throw new Error(error.message);
 
-            const result = await handleGoogleAuth(user);
+            const result = await handleGoogleAuthRecruiter(user);
 
             if (!result.success) {
                 if (result.isBlocked) {
@@ -190,11 +190,6 @@ const Login = () => {
                             Create account
                         </Link>
                     </p>
-                </div>
-                <div className="flex justify-center">
-                    <button onClick={() => navigate("/login-recruiter")} disabled={isLoading}>
-                        {isLoading ? "Loading..." : "Login as Recruiter"}
-                    </button>
                 </div>
             </div>
             <CookieConsentBanner />
@@ -319,6 +314,7 @@ const Wrapper = styled.div`
     }
 
     button[type="submit"] {
+        width: 50%;
         min-width: 90px;
         padding: 8px;
         font-size: 16px;
@@ -359,4 +355,4 @@ const Wrapper = styled.div`
     }
 `;
 
-export default Login;
+export default RecruiterLogin;

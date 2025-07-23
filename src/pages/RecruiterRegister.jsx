@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import { FcGoogle } from "react-icons/fc";
 import { signInWithGoogle } from "../utils/googleAuth";
 
-const Register = () => {
+const RecruiterRegister = () => {
     const {
         register,
         handleSubmit,
@@ -38,7 +38,7 @@ const Register = () => {
             const user = { full_name, username, email, password, signup_type: "e" };
             try {
                 const response = await axios.post(
-                    "https://job-portal-server-six-eosin.vercel.app/api/auth/register",
+                    "https://job-portal-server-six-eosin.vercel.app/api/auth/register-recruiter",
                     user
                 );
 
@@ -48,7 +48,7 @@ const Register = () => {
                     text: response?.data?.message,
                 });
                 reset();
-                navigate("/login");
+                navigate("/login-recruiter");
             } catch (error) {
                 Swal.fire({
                     icon: "error",
@@ -70,7 +70,7 @@ const Register = () => {
             }
 
             // Send Google user data to your backend
-            const response = await axios.post("https://job-portal-server-six-eosin.vercel.app/api/auth/google", {
+            const response = await axios.post("https://job-portal-server-six-eosin.vercel.app/api/auth/google-recruiter", {
                 email: user.email,
                 full_name: user.displayName,
                 profile_photo: user.photoURL,
@@ -275,11 +275,6 @@ const Register = () => {
                         </Link>
                     </p>
                 </div>
-                <div className="flex justify-center">
-                    <button onClick={() => navigate("/register-recruiter")} disabled={isLoading}>
-                        {isLoading ? "Loading..." : "Register as Recruiter"}
-                    </button>
-                </div>
             </div>
         </Wrapper>
     );
@@ -402,6 +397,7 @@ const Wrapper = styled.div`
     }
 
     button[type="submit"] {
+        width: 50%;
         min-width: 100px;
         padding: 8px;
         font-size: 16px;
@@ -442,4 +438,4 @@ const Wrapper = styled.div`
     }
 `;
 
-export default Register;
+export default RecruiterRegister;

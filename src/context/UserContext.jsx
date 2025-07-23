@@ -60,6 +60,33 @@ const UserContext = ({ children }) => {
             setUserLoading(false);
         }
     };
+    const handleGoogleAuthRecruiter = async (googleUser) => {
+        setUserLoading(true);
+        try {
+            const response = await axios.post(
+                "https://job-portal-server-six-eosin.vercel.app/api/auth/google-recruiter",
+                {
+                    email: googleUser.email,
+                    full_name: googleUser.displayName,
+                    profile_photo: googleUser.photoURL,
+                    google_uid: googleUser.uid,
+                    signup_type: "g"
+                },
+                { withCredentials: true }
+            );
+
+            await handleFetchMe();  // Assuming this fetches current user info
+            return { success: true, message: response?.data?.message };
+        } catch (error) {
+            const msg = error?.response?.data || error.message;
+            setUserError({ status: true, message: msg });
+
+            return { success: false, message: msg };
+        } finally {
+            setUserLoading(false);
+        }
+    };
+
 
     const handleLogout = async () => {
         try {
@@ -85,6 +112,7 @@ const UserContext = ({ children }) => {
         user,
         handleFetchMe,
         handleGoogleAuth,
+        handleGoogleAuthRecruiter,
         handleLogout,
     };
 

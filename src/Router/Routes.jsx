@@ -4,6 +4,8 @@ import DashboardLayout from "../Layout/DashboardLayout";
 import {
     Register,
     Login,
+    RecruiterLogin,
+    RecruiterRegister,
     Landing,
     Error,
     AllJobs,
@@ -58,6 +60,14 @@ const router = createBrowserRouter([
             {
                 path: "login",
                 element: <Login />,
+            },
+            {
+                path: "login-recruiter",
+                element: <RecruiterLogin />,
+            },
+            {
+                path: "register-recruiter",
+                element: <RecruiterRegister />,
             },
             {
                 path: "user-home",

@@ -9,6 +9,8 @@ export { default as EditJob } from "./EditJob";
 export { default as ErrorJob } from "./ErrorJob";
 export { default as Landing } from "./Landing";
 export { default as Login } from "./Login";
+export { default as RecruiterLogin } from "./RecruiterLogin"
+export { default as RecruiterRegister } from "./RecruiterRegister"
 export { default as Profile } from "./Profile";
 export { default as EditProfile } from "./EditProfile";
 export { default as ManageUsers } from "./ManageUsers";
