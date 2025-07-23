@@ -186,7 +186,7 @@ const RecruiterLogin = () => {
                 <div className="">
                     <p className="text-center text-[10px] font-semibold opacity-9 mt-3">
                         Don't have an account.
-                        <Link className="ml-1 link" to="/register">
+                        <Link className="ml-1 link" to="/register-recruiter">
                             Create account
                         </Link>
                     </p>

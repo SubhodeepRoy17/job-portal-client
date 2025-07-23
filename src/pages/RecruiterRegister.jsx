@@ -270,14 +270,14 @@ const RecruiterRegister = () => {
                 <div className="">
                     <p className="text-center text-[10px] font-semibold opacity-9 mt-3">
                         Already have an account.
-                        <Link className="ml-1 link" to="/login">
+                        <Link className="ml-1 link" to="/login-recruiter">
                             Login now
                         </Link>
                     </p>
                 </div>
                 <div>
                     <button type="submit" onClick={() => navigate("/register")} disabled={isLoading}>
-                    {isLoading ? "Loading..." : "Register as User"}
+                        {isLoading ? "Loading..." : "Register as User"}
                     </button>
                 </div>
             </div>
