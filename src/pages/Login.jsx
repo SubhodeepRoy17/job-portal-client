@@ -192,7 +192,7 @@ const Login = () => {
                     </p>
                 </div>
                 <div className="flex justify-center">
-                    <button onClick={() => navigate("/login-recruiter")} disabled={isLoading}>
+                    <button type="submit" onClick={() => navigate("/login-recruiter")} disabled={isLoading}>
                         {isLoading ? "Loading..." : "Login as Recruiter"}
                     </button>
                 </div>

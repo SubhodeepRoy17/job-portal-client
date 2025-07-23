@@ -276,7 +276,7 @@ const Register = () => {
                     </p>
                 </div>
                 <div className="flex justify-center">
-                    <button onClick={() => navigate("/register-recruiter")} disabled={isLoading}>
+                    <button type="submit" onClick={() => navigate("/register-recruiter")} disabled={isLoading}>
                         {isLoading ? "Loading..." : "Register as Recruiter"}
                     </button>
                 </div>

@@ -191,6 +191,11 @@ const RecruiterLogin = () => {
                         </Link>
                     </p>
                 </div>
+                <div>
+                    <button type="submit" onClick={() => navigate("/login")} disabled={isLoading}>
+                    {isLoading ? "Loading..." : "Login as User"}
+                    </button>
+                </div>
             </div>
             <CookieConsentBanner />
         </Wrapper>

@@ -275,6 +275,11 @@ const RecruiterRegister = () => {
                         </Link>
                     </p>
                 </div>
+                <div>
+                    <button type="submit" onClick={() => navigate("/register")} disabled={isLoading}>
+                    {isLoading ? "Loading..." : "Register as User"}
+                    </button>
+                </div>
             </div>
         </Wrapper>
     );
