@@ -141,38 +141,6 @@ const RecruiterRegister = () => {
                         )}
                     </div>
                     <div className="row">
-                        <label htmlFor="username">Username</label>
-                        <input
-                            type="text"
-                            name="username"
-                            autoComplete="off"
-                            placeholder="Type Here"
-                            {...register("username", {
-                                required: {
-                                    value: true,
-                                    message: "Username is required",
-                                },
-                                maxLength: {
-                                    value: 30,
-                                    message: "Username is too long(max 30char)",
-                                },
-                                minLength: {
-                                    value: 3,
-                                    message: "Username is too short (min 3char)",
-                                },
-                                pattern: {
-                                    value: /^[A-Za-z][A-Za-z0-9_]*$/,
-                                    message: "Username can't start with number and special characters",
-                                },
-                            })}
-                        />
-                        {errors?.username && (
-                            <span className="text-[10px] font-semibold text-red-600 mt-1 pl-1 tracking-wider">
-                                {errors?.username?.message}
-                            </span>
-                        )}
-                    </div>
-                    <div className="row">
                         <label htmlFor="email">Email</label>
                         <input
                             type="email"
