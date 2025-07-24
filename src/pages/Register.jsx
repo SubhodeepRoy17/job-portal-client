@@ -111,7 +111,7 @@ const Register = () => {
                 <div className="flex justify-center">
                     <Logo />
                 </div>
-                <h1>Create Account</h1>
+                <h1>Register as User</h1>
                 {!isPasswordMatched?.status && (
                     <p className="text-[11px] font-semibold text-center text-red-700 bg-red-100 px-1 py-2 mt-4 tracking-wider">
                         both password not matched
@@ -269,7 +269,7 @@ const Register = () => {
                 </form>
                 <div className="">
                     <p className="text-center text-[10px] font-semibold opacity-9 mt-3">
-                        Already have an account.
+                        Already an user.
                         <Link className="ml-1 link" to="/login">
                             Login now
                         </Link>

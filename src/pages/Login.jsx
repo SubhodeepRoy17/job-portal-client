@@ -119,7 +119,7 @@ const Login = () => {
                 <div className="flex justify-center">
                     <Logo />
                 </div>
-                <h1>Login</h1>
+                <h1>Login as User</h1>
                 
                 {/* Google Sign In Button */}
                 <div className="google-btn-container">
@@ -185,7 +185,7 @@ const Login = () => {
                 </form>
                 <div className="">
                     <p className="text-center text-[10px] font-semibold opacity-9 mt-3">
-                        Don't have an account.
+                        New as an User.
                         <Link className="ml-1 link" to="/register">
                             Create account
                         </Link>
