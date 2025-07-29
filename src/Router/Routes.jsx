@@ -6,6 +6,7 @@ import {
     Login,
     RecruiterLogin,
     RecruiterRegister,
+    CompanyRegister,
     Landing,
     Error,
     AllJobs,
@@ -68,6 +69,10 @@ const router = createBrowserRouter([
             {
                 path: "register-recruiter",
                 element: <RecruiterRegister />,
+            },
+            {
+                path : "company-register",
+                element: <CompanyRegister/>,
             },
             {
                 path: "user-home",

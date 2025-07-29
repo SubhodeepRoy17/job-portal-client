@@ -19,6 +19,7 @@
         "dayjs": "^1.11.10",
         "firebase": "^11.9.1",
         "localforage": "^1.10.0",
+        "lucide-react": "^0.533.0",
         "match-sorter": "^6.3.1",
         "react": "^18.2.0",
         "react-circular-progressbar": "^2.2.0",
