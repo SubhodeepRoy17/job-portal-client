@@ -1044,16 +1044,6 @@ export default function CompanyRegister() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file
-    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      toast.error('Only JPEG, PNG, and WebP images are allowed');
-      return;
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error('File size must be less than 5MB');
-      return;
-    }
-
     try {
       setUploading(true);
       const formData = new FormData();
@@ -1061,7 +1051,7 @@ export default function CompanyRegister() {
 
       const response = await fetch(`${API_BASE_URL}/api/company/upload`, {
         method: 'POST',
-        body: formData // Let browser set Content-Type
+        body: formData
       });
 
       if (!response.ok) {
@@ -1069,14 +1059,14 @@ export default function CompanyRegister() {
         throw new Error(errorData.message || 'Upload failed');
       }
 
-      const { url } = await response.json();
+      const { data } = await response.json();
       setFormData(prev => ({
         ...prev,
-        [`${field}Url`]: url,
+        [`${field}Url`]: data.url,
         [`${field}Preview`]: URL.createObjectURL(file)
       }));
       
-      toast.success(`${field === 'logo' ? 'Logo' : 'Banner'} uploaded successfully!`);
+      toast.success('File uploaded successfully!');
     } catch (error) {
       console.error('Upload error:', error);
       toast.error(`Upload failed: ${error.message}`);
