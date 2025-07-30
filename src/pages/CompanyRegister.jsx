@@ -1039,29 +1039,6 @@ export default function CompanyRegister() {
     }
   };
 
-  // Then register with the URLs
-  const registerCompany = async (data) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/company/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-        credentials: 'include' // If using cookies
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('API Error:', error);
-      throw error;
-    }
-  };
-
   const handleFileChange = async (e, field) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1147,11 +1124,14 @@ export default function CompanyRegister() {
         youtube_url: formData.youtube_url
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/company/register`, {
+      const response = await fetch('https://job-portal-server-six-eosin.vercel.app/api/company/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submissionData),
-        credentials: 'include'
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        mode: 'cors', // Explicitly enable CORS
+        credentials: 'include' // If using cookies/sessions
       });
 
       if (!response.ok) {
