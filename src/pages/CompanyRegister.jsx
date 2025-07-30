@@ -1127,10 +1127,10 @@ export default function CompanyRegister() {
   // Update your form submission handler
   const handleSubmit = async () => {
     try {
-      // Prepare data for submission - matching backend structure
+      // Prepare data in backend-expected format
       const submissionData = {
         companyName: formData.companyName,
-        fullName: formData.companyName, // Using companyName as fallback
+        fullName: formData.companyName, // Using companyName as fallback for full_name
         email: formData.email,
         password: formData.password,
         company_logo_url: formData.logoUrl,
@@ -1147,21 +1147,20 @@ export default function CompanyRegister() {
         socialLinks: formData.socialLinks
       };
 
-      // Debug log
-      console.log('Submitting data:', submissionData);
+      console.log('Submitting data:', submissionData); // Debug log
 
-       // Call your existing registerCompany function
-        const response = await registerCompany(registrationData);
-        
-        // Handle successful response
-        localStorage.setItem('token', response.data.token);
-        setCurrentStep(5);
-        toast.success('Registration successful!');
-        
-      } catch (error) {
-        console.error('Registration error:', error);
-        toast.error(error.message || 'Registration failed. Please try again.');
-      }
+      // Call your existing registerCompany function
+      const response = await registerCompany(submissionData);
+      
+      // Handle successful response
+      localStorage.setItem('token', response.data.token);
+      setCurrentStep(5);
+      toast.success('Registration successful!');
+      
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast.error(error.message || 'Registration failed. Please try again.');
+    }
   };
 
   const removeFile = (field) => {
