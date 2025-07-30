@@ -1034,66 +1034,36 @@ export default function CompanyRegister() {
     return await response.json();
   };
 
-  const handleFileChange = useCallback(async (e, field) => {
+  const handleFileChange = async (e, field) => {
     const file = e.target.files[0];
-    
     if (!file) return;
 
-    // Validate file type
-    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      toast.error('Invalid file type. Please upload a JPEG, PNG, or WebP image.');
-      return;
-    }
-
-    // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error('File size too large. Maximum size is 5MB.');
-      return;
-    }
-
-    setUploading(true);
-    
     try {
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-      
-      // Upload the file to get a permanent URL
+      setUploading(true);
       const formData = new FormData();
       formData.append('file', file);
-      
-      const uploadResponse = await fetch(`${API_BASE_URL}/api/company/upload`, {
+
+      const response = await fetch(`${API_BASE_URL}/api/company/upload`, {
         method: 'POST',
-        body: formData,
-        // Don't set Content-Type header - let browser set it with boundary
+        body: formData // Let browser set Content-Type
       });
 
-      if (!uploadResponse.ok) {
-        const errorText = await uploadResponse.text();
-        console.error('Upload failed with status:', uploadResponse.status, 'Response:', errorText);
-        throw new Error(errorText || 'File upload failed');
-      }
-
-      const responseData = await uploadResponse.json();
+      if (!response.ok) throw new Error('Upload failed');
       
-      if (!responseData.url) {
-        throw new Error('Server did not return file URL');
-      }
-
+      const { url } = await response.json();
       setFormData(prev => ({
         ...prev,
-        [field]: file,
-        [`${field}Preview`]: previewUrl,
-        [`${field}Url`]: responseData.url
+        [`${field}Url`]: url,
+        [`${field}Preview`]: URL.createObjectURL(file)
       }));
-
-      toast.success(`${field === 'logo' ? 'Logo' : 'Banner'} uploaded successfully`);
+      
+      toast.success(`${field === 'logo' ? 'Logo' : 'Banner'} uploaded!`);
     } catch (error) {
-      console.error('Error uploading file:', error);
       toast.error(`File upload failed: ${error.message}`);
     } finally {
       setUploading(false);
     }
-  }, []);
+  };
 
   const handleDateChange = (date) => {
     const formattedDate = date.toLocaleDateString('en-GB'); // dd/mm/yyyy format
@@ -1127,9 +1097,9 @@ export default function CompanyRegister() {
   // Update your form submission handler
   const handleSubmit = async () => {
     try {
-      // Prepare data in exact backend-expected format
+      // Transform data to match backend expectations
       const submissionData = {
-        fullName: formData.companyName, // Map to full_name in backend
+        fullName: formData.companyName, // Maps to full_name in backend
         email: formData.email,
         password: formData.password,
         companyName: formData.companyName,
@@ -1142,36 +1112,34 @@ export default function CompanyRegister() {
         yearEstablished: formData.yearEstablished,
         companyWebsite: formData.companyWebsite,
         companyVision: formData.companyVision,
-        phoneCountryCode: formData.phoneCountryCode,
-        phoneNumber: formData.phoneNumber,
-        socialLinks: formData.socialLinks
+        phoneNumber: `${formData.phoneCountryCode}${formData.phoneNumber}`, // Combine phone fields
+        // Map social links to backend format
+        facebook_url: formData.socialLinks.find(l => l.platform === 'facebook')?.url || null,
+        twitter_url: formData.socialLinks.find(l => l.platform === 'twitter')?.url || null,
+        instagram_url: formData.socialLinks.find(l => l.platform === 'instagram')?.url || null,
+        youtube_url: formData.socialLinks.find(l => l.platform === 'youtube')?.url || null
       };
 
-      console.log('Submitting:', submissionData); // Debug log
+      console.log('Final submission data:', submissionData); // Debug log
 
       const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(submissionData)
       });
 
-      const data = await response.json();
-      
       if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
       }
 
+      const data = await response.json();
       localStorage.setItem('token', data.data.token);
       setCurrentStep(5);
       toast.success('Registration successful!');
       
     } catch (error) {
-      console.error('Registration failed:', {
-        error: error,
-        response: error.response
-      });
+      console.error('Registration error:', error);
       toast.error(error.message || 'Registration failed. Please try again.');
     }
   };
