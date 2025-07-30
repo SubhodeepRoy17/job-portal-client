@@ -1001,7 +1001,7 @@ export default function CompanyRegister() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/company/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/company/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -1023,7 +1023,7 @@ export default function CompanyRegister() {
 
   // Then register with the URLs
   const registerCompany = async (data) => {
-    const response = await fetch('/api/company/register', {
+    const response = await fetch(`${API_BASE_URL}/api/company/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1084,7 +1084,7 @@ export default function CompanyRegister() {
 
   const handleLogin = async (credentials) => {
     try {
-      const response = await fetch('/api/company/login', {
+      const response = await fetch(`${API_BASE_URL}/api/company/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1121,7 +1121,7 @@ export default function CompanyRegister() {
       };
 
       // 3. Send request
-      const response = await fetch('/api/company/register', {
+      const response = await fetch(`${API_BASE_URL}/api/company/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(submissionData),
