@@ -1001,8 +1001,6 @@ export default function CompanyRegister() {
       const formData = new FormData();
       formData.append('file', file);
       
-      const API_BASE_URL = 'https://job-portal-server-six-eosin.vercel.app';
-      
       const response = await fetch(`${API_BASE_URL}/api/company/upload`, {
         method: 'POST',
         body: formData,
@@ -1024,7 +1022,7 @@ export default function CompanyRegister() {
 
   // Then register with the URLs
   const registerCompany = async (data) => {
-    const response = await fetch('/api/company/register', {
+    const response = await fetch(`${API_BASE_URL}/api/company/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
