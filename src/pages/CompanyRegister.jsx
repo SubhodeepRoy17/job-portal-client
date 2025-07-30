@@ -1039,9 +1039,20 @@ export default function CompanyRegister() {
     }
   };
 
+  // Update the handleFileChange function
   const handleFileChange = async (e, field) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // Validate file
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      toast.error('Only JPEG, PNG, and WebP images are allowed');
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
 
     try {
       setUploading(true);
@@ -1053,8 +1064,11 @@ export default function CompanyRegister() {
         body: formData // Let browser set Content-Type
       });
 
-      if (!response.ok) throw new Error('Upload failed');
-      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Upload failed');
+      }
+
       const { url } = await response.json();
       setFormData(prev => ({
         ...prev,
@@ -1062,9 +1076,10 @@ export default function CompanyRegister() {
         [`${field}Preview`]: URL.createObjectURL(file)
       }));
       
-      toast.success(`${field === 'logo' ? 'Logo' : 'Banner'} uploaded!`);
+      toast.success(`${field === 'logo' ? 'Logo' : 'Banner'} uploaded successfully!`);
     } catch (error) {
-      toast.error(`File upload failed: ${error.message}`);
+      console.error('Upload error:', error);
+      toast.error(`Upload failed: ${error.message}`);
     } finally {
       setUploading(false);
     }
@@ -1104,12 +1119,12 @@ export default function CompanyRegister() {
     try {
       // Transform data to match backend expectations
       const submissionData = {
-        full_name: formData.fullName || formData.companyName,
+        full_name: formData.companyName, // Using companyName as full_name
         company_mail_id: formData.email,
         password: formData.password,
         company_name: formData.companyName,
-        company_logo_url: formData.company_logo_url,
-        company_banner_url: formData.company_banner_url,
+        company_logo_url: formData.logoUrl,
+        company_banner_url: formData.bannerUrl,
         about_company: formData.aboutUs,
         organizations_type: formData.organizationType,
         industry_type: formData.industryType,
@@ -1117,11 +1132,11 @@ export default function CompanyRegister() {
         year_of_establishment: formatDate(formData.yearEstablished),
         company_website: formData.companyWebsite,
         company_vision: formData.companyVision,
-        headquarter_phone_no: formData.phoneNumber.replace(/\D/g, ''), // Remove non-digits
-        facebook_url: formData.facebook_url,
-        twitter_url: formData.twitter_url,
-        instagram_url: formData.instagram_url,
-        youtube_url: formData.youtube_url
+        headquarter_phone_no: `${formData.phoneCountryCode}${formData.phoneNumber.replace(/\D/g, '')}`,
+        facebook_url: formData.socialLinks.find(l => l.platform === 'facebook')?.url || null,
+        twitter_url: formData.socialLinks.find(l => l.platform === 'twitter')?.url || null,
+        instagram_url: formData.socialLinks.find(l => l.platform === 'instagram')?.url || null,
+        youtube_url: formData.socialLinks.find(l => l.platform === 'youtube')?.url || null
       };
 
       function formatDate(dateString) {
@@ -1130,22 +1145,24 @@ export default function CompanyRegister() {
         return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
       }
 
-      const response = await fetch('https://job-portal-server-six-eosin.vercel.app/api/company/register', {
+      const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
-        mode: 'cors', // Explicitly enable CORS
-        credentials: 'include' // If using cookies/sessions
+        body: JSON.stringify(submissionData) // Changed from data to submissionData
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Registration failed');
       }
+
+      const responseData = await response.json();
+      localStorage.setItem('token', responseData.data.token);
+      setCurrentStep(5); // Move to success step
       
-      // Success handling
+      toast.success('Registration successful!');
     } catch (error) {
       console.error('Registration error:', error);
       toast.error(error.message);
