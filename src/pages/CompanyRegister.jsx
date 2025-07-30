@@ -996,20 +996,29 @@ export default function CompanyRegister() {
   }
 
   // First upload files and get URLs
-  const uploadFile = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
+  const uploadFile = async (file, type) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
 
-    const response = await fetch('/api/company/upload', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-      body: formData
-    });
+      const response = await fetch('/api/company/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: formData,
+      });
 
-    if (!response.ok) throw new Error('Upload failed');
-    return await response.json();
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Upload failed');
+      }
+
+      return (await response.json()).data.url; // Return the URL
+    } catch (error) {
+      console.error(`${type} upload error:`, error);
+      throw error; // Re-throw for handleSubmit to catch
+    }
   };
 
   // Then register with the URLs
@@ -1098,43 +1107,46 @@ export default function CompanyRegister() {
 
   const handleSubmit = async () => {
     try {
-      // First upload files if they exist
-      const logoUrl = formData.logo 
-        ? await uploadFile(formData.logo, 'logo')
-        : '';
-      const bannerUrl = formData.banner 
-        ? await uploadFile(formData.banner, 'banner')
-        : '';
+      // 1. Upload files first (if exists)
+      const logoUrl = formData.logo ? await uploadFile(formData.logo, 'logo') : '';
+      const bannerUrl = formData.banner ? await uploadFile(formData.banner, 'banner') : '';
 
-      // Prepare registration data
-      const registrationData = {
+      // 2. Prepare data (remove file objects)
+      const submissionData = {
         ...formData,
         company_logo_url: logoUrl,
         company_banner_url: bannerUrl,
-        // Remove the actual file objects
-        logo: undefined,
-        banner: undefined
+        logo: undefined, // Remove file objects
+        banner: undefined,
       };
 
-      // Submit registration
+      // 3. Send request
       const response = await fetch('/api/company/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(registrationData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submissionData),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+      // 4. Handle empty/invalid responses
+      const responseText = await response.text();
+      if (!responseText) {
+        throw new Error('Server returned empty response');
       }
 
-      const data = await response.json();
+      const data = JSON.parse(responseText); // Parse only if text exists
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      // 5. Success
       localStorage.setItem('token', data.data.token);
-      // Redirect to dashboard or next step
+      setCurrentStep(5); // Move to success step
+      toast.success('Registration successful!');
+
     } catch (error) {
-      toast.error(error.message);
+      console.error('Registration error:', error);
+      toast.error(error.message || 'Registration failed. Check console for details.');
     }
   };
 
