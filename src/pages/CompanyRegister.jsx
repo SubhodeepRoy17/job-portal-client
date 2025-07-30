@@ -29,6 +29,25 @@ const CalendarWrapper = styled.div`
   width: 100%;
 `
 
+const ORGANIZATION_TYPES = [
+  { value: "solo proprietor", label: "Sole Proprietor" },
+  { value: "pvt LTD", label: "Private Limited" },
+  { value: "LTD", label: "Limited" },
+  { value: "OPC", label: "One Person Company" },
+  { value: "LLP", label: "LLP" },
+  { value: "INC", label: "Incorporated" },
+  { value: "Corporation", label: "Corporation" }
+];
+
+const INDUSTRY_TYPES = [
+  { value: "Fintech", label: "Fintech" },
+  { value: "Engineering", label: "Engineering" },
+  { value: "Software & IT", label: "Software & IT" },
+  { value: "edutech", label: "Edtech" },
+  { value: "oil and gas", label: "Oil & Gas" },
+  { value: "other", label: "Other" }
+];
+
 const CalendarDropdown = styled.div`
   position: absolute;
   top: 100%;
