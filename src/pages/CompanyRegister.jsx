@@ -1127,48 +1127,42 @@ export default function CompanyRegister() {
     try {
       // Transform data to match backend expectations
       const submissionData = {
-        fullName: formData.companyName, // Maps to full_name in backend
-        email: formData.email,
+        full_name: formData.fullName || formData.companyName,
+        company_mail_id: formData.email,
         password: formData.password,
-        companyName: formData.companyName,
-        company_logo_url: formData.logoUrl,
-        company_banner_url: formData.bannerUrl,
-        aboutUs: formData.aboutUs,
-        organizationType: formData.organizationType,
-        industryType: formData.industryType,
-        teamSize: formData.teamSize,
-        yearEstablished: formData.yearEstablished,
-        companyWebsite: formData.companyWebsite,
-        companyVision: formData.companyVision,
-        phoneNumber: `${formData.phoneCountryCode}${formData.phoneNumber}`, // Combine phone fields
-        // Map social links to backend format
-        facebook_url: formData.socialLinks.find(l => l.platform === 'facebook')?.url || null,
-        twitter_url: formData.socialLinks.find(l => l.platform === 'twitter')?.url || null,
-        instagram_url: formData.socialLinks.find(l => l.platform === 'instagram')?.url || null,
-        youtube_url: formData.socialLinks.find(l => l.platform === 'youtube')?.url || null
+        company_name: formData.companyName,
+        company_logo_url: formData.company_logo_url,
+        company_banner_url: formData.company_banner_url,
+        about_company: formData.aboutUs,
+        organizations_type: formData.organizationType,
+        industry_type: formData.industryType,
+        team_size: formData.teamSize,
+        year_of_establishment: formData.yearEstablished,
+        company_website: formData.companyWebsite,
+        company_vision: formData.companyVision,
+        headquarter_phone_no: formData.phoneNumber.replace(/\D/g, ''), // Remove non-digits
+        facebook_url: formData.facebook_url,
+        twitter_url: formData.twitter_url,
+        instagram_url: formData.instagram_url,
+        youtube_url: formData.youtube_url
       };
-
-      console.log('Final submission data:', submissionData); // Debug log
 
       const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submissionData)
+        body: JSON.stringify(submissionData),
+        credentials: 'include'
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Registration failed');
       }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.data.token);
-      setCurrentStep(5);
-      toast.success('Registration successful!');
       
+      // Success handling
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error(error.message || 'Registration failed. Please try again.');
+      toast.error(error.message);
     }
   };
 
