@@ -1147,20 +1147,7 @@ export default function CompanyRegister() {
         password: formData.password
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/company/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submissionData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
-      }
-
-      const data = await response.json();
+      const data = await registerCompany(submissionData);
       localStorage.setItem('token', data.data.token);
       setCurrentStep(5);
       toast.success('Registration successful!');
