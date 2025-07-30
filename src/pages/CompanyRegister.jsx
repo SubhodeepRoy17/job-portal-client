@@ -1000,30 +1000,31 @@ export default function CompanyRegister() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-
+      
+      const API_BASE_URL = 'https://job-portal-server-six-eosin.vercel.app';
+      
       const response = await fetch(`${API_BASE_URL}/api/company/upload`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
         body: formData,
+        // Don't set Content-Type header - let the browser set it with boundary
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Upload failed');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Upload failed');
       }
 
-      return (await response.json()).data.url; // Return the URL
+      const data = await response.json();
+      return data.url; // Make sure your backend returns { url: "..." }
     } catch (error) {
       console.error(`${type} upload error:`, error);
-      throw error; // Re-throw for handleSubmit to catch
+      throw error;
     }
   };
 
   // Then register with the URLs
   const registerCompany = async (data) => {
-    const response = await fetch(`${API_BASE_URL}/api/company/register', {
+    const response = await fetch('/api/company/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1084,7 +1085,7 @@ export default function CompanyRegister() {
 
   const handleLogin = async (credentials) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/company/login', {
+      const response = await fetch('/api/company/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1107,47 +1108,54 @@ export default function CompanyRegister() {
 
   const handleSubmit = async () => {
     try {
-      // 1. Upload files first (if exists)
-      const logoUrl = formData.logo ? await uploadFile(formData.logo, 'logo') : '';
-      const bannerUrl = formData.banner ? await uploadFile(formData.banner, 'banner') : '';
+      // Upload files if they exist
+      const logoUrl = formData.logo ? await uploadFile(formData.logo, 'logo') : null;
+      const bannerUrl = formData.banner ? await uploadFile(formData.banner, 'banner') : null;
 
-      // 2. Prepare data (remove file objects)
+      // Prepare data
       const submissionData = {
         ...formData,
         company_logo_url: logoUrl,
         company_banner_url: bannerUrl,
         logo: undefined, // Remove file objects
         banner: undefined,
+        logoPreview: undefined,
+        bannerPreview: undefined
       };
 
-      // 3. Send request
-      const response = await fetch(`${API_BASE_URL}/api/company/register', {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://job-portal-server-six-eosin.vercel.app';
+      
+      const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
         body: JSON.stringify(submissionData),
       });
 
-      // 4. Handle empty/invalid responses
-      const responseText = await response.text();
-      if (!responseText) {
-        throw new Error('Server returned empty response');
-      }
-
-      const data = JSON.parse(responseText); // Parse only if text exists
-
       if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Registration failed');
       }
 
-      // 5. Success
-      localStorage.setItem('token', data.data.token);
-      setCurrentStep(5); // Move to success step
+      const data = await response.json();
+      localStorage.setItem('token', data.token);
+      setCurrentStep(5);
       toast.success('Registration successful!');
-
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error(error.message || 'Registration failed. Check console for details.');
+      toast.error(error.message || 'Registration failed');
     }
+  };
+
+  const removeFile = (field) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: null,
+      [`${field}Preview`]: null,
+      [`${field}Url`]: null
+    }));
   };
 
   const getProgressText = () => {
