@@ -934,6 +934,7 @@ const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export default function CompanyRegister() {
   const [currentStep, setCurrentStep] = useState(1)
   const [showCalendar, setShowCalendar] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     // Step 1 - Company Info
     companyName: "",
