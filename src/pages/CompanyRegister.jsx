@@ -1373,9 +1373,7 @@ export default function CompanyRegister() {
         <HeaderWrapper>
           <HeaderContainer>
             <LogoWrapper>
-              <LogoIcon>
-                <Building className="w-5 h-5 text-white" />
-              </LogoIcon>
+              <img src="/logo-main.webp" alt="HireNext Logo" className="w-8 h-8 rounded-full object-cover" />
               <LogoText>Jobpilot</LogoText>
             </LogoWrapper>
             <ProgressWrapperHeader>
