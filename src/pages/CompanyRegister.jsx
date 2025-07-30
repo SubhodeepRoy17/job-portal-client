@@ -1127,12 +1127,12 @@ export default function CompanyRegister() {
   // Update your form submission handler
   const handleSubmit = async () => {
     try {
-      // Prepare data in backend-expected format
+      // Prepare data in exact backend-expected format
       const submissionData = {
-        companyName: formData.companyName,
-        fullName: formData.companyName, // Using companyName as fallback for full_name
+        fullName: formData.companyName, // Map to full_name in backend
         email: formData.email,
         password: formData.password,
+        companyName: formData.companyName,
         company_logo_url: formData.logoUrl,
         company_banner_url: formData.bannerUrl,
         aboutUs: formData.aboutUs,
@@ -1147,18 +1147,31 @@ export default function CompanyRegister() {
         socialLinks: formData.socialLinks
       };
 
-      console.log('Submitting data:', submissionData); // Debug log
+      console.log('Submitting:', submissionData); // Debug log
 
-      // Call your existing registerCompany function
-      const response = await registerCompany(submissionData);
+      const response = await fetch(`${API_BASE_URL}/api/company/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData)
+      });
+
+      const data = await response.json();
       
-      // Handle successful response
-      localStorage.setItem('token', response.data.token);
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      localStorage.setItem('token', data.data.token);
       setCurrentStep(5);
       toast.success('Registration successful!');
       
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Registration failed:', {
+        error: error,
+        response: error.response
+      });
       toast.error(error.message || 'Registration failed. Please try again.');
     }
   };
