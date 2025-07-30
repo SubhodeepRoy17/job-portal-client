@@ -939,10 +939,8 @@ export default function CompanyRegister() {
     // Step 1 - Company Info
     companyName: "",
     aboutUs: "",
-    logo: null,
-    logoPreview: null,
-    banner: null,
-    bannerPreview: null,
+    logoUrl: null,
+    bannerUrl: null,
 
     // Step 2 - Founding Info
     organizationType: "",
@@ -1060,18 +1058,31 @@ export default function CompanyRegister() {
       const previewUrl = URL.createObjectURL(file);
       
       // Upload the file to get a permanent URL
-      const fileUrl = await uploadFile(file);
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const uploadResponse = await fetch(`${API_BASE_URL}/api/company/upload`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('File upload failed');
+      }
+
+      const { url } = await uploadResponse.json();
 
       setFormData(prev => ({
         ...prev,
         [field]: file,
         [`${field}Preview`]: previewUrl,
-        [`${field}Url`]: fileUrl
+        [`${field}Url`]: url
       }));
 
       toast.success(`${field === 'logo' ? 'Logo' : 'Banner'} uploaded successfully`);
     } catch (error) {
       console.error('Error uploading file:', error);
+      toast.error('File upload failed. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -1108,44 +1119,45 @@ export default function CompanyRegister() {
 
   const handleSubmit = async () => {
     try {
-      // Upload files if they exist
-      const logoUrl = formData.logo ? await uploadFile(formData.logo, 'logo') : null;
-      const bannerUrl = formData.banner ? await uploadFile(formData.banner, 'banner') : null;
-
-      // Prepare data
+      // Prepare data for submission
       const submissionData = {
-        ...formData,
-        company_logo_url: logoUrl,
-        company_banner_url: bannerUrl,
-        logo: undefined, // Remove file objects
-        banner: undefined,
-        logoPreview: undefined,
-        bannerPreview: undefined
+        companyName: formData.companyName,
+        aboutUs: formData.aboutUs,
+        company_logo_url: formData.logoUrl,
+        company_banner_url: formData.bannerUrl,
+        organizationType: formData.organizationType,
+        industryType: formData.industryType,
+        teamSize: formData.teamSize,
+        yearEstablished: formData.yearEstablished,
+        companyWebsite: formData.companyWebsite,
+        companyVision: formData.companyVision,
+        socialLinks: formData.socialLinks,
+        phoneCountryCode: formData.phoneCountryCode,
+        phoneNumber: formData.phoneNumber,
+        email: formData.email,
+        password: formData.password
       };
 
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://job-portal-server-six-eosin.vercel.app';
-      
       const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(submissionData),
+        body: JSON.stringify(submissionData)
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = await response.json();
         throw new Error(errorData.message || 'Registration failed');
       }
 
       const data = await response.json();
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.data.token);
       setCurrentStep(5);
       toast.success('Registration successful!');
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error(error.message || 'Registration failed');
+      toast.error(error.message || 'Registration failed. Please try again.');
     }
   };
 
