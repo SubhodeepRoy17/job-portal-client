@@ -1,9 +1,25 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
+import { 
+    FaHome, 
+    FaMoneyBillWave, 
+    FaClock, 
+    FaFileAlt, 
+    FaLaptop, 
+    FaUtensils, 
+    FaAward, 
+    FaHandshake, 
+    FaCar, 
+    FaMedkit, 
+    FaChalkboardTeacher, 
+    FaChartLine,
+    FaQuestion 
+} from "react-icons/fa";
 import { useQuery } from "@tanstack/react-query";
 import { getSingleHandler } from "../utils/FetchHandlers";
 import { fetchSkillsByIds} from "../utils/skillsHelper";
+import { fetchFacilitiesByIds } from "../utils/facilitiesHelper";
 import { fetchCategoriesByIds } from "../utils/categoriesHelper";
 import { postHandler } from "../utils/FetchHandlers";
 import { ToastContainer, toast } from "react-toastify";
@@ -23,11 +39,45 @@ import { VISIBILITY_STATUS } from "../utils/JobData";
 
 dayjs.extend(advancedFormat);
 
+const formatSalary = (job) => {
+    if (!job || job.is_salary_hidden) {
+        return "Not Disclosed";
+    }
+
+    const formatPeriod = (period) => {
+        switch (period) {
+            case 'YEAR': return 'Yearly';
+            case 'HOUR': return 'Hourly';
+            case 'WEEK': return 'Weekly';
+            default: return 'Monthly';
+        }
+    };
+
+    const periodText = formatPeriod(job.salary_period);
+
+    switch (job.salary_type) {
+        case 'FIXED':
+            return `${job.currency} ${job.fixed_amount} (${periodText})`;
+        case 'RANGE':
+            return `${job.currency} ${job.min_amount} - ${job.max_amount} (${periodText})`;
+        case 'FIXED_INCENTIVE':
+            if (job.incentive_details) {
+                return `${job.currency} ${job.fixed_amount} (${periodText}) + ${job.incentive_details}`;
+            }
+            return `${job.currency} ${job.fixed_amount} (${periodText}) + Incentives`;
+        case 'UNPAID':
+            return "Unpaid";
+        default:
+            return "Not Disclosed";
+    }
+};
+
 const Job = () => {
     const { id } = useParams();
     const { user } = useUserContext();
     const [skillNames, setSkillNames] = useState([]);
     const [categoryNames, setCategoryNames] = useState([]);
+    const [facilityNames, setFacilityNames] = useState([]);
     const [isLiked, setIsLiked] = useState(false);
     const [activeTab, setActiveTab] = useState("details");
     const navigate = useNavigate();
@@ -52,6 +102,10 @@ const Job = () => {
             if (job?.categories?.length > 0) {
                 const categories = await fetchCategoriesByIds(job.categories);
                 setCategoryNames(categories.map(cat => cat.category_name));
+            }
+            if (job?.job_facilities?.length > 0) {
+                const facilities = await fetchFacilitiesByIds(job.job_facilities);
+                setFacilityNames(facilities.map(facility => facility.facilities_name));
             }
         };
         loadData();
@@ -122,7 +176,7 @@ const Job = () => {
                     <div className="top-bar-content">
                         <button 
                             className="back-button"
-                            onClick={() => navigate('/')}
+                            onClick={() => navigate(-1)}
                         >
                             <FiArrowLeft />
                         </button>
@@ -207,7 +261,9 @@ const Job = () => {
                                 
                                 <div className="info-row">
                                     <h4 className="info-label">Salary:</h4>
-                                    <p className="info-value">{job?.job_salary} TK</p>
+                                    <p className="info-value">
+                                        {formatSalary(job)}
+                                    </p>
                                 </div>
                                 
                                 {categoryNames.length > 0 && (
@@ -257,14 +313,35 @@ const Job = () => {
                         </div>
                     )}
 
-                    {activeTab === "facilities" && job?.job_facilities?.length > 0 && (
+                    {activeTab === "facilities" && facilityNames.length > 0 && (
                         <div className="content-section">
-                            <div className="tags-container">
-                                {job.job_facilities.map((facility) => (
-                                    <span key={facility} className="facility-tag">
-                                        {facility}
-                                    </span>
-                                ))}
+                            <div className="facilities-grid">
+                                {facilityNames.map((facility) => {
+                                    // Define icons for each facility type
+                                    const facilityIcons = {
+                                        "Work From Home": <FaHome size={24} />,
+                                        "Stipend / Salary": <FaMoneyBillWave size={24} />,
+                                        "Flexible Working Hours": <FaClock size={24} />,
+                                        "Certificate / Experience Letter": <FaFileAlt size={24} />,
+                                        "Laptop / Equipment Provided": <FaLaptop size={24} />,
+                                        "Free Meals / Snacks": <FaUtensils size={24} />,
+                                        "Performance Bonus / Incentives": <FaAward size={24} />,
+                                        "Job Offer on Completion (PPO)": <FaHandshake size={24} />,
+                                        "Travel / Cab Facility": <FaCar size={24} />,
+                                        "Health Insurance / Mediclaim": <FaMedkit size={24} />,
+                                        "Training and Mentorship": <FaChalkboardTeacher size={24} />,
+                                        "ESOPs / Equity": <FaChartLine size={24} />
+                                    };
+
+                                    return (
+                                        <div key={facility} className="facility-card">
+                                            <div className="facility-icon">
+                                                {facilityIcons[facility] || <FaQuestion size={24} />}
+                                            </div>
+                                            <div className="facility-name">{facility}</div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
@@ -356,6 +433,12 @@ const Wrapper = styled.section`
         &::-webkit-scrollbar {
             display: none;
         }
+    }
+
+    .salary-period {
+        font-size: 0.8rem;
+        color: #666;
+        margin-left: 4px;
     }
 
     .tab {
@@ -500,6 +583,57 @@ const Wrapper = styled.section`
         &:hover {
             color: #0d5bba;
             text-decoration: underline;
+        }
+    }
+
+    .facilities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .facility-card {
+        border: 1px solid #414FEA;
+        border-radius: 8px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: white;
+        min-height: 120px;
+    }
+
+    .facility-icon {
+        margin-bottom: 12px;
+        color: #414FEA;
+    }
+
+    .facility-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    /* Mobile view - 2 cards per row */
+    @media screen and (max-width: 768px) {
+        .facilities-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .facility-card {
+            height: 100px;
+            padding: 12px;
+        }
+        
+        .facility-icon {
+            margin-bottom: 8px;
+        }
+        
+        .facility-name {
+            font-size: 12px;
         }
     }
 

@@ -71,15 +71,6 @@ const SkillsAutocomplete = ({
   
   const debouncedSearchTerm = useDebounce(inputValue, 300);
 
-  // Cancel in-flight requests when component unmounts
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
-
   // Load current skill names when IDs change
   useEffect(() => {
     const loadCurrentSkills = async () => {
@@ -192,7 +183,8 @@ const SkillsAutocomplete = ({
   }, [value, onChange]);
 
   const handleRemoveSkill = useCallback((skillId) => {
-    onChange(value.filter(id => id !== skillId));
+    const updatedSkills = value.filter(id => id !== skillId);
+    onChange(updatedSkills);
   }, [value, onChange]);
 
   const filteredSuggestedSkills = suggestedSkills.filter(
@@ -205,18 +197,23 @@ const SkillsAutocomplete = ({
       <div className="skills-tags">
         {loading.current && <span>Loading skills...</span>}
         {error && <span className="error">{error}</span>}
-        {currentSkills.map(skill => (
-          <span key={skill.id} className="skill-tag">
-            {skill.name}
-            <button
-              type="button"
-              onClick={() => handleRemoveSkill(skill.id)}
-              className="remove-skill"
-            >
-              ×
-            </button>
-          </span>
-        ))}
+        {currentSkills.length > 0 ? (
+          currentSkills.map(skill => (
+            <span key={skill.id} className="skill-tag">
+              {skill.name}
+              <button
+                type="button"
+                onClick={() => handleRemoveSkill(skill.id)}
+                className="remove-skill"
+                aria-label={`Remove ${skill.name}`}
+              >
+                ×
+              </button>
+            </span>
+          ))
+        ) : (
+          <span className="no-skills"></span>
+        )}
       </div>
 
       {/* Search input */}
@@ -247,20 +244,23 @@ const SkillsAutocomplete = ({
       </div>
 
       {/* Suggested skills section */}
-      {showSuggestionsSection && filteredSuggestedSkills.length > 0 && (
+      {showSuggestionsSection && suggestedSkills.length > 0 && (
         <div className="suggested-skills-section">
           <h4>Suggested Skills</h4>
           <div className="suggested-skills-container">
-            {filteredSuggestedSkills.slice(0, 8).map((skill) => (
-              <button
-                key={skill.id}
-                type="button"
-                className="suggested-skill-tag"
-                onClick={() => handleAddSkill(skill)}
-              >
-                {skill.name}
-              </button>
-            ))}
+            {suggestedSkills
+              .filter(skill => !value.includes(skill.id))
+              .slice(0, 8)
+              .map((skill) => (
+                <button
+                  key={skill.id}
+                  type="button"
+                  className="suggested-skill-tag"
+                  onClick={() => handleAddSkill(skill)}
+                >
+                  {skill.name}
+                </button>
+              ))}
           </div>
         </div>
       )}
@@ -332,7 +332,12 @@ const EditProfile = () => {
             { withCredentials: true }
           );
           setUserProfile(response.data);
-          setSkills(response.data.skills || []);
+          const skillIds = response.data.skills || [];
+          setSkills(skillIds);
+          if (skillIds.length > 0) {
+            const skillDetails = await fetchSkillsByIds(skillIds);
+            setCurrentSkills(skillDetails);
+          }
           setAboutText(response.data.about || "");
           setFullAddress(response.data.full_address || "");
           setCandidateSocialLinks(response.data.social_links || {});
@@ -355,21 +360,26 @@ const EditProfile = () => {
             "https://job-portal-server-six-eosin.vercel.app/api/user-profile/skills",
             { withCredentials: true }
           );
-          setSkills(response.data.skills || []);
+          const skillsData = response.data?.skills || 
+                            response.data?.result?.skills || 
+                            response.data;
+          if (Array.isArray(skillsData)) {
+            setSkills(skillsData.map(skill => skill.id || skill));
+          }
         } else if (user?.role === 2) {
           response = await axios.get(
             "https://job-portal-server-six-eosin.vercel.app/api/recruiter-profile/skills",
             { withCredentials: true }
           );
-          setSkills(response.data.skills || []);
+          const skillsData = response.data?.skills || 
+                            response.data?.result?.skills || 
+                            response.data;
+          if (Array.isArray(skillsData)) {
+            setSkills(skillsData.map(skill => skill.id || skill));
+          }
         }
       } catch (error) {
         console.error("Error fetching skills:", error);
-        // Optional: Show error toast
-        toast.error("Failed to load skills", {
-          position: "top-right",
-          autoClose: 3000,
-        });
       }
     };
     
@@ -798,7 +808,6 @@ const EditProfile = () => {
       );
       const profile = response.data;
       setUserProfile(profile);
-      setSkills(profile?.skills || []);
       setAboutText(profile?.about || "");
       setFullAddress(profile?.full_address || "");
       setCandidateSocialLinks(profile?.social_links || {});
@@ -1039,6 +1048,12 @@ const EditProfile = () => {
       return;
     }
 
+    const invalidSkills = skills.filter(skill => isNaN(Number(skill)));
+    if (invalidSkills.length > 0) {
+      toast.error(`Invalid skill IDs: ${invalidSkills.join(', ')}`);
+      return;
+    }
+
     const toastId = toast.loading("Updating skills...", {
       position: "top-right",
       autoClose: false,
@@ -1047,18 +1062,29 @@ const EditProfile = () => {
     });
 
     try {
+      let endpoint, payload;
       if (user?.role === 3) {
-        await axios.patch(
-          "https://job-portal-server-six-eosin.vercel.app/api/user-profile/skills",
-          { skills: skills },
-          { withCredentials: true }
-        );
+        endpoint = "https://job-portal-server-six-eosin.vercel.app/api/user-profile/skills";
+        payload = { skills: skills.map(Number) };
       } else if (user?.role === 2) {
-        await axios.patch(
-          "https://job-portal-server-six-eosin.vercel.app/api/recruiter-profile/skills",
-          { skills: skills },
-          { withCredentials: true }
-        );
+        endpoint = "https://job-portal-server-six-eosin.vercel.app/api/recruiter-profile/skills";
+        payload = { skills: skills.map(Number) };
+      }
+
+      const response = await axios.patch(
+        endpoint,
+        payload,
+        { withCredentials: true }
+      );
+
+      const updatedSkills = response.data?.skills || 
+                          response.data?.result?.skills || 
+                          response.data;
+      
+      if (Array.isArray(updatedSkills)) {
+        setSkills(updatedSkills);
+      } else {
+        setSkills(skills);
       }
 
       toast.update(toastId, {
@@ -1069,13 +1095,24 @@ const EditProfile = () => {
         closeOnClick: true,
         draggable: true
       });
-      fetchUserProfile();
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
+      console.error("Error updating skills:", error);
+      
+      let errorMessage = error.response?.data?.message;
+      
+      if (error.response?.status === 404 && error.response?.data?.message?.includes("Profile not found")) {
+        errorMessage = "Complete current details first";
+      }
+
       toast.update(toastId, {
-        render: `${error.response?.data?.message || "Failed to update skills"}`,
+        render: `${error.response?.data?.message || "Complete current details first"}`,
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 5000,
         closeOnClick: true,
         draggable: true
       });
@@ -1165,8 +1202,8 @@ const EditProfile = () => {
                   { id: 'skills', label: 'Skills' },
                   { id: 'education', label: 'Education' },
                   ...((user?.role === 2 || user?.role === 3) ? [{ id: 'about', label: 'About' }] : []),
-                  { id: 'experience', label: 'Experience' },
-                  { id: 'projects', label: 'Projects' },
+                  ...(user?.role === 3 ? [{ id: 'experience', label: 'Experience' }] : []),
+                  ...(user?.role === 3 ? [{ id: 'projects', label: 'Projects' }] : []),
                   { id: 'certificates', label: 'Certificates' },
                   { id: 'social', label: 'Social' },
                 ].map((tab) => (

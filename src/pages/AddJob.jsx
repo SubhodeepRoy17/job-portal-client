@@ -12,9 +12,103 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
+import { FaHome, FaMoneyBillWave, FaClock, FaFileAlt, FaLaptop, FaUtensils, FaAward, FaHandshake, FaCar, FaMedkit, FaChalkboardTeacher, FaChartLine } from "react-icons/fa";
+import { fetchFacilitiesByIds } from "../utils/facilitiesHelper";
 import { TagsInput } from "react-tag-input-component";
 import { use } from "react";
+
+const SalaryTypes = [
+  { id: 'FIXED', label: 'Fixed' },
+  { id: 'RANGE', label: 'Range' },
+  { id: 'FIXED_INCENTIVE', label: 'Fixed + Incentives' },
+  { id: 'UNPAID', label: 'Unpaid' }
+];
+
+const Currencies = [
+  { code: 'INR', name: 'Indian Rupee' },
+  { code: 'USD', name: 'US Dollar' },
+  { code: 'EUR', name: 'Euro' },
+  { code: 'GBP', name: 'British Pound' },
+  { code: 'JPY', name: 'Japanese Yen' },
+  { code: 'AUD', name: 'Australian Dollar' }
+];
+
+const SalaryPeriods = [
+  { id: 'MONTH', label: 'Per Month' },
+  { id: 'YEAR', label: 'Per Year' },
+  { id: 'HOUR', label: 'Per Hour' },
+  { id: 'WEEK', label: 'Per Week' }
+];
+
+const FacilitiesCardSelector = ({ value, onChange }) => {
+    const [facilitiesData, setFacilitiesData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const facilityIcons = {
+        "Work From Home": <FaHome size={24} />,
+        "Stipend / Salary": <FaMoneyBillWave size={24} />,
+        "Flexible Working Hours": <FaClock size={24} />,
+        "Certificate / Experience Letter": <FaFileAlt size={24} />,
+        "Laptop / Equipment Provided": <FaLaptop size={24} />,
+        "Free Meals / Snacks": <FaUtensils size={24} />,
+        "Performance Bonus / Incentives": <FaAward size={24} />,
+        "Job Offer on Completion (PPO)": <FaHandshake size={24} />,
+        "Travel / Cab Facility": <FaCar size={24} />,
+        "Health Insurance / Mediclaim": <FaMedkit size={24} />,
+        "Training and Mentorship": <FaChalkboardTeacher size={24} />,
+        "ESOPs / Equity": <FaChartLine size={24} />
+    };
+
+    useEffect(() => {
+        const loadAllFacilities = async () => {
+            try {
+                const response = await fetch('https://job-portal-server-six-eosin.vercel.app/api/facilities', {
+                    credentials: 'include',
+                });
+                const data = await response.json();
+                setFacilitiesData(data.data || data);
+                setError(null);
+            } catch (err) {
+                setError('Failed to load facilities');
+                console.error('Facilities loading error:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        loadAllFacilities();
+    }, []);
+
+    const toggleFacility = (id) => {
+        if (value.includes(id)) {
+            onChange(value.filter(facilityId => facilityId !== id));
+        } else {
+            onChange([...value, id]);
+        }
+    };
+
+    if (loading) return <div className="loading-facilities">Loading facilities...</div>;
+    if (error) return <div className="error-message">{error}</div>;
+    if (!facilitiesData || facilitiesData.length === 0) return <div className="no-facilities">No facilities available</div>;
+
+    return (
+        <div className="facilities-grid">
+            {facilitiesData.map((facility) => (
+                <div
+                    key={facility.facilities_id}
+                    className={`facility-card ${value.includes(facility.facilities_id) ? 'selected' : ''}`}
+                    onClick={() => toggleFacility(facility.facilities_id)}
+                >
+                    <div className="facility-icon">
+                        {facilityIcons[facility.facilities_name] || <FaQuestion size={24} />}
+                    </div>
+                    <div className="facility-name">{facility.facilities_name}</div>
+                </div>
+            ))}
+        </div>
+    );
+};
 
 const CategoriesAutocomplete = ({ value, onChange, placeholder = "Type to search categories..." }) => {
     const [filteredCategories, setFilteredCategories] = useState([]);
@@ -31,7 +125,6 @@ const CategoriesAutocomplete = ({ value, onChange, placeholder = "Type to search
                 setError(null);
                 try {
                     const categories = await fetchCategoriesByIds(value);
-                    console.log('Loaded current categories:', categories);
                     setCurrentCategories(categories);
                 } catch (err) {
                     setError('Failed to load current categories');
@@ -51,7 +144,6 @@ const CategoriesAutocomplete = ({ value, onChange, placeholder = "Type to search
             const timer = setTimeout(async () => {
                 try {
                     const categories = await fetchCategoriesByName(inputValue);
-                    console.log('Filtered categories:', categories);
                     setFilteredCategories(categories);
                     setShowSuggestions(categories.length > 0);
                     setError(null);
@@ -83,7 +175,6 @@ const CategoriesAutocomplete = ({ value, onChange, placeholder = "Type to search
 
     return (
         <div className="skills-autocomplete">
-            {/* Display current categories as tags */}
             <div className="skills-tags">
                 {loading && <span>Loading categories...</span>}
                 {error && <span className="error">{error}</span>}
@@ -100,7 +191,6 @@ const CategoriesAutocomplete = ({ value, onChange, placeholder = "Type to search
                     </span>
                 ))}
             </div>
-            {/* Search input */}
             <div className="input-container">
                 <input
                     type="text"
@@ -110,7 +200,6 @@ const CategoriesAutocomplete = ({ value, onChange, placeholder = "Type to search
                     className="skills-input"
                     onFocus={() => inputValue && setShowSuggestions(filteredCategories.length > 0)}
                 />
-                {/* Suggestions dropdown */}
                 {showSuggestions && (
                     <div className="suggestions-dropdown">
                         {filteredCategories.map((category) => (
@@ -138,7 +227,6 @@ const SkillsAutocomplete = ({ value, onChange, placeholder = "Type to search ski
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Load current skill names when IDs change
   useEffect(() => {
     const loadCurrentSkills = async () => {
       if (value?.length > 0) {
@@ -160,7 +248,6 @@ const SkillsAutocomplete = ({ value, onChange, placeholder = "Type to search ski
     loadCurrentSkills();
   }, [value]);
 
-  // Search for skills when input changes
   useEffect(() => {
     if (inputValue.length > 1) {
       const timer = setTimeout(async () => {
@@ -198,7 +285,6 @@ const SkillsAutocomplete = ({ value, onChange, placeholder = "Type to search ski
 
   return (
     <div className="skills-autocomplete">
-      {/* Display current skills as tags */}
       <div className="skills-tags">
         {loading && <span>Loading skills...</span>}
         {error && <span className="error">{error}</span>}
@@ -216,7 +302,6 @@ const SkillsAutocomplete = ({ value, onChange, placeholder = "Type to search ski
         ))}
       </div>
 
-      {/* Search input */}
       <div className="input-container">
         <input
           type="text"
@@ -227,7 +312,6 @@ const SkillsAutocomplete = ({ value, onChange, placeholder = "Type to search ski
           onFocus={() => inputValue && setShowSuggestions(filteredSkills.length > 0)}
         />
         
-        {/* Suggestions dropdown */}
         {showSuggestions && (
           <div className="suggestions-dropdown">
             {filteredSkills.map((skill) => (
@@ -246,58 +330,6 @@ const SkillsAutocomplete = ({ value, onChange, placeholder = "Type to search ski
   );
 };
 
-// Custom Simple Tags Input Component for Facilities
-const SimpleTagsInput = ({ value, onChange, placeholder = "Type and press Enter to add..." }) => {
-    const [inputValue, setInputValue] = useState("");
-
-    const handleInputChange = (e) => {
-        setInputValue(e.target.value);
-    };
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && inputValue.trim()) {
-            e.preventDefault();
-            if (!value.includes(inputValue.trim())) {
-                onChange([...value, inputValue.trim()]);
-                setInputValue("");
-            }
-        }
-    };
-
-    const removeTag = (tagToRemove) => {
-        onChange(value.filter(tag => tag !== tagToRemove));
-    };
-
-    return (
-        <div className="skills-autocomplete">
-            <div className="skills-tags">
-                {value.map((tag, index) => (
-                    <span key={index} className="skill-tag">
-                        {tag}
-                        <button
-                            type="button"
-                            onClick={() => removeTag(tag)}
-                            className="remove-skill"
-                        >
-                            ×
-                        </button>
-                    </span>
-                ))}
-            </div>
-            <div className="input-container">
-                <input
-                    type="text"
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                    placeholder={placeholder}
-                    className="skills-input"
-                />
-            </div>
-        </div>
-    );
-};
-
 const AddJob = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [deadline, setDeadline] = useState(new Date());
@@ -307,6 +339,39 @@ const AddJob = () => {
     const [selectedStatus, setSelectedStatus] = useState(null);
     const [selectedType, setSelectedType] = useState(null);
     const [workplaceType, setWorkplaceType] = useState(null);
+    const [eligibility, setEligibility] = useState(null);
+    const [studentCurrentlyStudying, setStudentCurrentlyStudying] = useState(false);
+    const [selectedYears, setSelectedYears] = useState([]);
+    const [experienceMin, setExperienceMin] = useState('');
+    const [experienceMax, setExperienceMax] = useState('');
+    const [salaryType, setSalaryType] = useState('FIXED');
+    const [fixedAmount, setFixedAmount] = useState('');
+    const [minAmount, setMinAmount] = useState('');
+    const [maxAmount, setMaxAmount] = useState('');
+    const [incentiveDetails, setIncentiveDetails] = useState('');
+    const [isSalaryHidden, setIsSalaryHidden] = useState(false);
+    const [currency, setCurrency] = useState('INR');
+    const [salaryPeriod, setSalaryPeriod] = useState('MONTH');
+
+    const EligibilityTypes = [
+        { id: 1, label: 'College Student' },
+        { id: 2, label: 'Fresher' },
+        { id: 3, label: 'Experienced' }
+    ];
+
+    const YearOptions = ['All', '2023', '2024', '2025'];
+
+    const handleEligibilityChange = (typeId) => {
+        setEligibility(typeId);
+        if (typeId === 1) {
+            // College Student - auto select and disable the checkbox
+            setStudentCurrentlyStudying(true);
+            toast.info("Open for college students currently studying");
+        } else {
+            // Fresher or Experienced - keep checkbox as is
+            setStudentCurrentlyStudying(false);
+        }
+    };
 
     const {
         register,
@@ -317,7 +382,7 @@ const AddJob = () => {
     } = useForm();
 
     const onSubmit = async (data) => {
-        if (categories.length > 10){
+        if (categories.length > 10) {
             toast.error("You can select a maximum of 10 categories.", {
                 position: "top-right",
                 autoClose: 3000,
@@ -329,6 +394,65 @@ const AddJob = () => {
             });
             return;
         }
+
+        if (facilities.length === 0) {
+            toast.error("Please select at least one job facility.");
+            return;
+        }
+        
+        if (skills.length === 0) {
+            toast.error("Please select at least one required skill.");
+            return;
+        }
+
+        if (!eligibility) {
+            toast.error("Please select eligibility type");
+            return;
+        }
+
+        if (eligibility === 1 && !studentCurrentlyStudying) {
+            toast.error("College student jobs must be open for currently studying students");
+            return;
+        }
+
+        if (eligibility === 2 && selectedYears.length === 0) {
+            toast.error("Please select at least one graduation year");
+            return;
+        }
+
+        if (eligibility === 3 && (!experienceMin || !experienceMax)) {
+            toast.error("Please enter both min and max experience");
+            return;
+        }
+
+        if (eligibility === 3 && parseFloat(experienceMax) < parseFloat(experienceMin)) {
+            toast.error("Max experience must be greater than or equal to min experience");
+            return;
+        }
+
+        if (salaryType !== 'UNPAID') {
+            if (['FIXED', 'FIXED_INCENTIVE'].includes(salaryType) && !fixedAmount) {
+                toast.error("Please enter the fixed amount");
+                return;
+            }
+            
+            if (salaryType === 'RANGE') {
+                if (!minAmount || !maxAmount) {
+                    toast.error("Please enter both min and max amounts");
+                    return;
+                }
+                if (parseFloat(maxAmount) < parseFloat(minAmount)) {
+                    toast.error("Max amount must be greater than or equal to min amount");
+                    return;
+                }
+            }
+            
+            if (salaryType === 'FIXED_INCENTIVE' && !incentiveDetails) {
+                toast.error("Please provide incentive details");
+                return;
+            }
+        }
+
         setIsLoading(true);
         const newJob = {
             company: data?.company,
@@ -336,19 +460,29 @@ const AddJob = () => {
             workplace_type: workplaceType,
             job_status: selectedStatus || data?.status,
             job_type: selectedType || data?.type,
-            job_location: data?.location,
+            job_location: workplaceType === 1 ? null : data?.location,
             job_vacancy: data?.vacancy,
-            job_salary: data?.salary,
+            salary_type: salaryType,
+            fixed_amount: ['FIXED', 'FIXED_INCENTIVE'].includes(salaryType) ? parseFloat(fixedAmount) : null,
+            min_amount: salaryType === 'RANGE' ? parseFloat(minAmount) : null,
+            max_amount: salaryType === 'RANGE' ? parseFloat(maxAmount) : null,
+            incentive_details: salaryType === 'FIXED_INCENTIVE' ? incentiveDetails : null,
+            is_salary_hidden: isSalaryHidden,
+            currency,
+            salary_period: salaryPeriod,
             job_deadline: deadline.toISOString(),
             job_description: data?.description,
             job_skills: skills,
             categories: categories,
             job_facilities: facilities,
             job_contact: data?.contact,
+            eligibility,
+            student_currently_studying: studentCurrentlyStudying,
+            year_selection: eligibility === 2 ? selectedYears : null,
+            experience_min: eligibility === 3 ? parseFloat(experienceMin) : null,
+            experience_max: eligibility === 3 ? parseFloat(experienceMax) : null,
         };
 
-        console.log(newJob)
-        // posting;
         try {
             const response = await axios.post(
                 "https://job-portal-server-six-eosin.vercel.app/api/jobs",
@@ -357,6 +491,7 @@ const AddJob = () => {
                     withCredentials: true,
                 }
             );
+            
             toast.success("Job created successfully!", {
                 position: "top-right",
                 autoClose: 3000,
@@ -374,19 +509,22 @@ const AddJob = () => {
             setSelectedStatus(null);
             setSelectedType(null);
             setWorkplaceType(null);
-            // navigate("/");
+            setEligibility(null);
         } catch (error) {
             console.log(error);
-            toast.error("Failed to create job. Please try again.", {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+            if (error.response) {
+                const backendError = error.response.data?.message || error.response.data?.error;
+                if (backendError) {
+                    toast.error(backendError);
+                } else {
+                    toast.error("Failed to create job. Please try again.");
+                }
+            } else {
+                toast.error("Network error. Please check your connection.");
+            }
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
 
     return (
@@ -584,6 +722,110 @@ const AddJob = () => {
                                 )}
                             </div>
 
+                            <div className="row">
+                                <label htmlFor="eligibility">Eligibility</label>
+                                <div className="eligibility-tags">
+                                    {EligibilityTypes.map((type) => (
+                                    <button
+                                        type="button"
+                                        key={type.id}
+                                        className={`eligibility-tag ${eligibility === type.id ? 'selected' : ''}`}
+                                        onClick={() => handleEligibilityChange(type.id)}
+                                    >
+                                        {type.label}
+                                    </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Student Currently Studying Checkbox */}
+                            {eligibility && (
+                            <div className="row">
+                                <label className="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={studentCurrentlyStudying}
+                                    onChange={(e) => {
+                                    if (eligibility !== 1) { // Only allow changes if not College Student
+                                        setStudentCurrentlyStudying(e.target.checked);
+                                    }
+                                    }}
+                                    disabled={eligibility === 1} // Disable for College Student
+                                />
+                                Open for college students currently studying
+                                {eligibility === 1 && <span className="text-xs text-gray-500 ml-2">(Required for College Students)</span>}
+                                </label>
+                            </div>
+                            )}
+
+                            {/* Year Selection (shown only for Freshers) */}
+                            {eligibility === 2 && (
+                            <div className="row">
+                                <label>Select Graduation Years</label>
+                                <div className="year-tags">
+                                {YearOptions.map((year) => (
+                                    <button
+                                    type="button"
+                                    key={year}
+                                    className={`year-tag ${
+                                        selectedYears.includes(year) ? 'selected' : ''
+                                    }`}
+                                    onClick={() => {
+                                        if (year === 'All') {
+                                        setSelectedYears(['All']);
+                                        } else {
+                                        if (selectedYears.includes('All')) {
+                                            setSelectedYears([year]);
+                                        } else if (selectedYears.includes(year)) {
+                                            setSelectedYears(selectedYears.filter(y => y !== year));
+                                        } else {
+                                            setSelectedYears([...selectedYears, year]);
+                                        }
+                                        }
+                                    }}
+                                    >
+                                    {year}
+                                    </button>
+                                ))}
+                                </div>
+                                {errors?.yearSelection && (
+                                <span className="text-[10px] font-semibold text-red-600 mt-1 pl-1 tracking-wider">
+                                    {errors?.yearSelection?.message}
+                                </span>
+                                )}
+                            </div>
+                            )}
+
+                            {/* Experience Range (shown only for Experienced) */}
+                            {eligibility === 3 && (
+                            <div className="flex gap-4">
+                                <div className="row">
+                                <label htmlFor="experienceMin">Min Experience (years)</label>
+                                <input
+                                    type="number"
+                                    id="experienceMin"
+                                    value={experienceMin}
+                                    onChange={(e) => setExperienceMin(e.target.value)}
+                                    min="0"
+                                    step="0.5"
+                                    placeholder="0"
+                                />
+                                </div>
+                                <div className="row">
+                                <label htmlFor="experienceMax">Max Experience (years)</label>
+                                <input
+                                    type="number"
+                                    id="experienceMax"
+                                    value={experienceMax}
+                                    onChange={(e) => setExperienceMax(e.target.value)}
+                                    min={experienceMin || '0'}
+                                    step="0.5"
+                                    placeholder="5"
+                                />
+                                </div>
+                            </div>
+                            )}
+
                             {/* Vacancy */}
                             <div className="row">
                                 <label htmlFor="vacancy">Vacancy</label>
@@ -616,37 +858,129 @@ const AddJob = () => {
                                 )}
                             </div>
 
-                            {/* Salary */}
+                            {/* Salary Type */}
                             <div className="row">
-                                <label htmlFor="salary">Salary</label>
-                                <input
-                                    type="text"
-                                    id="salary"
-                                    name="salary"
-                                    placeholder="Job salary"
-                                    {...register("salary", {
-                                        required: {
-                                            value: true,
-                                            message: "Job salary is required",
-                                        },
-                                        max: {
-                                            value: 1000000,
-                                            message:
-                                                "Check number of job salary(too much)",
-                                        },
-                                        min: {
-                                            value: 10,
-                                            message:
-                                                "Job Vacancy can't 0 or smaller",
-                                        },
-                                    })}
-                                />
-                                {errors?.salary && (
-                                    <span className="text-[10px] font-semibold text-red-600 mt-1 pl-1 tracking-wider">
-                                        {errors?.salary?.message}
-                                    </span>
-                                )}
+                                <label htmlFor="salaryType">Salary Type</label>
+                                <div className="salary-tags">
+                                    {SalaryTypes.map((type) => (
+                                        <button
+                                            type="button"
+                                            key={type.id}
+                                            className={`salary-tag ${salaryType === type.id ? 'selected' : ''}`}
+                                            onClick={() => setSalaryType(type.id)}
+                                        >
+                                            {type.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="salary-info-text">
+                                    The stipend on the listing page will be shown in months only
+                                </p>
                             </div>
+
+                            {/* Salary Details */}
+                            {salaryType !== 'UNPAID' && (
+                                <div className="salary-details-container">
+                                    {/* Currency and Period */}
+                                    <div className="salary-meta-fields">
+                                        <div className="currency-selector">
+                                            <label>Currency</label>
+                                            <select 
+                                                value={currency}
+                                                onChange={(e) => setCurrency(e.target.value)}
+                                            >
+                                                {Currencies.map(curr => (
+                                                    <option key={curr.code} value={curr.code}>
+                                                        {curr.code} - {curr.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        
+                                        <div className="period-selector">
+                                            <label>Period</label>
+                                            <select 
+                                                value={salaryPeriod}
+                                                onChange={(e) => setSalaryPeriod(e.target.value)}
+                                            >
+                                                {SalaryPeriods.map(period => (
+                                                    <option key={period.id} value={period.id}>
+                                                        {period.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Fixed Amount */}
+                                    {['FIXED', 'FIXED_INCENTIVE'].includes(salaryType) && (
+                                        <div className="salary-input-field">
+                                            <label>Amount</label>
+                                            <input
+                                                type="number"
+                                                value={fixedAmount}
+                                                onChange={(e) => setFixedAmount(e.target.value)}
+                                                placeholder="Enter amount"
+                                                min="0"
+                                                step="0.01"
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* Range Amount */}
+                                    {salaryType === 'RANGE' && (
+                                        <div className="salary-range-fields">
+                                            <div className="salary-input-field">
+                                                <label>Min Amount</label>
+                                                <input
+                                                    type="number"
+                                                    value={minAmount}
+                                                    onChange={(e) => setMinAmount(e.target.value)}
+                                                    placeholder="Min amount"
+                                                    min="0"
+                                                    step="0.01"
+                                                />
+                                            </div>
+                                            <div className="salary-input-field">
+                                                <label>Max Amount</label>
+                                                <input
+                                                    type="number"
+                                                    value={maxAmount}
+                                                    onChange={(e) => setMaxAmount(e.target.value)}
+                                                    placeholder="Max amount"
+                                                    min={minAmount || '0'}
+                                                    step="0.01"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Incentive Details */}
+                                    {salaryType === 'FIXED_INCENTIVE' && (
+                                        <div className="incentive-details">
+                                            <label>Incentive Details</label>
+                                            <textarea
+                                                value={incentiveDetails}
+                                                onChange={(e) => setIncentiveDetails(e.target.value)}
+                                                placeholder="Describe the incentive structure (e.g., performance bonus, commissions)"
+                                                rows={3}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* Salary Visibility */}
+                                    <div className="salary-visibility">
+                                        <label className="checkbox-label">
+                                            <input
+                                                type="checkbox"
+                                                checked={isSalaryHidden}
+                                                onChange={(e) => setIsSalaryHidden(e.target.checked)}
+                                            />
+                                            Do not disclose salary to candidates
+                                        </label>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Deadline */}
                             <div className="row">
@@ -709,14 +1043,18 @@ const AddJob = () => {
                                     placeholder="Type to search skills..."
                                 />
                             </div>
-                            <div className="row gap-y-2">
-                                <label htmlFor="facilities">Job Facilities</label>
-                                <SimpleTagsInput
-                                    value={facilities}
-                                    onChange={setFacilities}
-                                    placeholder="Type facilities and press Enter..."
-                                />
-                            </div>
+                        </div>
+                        <div className="row gap-y-2 mt-5">
+                            <label htmlFor="facilities">Job Facilities *</label>
+                            <FacilitiesCardSelector
+                                value={facilities}
+                                onChange={setFacilities}
+                            />
+                            {errors.facilities && (
+                                <div className="facilities-error">
+                                    {errors.facilities.message}
+                                </div>
+                            )}
                         </div>
 
                         {/* Description */}
@@ -814,6 +1152,75 @@ const Wrapper = styled.section`
             grid-template-columns: 1fr;
         }
     }
+
+    .eligibility-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 6px;
+    }
+
+    .eligibility-tag {
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid #ddd;
+        background-color: white;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s;
+    }
+
+    .checkbox-label input:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .checkbox-label input:disabled + span {
+        opacity: 0.7;
+    }
+
+    .eligibility-tag.selected {
+        background-color: #414FEA;
+        color: white;
+        border-color: #414FEA;
+    }
+
+    .year-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 6px;
+    }
+
+    .year-tag {
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid #ddd;
+        background-color: white;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s;
+    }
+
+    .year-tag.selected {
+        background-color: #414FEA;
+        color: white;
+        border-color: #414FEA;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .checkbox-label input {
+        width: auto;
+        margin-top: 0;
+    }
+
     .row {
         display: flex;
         flex-direction: column;
@@ -895,6 +1302,93 @@ const Wrapper = styled.section`
     .status-tag.selected:hover, .type-tag.selected:hover {
         background-color: #414FEA;
         opacity: 0.9;
+    }
+
+    .facilities-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr); /* 6 cards per row on desktop */
+        gap: 12px;
+        margin-top: 8px;
+        width: 100%;
+    }
+
+    /* Mobile view - 2 cards per row */
+    @media screen and (max-width: 768px) {
+        .facilities-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .facility-card {
+            height: 100px; /* Smaller height on mobile */
+            padding: 8px;
+        }
+        
+        .facility-icon {
+            margin-bottom: 4px;
+        }
+        
+        .facility-name {
+            font-size: 11px;
+        }
+    }
+
+    .facilities-error {
+        border: 1px solid #ff4444;
+        border-radius: 4px;
+        padding: 8px;
+        margin-top: 8px;
+        background-color: #fff0f0;
+        color: #ff4444;
+        font-size: 12px;
+    }
+
+    .facility-card {
+        border: 2px dashed #ccc;
+        border-radius: 12px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        height: 120px;
+        text-align: center;
+        background: white;
+    }
+
+    .facility-card:hover {
+        border-color: #414FEA;
+        background-color: #f8f9ff;
+    }
+
+    .facility-card.selected {
+        border: 2px solid #414FEA;
+        background-color: #f0f3ff;
+        border-style: solid;
+    }
+
+    .facility-icon {
+        margin-bottom: 8px;
+        color: #414FEA;
+    }
+
+    .facility-name {
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .loading-facilities,
+    .no-facilities,
+    .error-message {
+        padding: 12px;
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .error-message {
+        color: #ff4444;
     }
 
     .workplace-tags {
@@ -1046,6 +1540,102 @@ const Wrapper = styled.section`
             margin: 0 auto;
             margin-top: -6px;
         }
+    }
+
+    /* Salary Tags */
+    .salary-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 6px;
+    }
+
+    .salary-tag {
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid #ddd;
+        background-color: white;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s;
+    }
+
+    .salary-tag.selected {
+        background-color: #414FEA;
+        color: white;
+        border-color: #414FEA;
+    }
+
+    .salary-info-text {
+        font-size: 11px;
+        color: #666;
+        margin-top: 4px;
+        font-style: italic;
+    }
+
+    /* Salary Details Container */
+    .salary-details-container {
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 12px;
+        background-color: #f9f9f9;
+    }
+
+    .salary-meta-fields {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .currency-selector,
+    .period-selector {
+        flex: 1;
+    }
+
+    .currency-selector select,
+    .period-selector select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 4px;
+    }
+
+    .salary-input-field {
+        margin-bottom: 16px;
+    }
+
+    .salary-input-field input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 4px;
+    }
+
+    .salary-range-fields {
+        display: flex;
+        gap: 16px;
+    }
+
+    .salary-range-fields .salary-input-field {
+        flex: 1;
+    }
+
+    .incentive-details textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 4px;
+        min-height: 80px;
+    }
+
+    .salary-visibility {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #eee;
     }
 `;
 

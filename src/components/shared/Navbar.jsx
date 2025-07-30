@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import styled from "styled-components";
 import Logo from "../Logo";
 import avatar from "../../assets/media/avatar.jpg";
@@ -5,11 +6,12 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useUserContext } from "../../context/UserContext";
 import { FiBell, FiMoreVertical, FiUser, FiSettings, FiHelpCircle, FiLogOut } from "react-icons/fi";
 import { FaWhatsapp, FaTwitter, FaLinkedinIn, FaInstagram, FaUserShield, FaBriefcase, FaUsers, FaLock, FaFileContract } from "react-icons/fa";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { IoMdSchool, IoMdDocument, IoMdInformationCircle, IoMdPeople, IoIosStats } from "react-icons/io";
 import { RiShareBoxLine, RiCoinsLine, RiMenuAddFill } from "react-icons/ri";
 import { MdWorkOutline, MdManageAccounts } from "react-icons/md";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const CommonLinks = [
   {
@@ -164,6 +166,7 @@ const Navbar = ({ navbarRef }) => {
     const [showInfoDrawer, setShowInfoDrawer] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const [isInfoClosing, setIsInfoClosing] = useState(false);
+    const [showEmployerDropdown, setShowEmployerDropdown] = useState(false);
 
     const handleClose = () => {
         setIsClosing(true);
@@ -201,6 +204,17 @@ const Navbar = ({ navbarRef }) => {
         }
     };
 
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (showEmployerDropdown && !e.target.closest('.employer-dropdown-wrapper')) {
+                setShowEmployerDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showEmployerDropdown]);
+
     return (
         <Wrapper ref={navbarRef}>
             <div className="container">
@@ -231,9 +245,59 @@ const Navbar = ({ navbarRef }) => {
                         />
                     </div>
                 ) : (
-                    <NavLink className="nav-item" to="/login">
-                        <span className="login-btn">Login</span>
-                    </NavLink>
+                    <div className="auth-actions">
+                        <NavLink className="login-btn" to="/login">
+                            Login
+                        </NavLink>
+                        <div className="divider"></div>
+                            <div className="employer-dropdown-wrapper">
+                                <div 
+                                    className="dropdown-toggle" 
+                                    onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowEmployerDropdown(!showEmployerDropdown);
+                                    }}
+                                >
+                                    For employers
+                                    <span className="dropdown-arrow">
+                                    {showEmployerDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
+                                    </span>
+                                </div>
+                            
+                                {showEmployerDropdown && (
+                                    <div className="dropdown-menu">
+                                    <NavLink 
+                                        to="/login-recruiter" 
+                                        className="dropdown-item"
+                                        onClick={() => setShowEmployerDropdown(false)}
+                                    >
+                                        Recruiter Login
+                                    </NavLink>
+                                    <NavLink 
+                                        to="/company-register" 
+                                        className="dropdown-item"
+                                        onClick={() => setShowEmployerDropdown(false)}
+                                    >
+                                        Company Login
+                                    </NavLink>
+                                    <NavLink 
+                                        to="#" 
+                                        className="dropdown-item"
+                                        onClick={() => setShowEmployerDropdown(false)}
+                                    >
+                                        College T&P
+                                    </NavLink>
+                                    <NavLink 
+                                        to="#" 
+                                        className="dropdown-item"
+                                        onClick={() => setShowEmployerDropdown(false)}
+                                    >
+                                        Mentor Login
+                                    </NavLink>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                 )}
             </div>
 
@@ -323,9 +387,8 @@ const Wrapper = styled.div`
     box-shadow: 0 5px 5px var(--shadow-light);
     padding: 0.7rem 0;
     background-color: var(--color-white);
-    overflow-x: hidden;
-    z-index: 999;
-    position: sticky;
+    z-index: 10;
+    position: relative;
     top: 0;
 
     .container {
@@ -346,16 +409,6 @@ const Wrapper = styled.div`
         font-weight: 500;
         margin-left: 20px;
         color: var(--color-black);
-    }
-
-    .login-btn {
-        background-color: #414bea;
-        color: white;
-        padding: 7px 14px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 500;
-        white-space: nowrap;
     }
 
     .icon-group {
@@ -386,6 +439,149 @@ const Wrapper = styled.div`
     .notification-icon {
         position: relative;
         display: flex;
+    }
+
+    .auth-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .login-btn {
+        color: #414FEA;
+        background-color: white;
+        border: 1px solid #414FEA;
+        padding: 7px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        transition: all 0.3s ease;
+        text-decoration: none;
+
+        &:hover {
+            background-color: #414FEA;
+            color: white;
+        }
+    }
+
+    .divider {
+        height: 20px;
+        width: 1px;
+        background-color: #ddd;
+    }
+
+    .employer-dropdown {
+        position: relative;
+    }
+
+    .dropdown-toggle {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: none;
+        border: none;
+        color: #333;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 5px 0;
+        position: relative;
+
+        &:hover {
+            color: #414FEA;
+        }
+    }
+
+    .dropdown-arrow {
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        transition: transform 0.2s ease;
+    }
+
+    .employer-dropdown-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 8px 0;
+        min-width: 180px;
+        z-index: 1001;
+        animation: fadeInDropdown 0.2s ease-out;
+        margin-right: -30px;
+    }
+
+    @keyframes fadeInDropdown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .dropdown-item {
+        padding: 8px 16px;
+        color: #333;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: #f5f5f5;
+        }
+    }
+
+    /* Mobile styles */
+    @media screen and (max-width: 600px) {
+        .dropdown-menu {
+            min-width: 160px;
+        }
+
+        .dropdown-item {
+            font-size: 13px;
+            padding: 6px 12px;
+        }
+    }
+
+    @media screen and (max-width: 600px) {
+        .auth-actions {
+            gap: 8px;
+        }
+
+        .login-btn {
+            padding: 5px 15px;
+            font-size: 13px;
+        }
+
+        .dropdown-toggle {
+            font-size: 13px;
+        }
+
+        .dropdown-arrow {
+            font-size: 14px;
+        }
+
+        .dropdown-menu {
+            min-width: 160px;
+        }
+
+        .dropdown-item {
+            font-size: 13px;
+            padding: 6px 12px;
+        }
     }
 
     .notification-dot {

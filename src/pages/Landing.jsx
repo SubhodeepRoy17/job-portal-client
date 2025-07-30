@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Wrapper from "../assets/css/wrappers/LandingPage";
 import Navbar from "../components/shared/Navbar";
 import Brands from "../components/Home Page/Brands";
@@ -15,26 +15,43 @@ const Landing = () => {
     const navbarRef = useRef(null);
     const heroRef = useRef(null);
     const { user } = useUserContext();
+    const [showEmployerDropdown, setShowEmployerDropdown] = useState(false);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (showEmployerDropdown && !e.target.closest('.employer-dropdown-wrapper')) {
+                setShowEmployerDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showEmployerDropdown]);
+
     useEffect(() => {
         const navbarHeight = navbarRef.current.getBoundingClientRect().height;
     }, []);
+
     return (
         <>
             <div>
-            <Navbar navbarRef={navbarRef} />
-            
-            <Wrapper ref={heroRef}>
-                {/* ✅ Show BottomNav only for role 3 (regular user) */}
-                {user?.ac_status && user?.role === 3 && <BottomNav />}
-            </Wrapper>
-                <TopSection/>
+                <Navbar navbarRef={navbarRef} />
+                
+                <Wrapper ref={heroRef}>
+                    {user?.ac_status && user?.role === 3 && <BottomNav />}
+                </Wrapper>
+                
+                <TopSection 
+                    showEmployerDropdown={showEmployerDropdown}
+                    setShowEmployerDropdown={setShowEmployerDropdown}
+                />
                 <Introducing/>
                 <Categories />
                 <FeaturedCompanies />
                 <Brands />
             </div>
             <Footer />
-            
             <CookieConsentBanner />
         </>
     );
