@@ -1600,11 +1600,11 @@ export default function CompanyRegister() {
                     value={formData.teamSize}
                     onValueChange={(value) => setFormData({ ...formData, teamSize: value })}
                   >
-                    <SelectItem value="1-10">1-10 employees</SelectItem>
-                    <SelectItem value="11-50">11-50 employees</SelectItem>
-                    <SelectItem value="51-200">51-200 employees</SelectItem>
-                    <SelectItem value="201-500">201-500 employees</SelectItem>
-                    <SelectItem value="500+">500+ employees</SelectItem>
+                    <SelectItem value="1-10">1-10 </SelectItem>
+                    <SelectItem value="11-50">11-50 </SelectItem>
+                    <SelectItem value="51-200">51-200 </SelectItem>
+                    <SelectItem value="201-500">201-500 </SelectItem>
+                    <SelectItem value="500+">500+ </SelectItem>
                   </Select>
                 </FormGroup>
               </GridContainer>
