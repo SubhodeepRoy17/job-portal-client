@@ -995,28 +995,35 @@ export default function CompanyRegister() {
     }
   }
 
+  // First upload files and get URLs
   const uploadFile = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    
-    try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Upload failed');
-      }
-      
-      return data.url;
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload file');
-      throw error;
-    }
+
+    const response = await fetch('/api/company/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    if (!response.ok) throw new Error('Upload failed');
+    return await response.json();
+  };
+
+  // Then register with the URLs
+  const registerCompany = async (data) => {
+    const response = await fetch('/api/company/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) throw new Error('Registration failed');
+    return await response.json();
   };
 
   const handleFileChange = useCallback(async (e, field) => {
@@ -1066,99 +1073,68 @@ export default function CompanyRegister() {
     setShowCalendar(false);
   };
 
+  const handleLogin = async (credentials) => {
+    try {
+      const response = await fetch('/api/company/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const data = await response.json();
+      localStorage.setItem('token', data.data.token);
+      // Redirect to dashboard
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
-      // Basic validation
-      if (!formData.companyName) {
-        toast.error('Company name is required');
-        return;
-      }
+      // First upload files if they exist
+      const logoUrl = formData.logo 
+        ? await uploadFile(formData.logo, 'logo')
+        : '';
+      const bannerUrl = formData.banner 
+        ? await uploadFile(formData.banner, 'banner')
+        : '';
 
-      if (!formData.email) {
-        toast.error('Email is required');
-        return;
-      }
-
-      // Validate email domain
-      const emailDomain = formData.email.split('@')[1];
-      const blockedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com'];
-      if (blockedDomains.includes(emailDomain)) {
-        toast.error('Please use your company email address');
-        return;
-      }
-
-      if (!formData.password) {
-        toast.error('Password is required');
-        return;
-      }
-
-      if (formData.password.length < 8) {
-        toast.error('Password must be at least 8 characters');
-        return;
-      }
-
-      // Show loading toast
-      const toastId = toast.loading('Registering your company...');
-
-      // Prepare the data for submission
-      const submissionData = {
-        full_name: formData.companyName,
-        company_mail_id: formData.email,
-        password: formData.password,
-        company_name: formData.companyName,
-        about_company: formData.aboutUs,
-        logo_url: formData.logoUrl,
-        banner_url: formData.bannerUrl,
-        organizations_type: formData.organizationType,
-        industry_type: formData.industryType,
-        team_size: formData.teamSize,
-        year_of_establishment: formData.yearEstablished,
-        company_website: formData.companyWebsite,
-        company_vision: formData.companyVision,
-        social_links: formData.socialLinks.reduce((acc, link) => {
-          acc[`${link.platform}_url`] = link.url;
-          return acc;
-        }, {}),
-        map_location_url: formData.mapLocation,
-        headquarter_phone_no: `${formData.phoneCountryCode}${formData.phoneNumber}`,
-        email_id: formData.email,
-        role: 4 // Company role
+      // Prepare registration data
+      const registrationData = {
+        ...formData,
+        company_logo_url: logoUrl,
+        company_banner_url: bannerUrl,
+        // Remove the actual file objects
+        logo: undefined,
+        banner: undefined
       };
 
-      // Send data to your API endpoint
+      // Submit registration
       const response = await fetch('/api/company/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(submissionData),
+        body: JSON.stringify(registrationData)
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.update(toastId, {
-          render: 'Company registered successfully!',
-          type: 'success',
-          isLoading: false,
-          autoClose: 3000
-        });
-        setCurrentStep(5); // Move to success step
-      } else {
-        toast.update(toastId, {
-          render: data.message || 'Registration failed',
-          type: 'error',
-          isLoading: false,
-          autoClose: 3000
-        });
-        
-        if (data.errors) {
-          data.errors.forEach(error => toast.error(error));
-        }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
       }
+
+      const data = await response.json();
+      localStorage.setItem('token', data.data.token);
+      // Redirect to dashboard or next step
     } catch (error) {
-      toast.error('An error occurred during registration');
-      console.error('Registration error:', error);
+      toast.error(error.message);
     }
   };
 
@@ -1261,13 +1237,35 @@ export default function CompanyRegister() {
     }
   };
 
-  const handleNext = () => {
-    if (!validateStep(currentStep)) return
+  const handleNext = async () => {
+    try {
+      // Validate current step
+      if (!validateStep(currentStep)) return;
 
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1)
+      // Special handling for step 1 (file uploads)
+      if (currentStep === 1) {
+        if (formData.logo) {
+          const logoUrl = await uploadFile(formData.logo, 'logo');
+          setFormData(prev => ({ ...prev, company_logo_url: logoUrl }));
+        }
+        if (formData.banner) {
+          const bannerUrl = await uploadFile(formData.banner, 'banner');
+          setFormData(prev => ({ ...prev, company_banner_url: bannerUrl }));
+        }
+      }
+
+      // Special handling for final step (registration)
+      if (currentStep === 4) {
+        await handleSubmit();
+        return;
+      }
+
+      // Proceed to next step
+      setCurrentStep(prev => prev + 1);
+    } catch (error) {
+      toast.error(error.message);
     }
-  }
+  };
 
   const handlePrevious = () => {
     if (currentStep > 1) {
