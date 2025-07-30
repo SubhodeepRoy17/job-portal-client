@@ -1041,16 +1041,25 @@ export default function CompanyRegister() {
 
   // Then register with the URLs
   const registerCompany = async (data) => {
-    const response = await fetch(`${API_BASE_URL}/api/company/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data)
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/company/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        credentials: 'include' // If using cookies
+      });
 
-    if (!response.ok) throw new Error('Registration failed');
-    return await response.json();
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
   };
 
   const handleFileChange = async (e, field) => {
