@@ -22,6 +22,8 @@ import {
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 
+const API_BASE_URL = 'https://job-portal-server-six-eosin.vercel.app';
+
 const CalendarWrapper = styled.div`
   position: relative;
   width: 100%;
