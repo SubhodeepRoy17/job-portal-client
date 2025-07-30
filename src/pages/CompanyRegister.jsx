@@ -1,8 +1,8 @@
-//src/pages/CompanyRegister.jsx
 "use client"
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useState } from "react"
+import { ToastContainer } from 'react-toastify';
+import { useState, useRef, useCallback } from "react"
 import styled from "styled-components"
 import {
   Upload,
@@ -19,6 +19,30 @@ import {
   Mail,
   ChevronDown,
 } from "lucide-react"
+import Calendar from 'react-calendar'
+import 'react-calendar/dist/Calendar.css'
+
+const CalendarWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`
+
+const CalendarDropdown = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  margin-top: 0.25rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+`
+
+const CalendarInputWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`
 
 // Styled UI Components
 const StyledButton = styled.button`
@@ -606,10 +630,17 @@ const FileUploadWrapper = styled.div`
   text-align: center;
   cursor: pointer;
   transition: border-color 0.2s;
+  position: relative;
+  overflow: hidden;
 
   &:hover {
     border-color: #9ca3af;
   }
+
+  ${(props) => props.$hasFile && `
+    border-color: #2563eb;
+    background-color: #f0f7ff;
+  `}
 `
 
 const FileUploadContent = styled.div`
@@ -617,6 +648,8 @@ const FileUploadContent = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  position: relative;
+  z-index: 1;
 `
 
 const FileUploadText = styled.div`
@@ -641,6 +674,46 @@ const FileUploadDescription = styled.p`
   font-size: 0.875rem;
   color: #6b7280;
   margin-top: 0.5rem;
+`
+
+const FilePreview = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 2;
+`
+
+const FilePreviewImage = styled.img`
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+`
+
+const RemoveFileButton = styled.button`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
 `
 
 const FormGroup = styled.div`
@@ -855,14 +928,20 @@ const socialPlatforms = [
   { value: "linkedin", label: "LinkedIn", icon: "💼" },
 ]
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
 export default function CompanyRegister() {
   const [currentStep, setCurrentStep] = useState(1)
+  const [showCalendar, setShowCalendar] = useState(false);
   const [formData, setFormData] = useState({
     // Step 1 - Company Info
     companyName: "",
     aboutUs: "",
     logo: null,
+    logoPreview: null,
     banner: null,
+    bannerPreview: null,
 
     // Step 2 - Founding Info
     organizationType: "",
@@ -874,10 +953,10 @@ export default function CompanyRegister() {
 
     // Step 3 - Social Media
     socialLinks: [
-        { platform: "facebook", url: "" },
-        { platform: "twitter", url: "" },
-        { platform: "instagram", url: "" },
-        { platform: "youtube", url: "" },
+      { platform: "facebook", url: "" },
+      { platform: "twitter", url: "" },
+      { platform: "instagram", url: "" },
+      { platform: "youtube", url: "" },
     ],
 
     // Step 4 - Contact
@@ -885,8 +964,11 @@ export default function CompanyRegister() {
     phoneCountryCode: "+880", // Default country code
     phoneNumber: "",
     email: "",
-    password: "", // Add password field
-    });
+    password: "",
+  })
+
+  const logoInputRef = useRef(null);
+  const bannerInputRef = useRef(null);
 
   const steps = [
     { id: 1, title: "Company Info", icon: User },
@@ -912,101 +994,172 @@ export default function CompanyRegister() {
     }
   }
 
+  const uploadFile = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Upload failed');
+      }
+      
+      return data.url;
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload file');
+      throw error;
+    }
+  };
+
+  const handleFileChange = useCallback(async (e, field) => {
+    const file = e.target.files[0];
+    
+    if (!file) return;
+
+    // Validate file type
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      toast.error('Invalid file type. Please upload a JPEG, PNG, or WebP image.');
+      return;
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('File size too large. Maximum size is 5MB.');
+      return;
+    }
+
+    setUploading(true);
+    
+    try {
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      
+      // Upload the file to get a permanent URL
+      const fileUrl = await uploadFile(file);
+
+      setFormData(prev => ({
+        ...prev,
+        [field]: file,
+        [`${field}Preview`]: previewUrl,
+        [`${field}Url`]: fileUrl
+      }));
+
+      toast.success(`${field === 'logo' ? 'Logo' : 'Banner'} uploaded successfully`);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    } finally {
+      setUploading(false);
+    }
+  }, []);
+
+  const handleDateChange = (date) => {
+    const formattedDate = date.toLocaleDateString('en-GB'); // dd/mm/yyyy format
+    setFormData({ ...formData, yearEstablished: formattedDate });
+    setShowCalendar(false);
+  };
+
   const handleSubmit = async () => {
     try {
-        // Basic validation
-        if (!formData.companyName) {
+      // Basic validation
+      if (!formData.companyName) {
         toast.error('Company name is required');
         return;
-        }
+      }
 
-        if (!formData.email) {
+      if (!formData.email) {
         toast.error('Email is required');
         return;
-        }
+      }
 
-        // Validate email domain
-        const emailDomain = formData.email.split('@')[1];
-        const blockedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com'];
-        if (blockedDomains.includes(emailDomain)) {
+      // Validate email domain
+      const emailDomain = formData.email.split('@')[1];
+      const blockedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com'];
+      if (blockedDomains.includes(emailDomain)) {
         toast.error('Please use your company email address');
         return;
-        }
+      }
 
-        if (!formData.password) {
+      if (!formData.password) {
         toast.error('Password is required');
         return;
-        }
+      }
 
-        if (formData.password.length < 8) {
+      if (formData.password.length < 8) {
         toast.error('Password must be at least 8 characters');
         return;
-        }
+      }
 
-        // Prepare the data for submission
-        const submissionData = {
+      // Show loading toast
+      const toastId = toast.loading('Registering your company...');
+
+      // Prepare the data for submission
+      const submissionData = {
         full_name: formData.companyName,
         company_mail_id: formData.email,
         password: formData.password,
         company_name: formData.companyName,
         about_company: formData.aboutUs,
+        logo_url: formData.logoUrl,
+        banner_url: formData.bannerUrl,
         organizations_type: formData.organizationType,
         industry_type: formData.industryType,
         team_size: formData.teamSize,
         year_of_establishment: formData.yearEstablished,
         company_website: formData.companyWebsite,
         company_vision: formData.companyVision,
-        linkedin_url: formData.socialLinks.find(link => link.platform === 'linkedin')?.url || '',
-        instagram_url: formData.socialLinks.find(link => link.platform === 'instagram')?.url || '',
-        facebook_url: formData.socialLinks.find(link => link.platform === 'facebook')?.url || '',
-        youtube_url: formData.socialLinks.find(link => link.platform === 'youtube')?.url || '',
-        custom_link: '',
+        social_links: formData.socialLinks.reduce((acc, link) => {
+          acc[`${link.platform}_url`] = link.url;
+          return acc;
+        }, {}),
         map_location_url: formData.mapLocation,
         headquarter_phone_no: `${formData.phoneCountryCode}${formData.phoneNumber}`,
         email_id: formData.email,
         role: 4 // Company role
-        };
+      };
 
-        // Show loading toast
-        const toastId = toast.loading('Registering your company...');
-
-        // Send data to your API endpoint
-        const response = await fetch('/api/company/register', {
+      // Send data to your API endpoint
+      const response = await fetch('/api/company/register', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(submissionData),
-        });
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (response.ok) {
+      if (response.ok) {
         toast.update(toastId, {
-            render: 'Company registered successfully!',
-            type: 'success',
-            isLoading: false,
-            autoClose: 3000
+          render: 'Company registered successfully!',
+          type: 'success',
+          isLoading: false,
+          autoClose: 3000
         });
         setCurrentStep(5); // Move to success step
-        } else {
+      } else {
         toast.update(toastId, {
-            render: data.message || 'Registration failed',
-            type: 'error',
-            isLoading: false,
-            autoClose: 3000
+          render: data.message || 'Registration failed',
+          type: 'error',
+          isLoading: false,
+          autoClose: 3000
         });
         
-        // Show validation errors if any
         if (data.errors) {
-            data.errors.forEach(error => toast.error(error));
+          data.errors.forEach(error => toast.error(error));
         }
-        }
+      }
     } catch (error) {
-        toast.error('An error occurred during registration');
-        console.error('Registration error:', error);
+      toast.error('An error occurred during registration');
+      console.error('Registration error:', error);
     }
-    };
+  };
 
   const getProgressText = () => {
     switch (currentStep) {
@@ -1026,73 +1179,86 @@ export default function CompanyRegister() {
   }
 
   const validateStep = (step) => {
+    // Clear any previous error toasts
+    toast.dismiss();
+
     switch (step) {
       case 1:
         if (!formData.companyName.trim()) {
-          toast.error('Company name is required')
-          return false
+          toast.error('🛑 Company name is required');
+          return false;
         }
         if (!formData.aboutUs.trim()) {
-          toast.error('About Us description is required')
-          return false
+          toast.error('📝 Please write something about your company');
+          return false;
         }
-        return true
+        return true;
 
       case 2:
         if (!formData.organizationType) {
-          toast.error('Organization type is required')
-          return false
+          toast.error('🏢 Please select your organization type');
+          return false;
         }
         if (!formData.industryType) {
-          toast.error('Industry type is required')
-          return false
+          toast.error('🏭 Please select your industry type');
+          return false;
         }
         if (!formData.teamSize) {
-          toast.error('Team size is required')
-          return false
+          toast.error('👥 Please select your team size');
+          return false;
         }
         if (!formData.yearEstablished) {
-          toast.error('Year of establishment is required')
-          return false
+          toast.error('📅 Please select year of establishment');
+          return false;
         }
         if (formData.companyWebsite && !/^https?:\/\/.+\..+/.test(formData.companyWebsite)) {
-          toast.error('Please enter a valid website URL')
-          return false
+          toast.error('🌐 Website URL must be valid (include http:// or https://)');
+          return false;
         }
-        return true
+        return true;
 
       case 3:
-        for (const link of formData.socialLinks) {
-          if (link.url && !/^https?:\/\/.+\..+/.test(link.url)) {
-            toast.error(`Please enter a valid URL for ${link.platform}`)
-            return false
-          }
+        // Social links are optional but URLs must be valid if provided
+        const invalidLinks = formData.socialLinks.filter(link => 
+          link.url && !/^https?:\/\/.+\..+/.test(link.url)
+        );
+        if (invalidLinks.length > 0) {
+          toast.error(`🔗 Please enter valid URLs for ${invalidLinks.map(l => l.platform).join(', ')}`);
+          return false;
         }
-        return true
+        return true;
 
       case 4:
         if (!formData.email) {
-          toast.error('Email is required')
-          return false
+          toast.error('📧 Company email is required');
+          return false;
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-          toast.error('Please enter a valid email address')
-          return false
+          toast.error('✉️ Please enter a valid email address');
+          return false;
         }
         if (!formData.phoneNumber) {
-          toast.error('Phone number is required')
-          return false
+          toast.error('📱 Phone number is required');
+          return false;
         }
         if (!/^\d+$/.test(formData.phoneNumber)) {
-          toast.error('Phone number must contain only digits')
-          return false
+          toast.error('🔢 Phone number must contain only digits');
+          return false;
         }
-        return true
+        if (!formData.password) {
+          toast.error('🔑 Password is required');
+          return false;
+        }
+        if (formData.password.length < 8) {
+          toast.error('⚠️ Password must be at least 8 characters');
+          return false;
+        }
+        return true;
 
       default:
-        return true
+        return true;
     }
-  }
+  };
 
   const handleNext = () => {
     if (!validateStep(currentStep)) return
@@ -1126,17 +1292,42 @@ export default function CompanyRegister() {
     setFormData({ ...formData, socialLinks: newLinks })
   }
 
-  const FileUpload = ({ label, description, onFileChange }) => (
-    <FileUploadWrapper>
-      <FileUploadContent>
-        <Upload className="h-12 w-12 text-gray-400" />
-        <FileUploadText>
-          <div>
-            <FileUploadButton>Browse photo</FileUploadButton>
-            <span style={{ color: "#6b7280" }}> or drop here</span>
-          </div>
-        </FileUploadText>
-      </FileUploadContent>
+  const FileUpload = ({ label, description, onFileChange, field, file, preview, inputRef }) => (
+    <FileUploadWrapper 
+      $hasFile={!!file}
+      onClick={() => inputRef.current?.click()}
+    >
+      <input
+        type="file"
+        ref={inputRef}
+        onChange={(e) => handleFileChange(e, field)}
+        accept="image/jpeg, image/png, image/webp"
+        style={{ display: 'none' }}
+      />
+      
+      {preview ? (
+        <>
+          <FilePreview>
+            <FilePreviewImage src={preview} alt={`${field} preview`} />
+          </FilePreview>
+          <RemoveFileButton onClick={(e) => {
+            e.stopPropagation();
+            removeFile(field);
+          }}>
+            <X className="w-3 h-3" />
+          </RemoveFileButton>
+        </>
+      ) : (
+        <FileUploadContent>
+          <Upload className="h-12 w-12 text-gray-400" />
+          <FileUploadText>
+            <div>
+              <FileUploadButton>Browse photo</FileUploadButton>
+              <span style={{ color: "#6b7280" }}> or drop here</span>
+            </div>
+          </FileUploadText>
+        </FileUploadContent>
+      )}
       <FileUploadDescription>{description}</FileUploadDescription>
     </FileUploadWrapper>
   )
@@ -1170,10 +1361,9 @@ export default function CompanyRegister() {
             <SuccessIcon>
               <Check className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600" />
             </SuccessIcon>
-            <SuccessTitle>🎉 Congratulations, You profile is 100% complete!</SuccessTitle>
+            <SuccessTitle>🎉 Congratulations, Your profile is 100% complete!</SuccessTitle>
             <SuccessDescription>
-              Donec hendrerit, ante mattis pellentesque eleifend, tortor urna malesuada ante, eget aliquam nulla augue
-              hendrerit ligula. Nunc mauris arcu, mattis sed sem vitae.
+              Your company profile has been successfully registered. You can now post jobs, manage candidates, and access all the features of our platform.
             </SuccessDescription>
             <SuccessButtonGroup>
               <StyledButton $variant="outline" $size="lg">
@@ -1188,7 +1378,7 @@ export default function CompanyRegister() {
 
         {/* Footer */}
         <FixedFooter>
-          <FooterText>© 2021 Jobpilot - Job Board. All rights Reserved</FooterText>
+          <FooterText>© {new Date().getFullYear()} Jobpilot - Job Board. All rights Reserved</FooterText>
         </FixedFooter>
       </MainWrapper>
     )
@@ -1214,6 +1404,19 @@ export default function CompanyRegister() {
           </ProgressWrapperHeader>
         </HeaderContainer>
       </HeaderWrapper>
+
+      <ToastContainer 
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
 
       {/* Mobile Progress */}
       <MobileProgressWrapper>
@@ -1258,7 +1461,10 @@ export default function CompanyRegister() {
                     <FileUpload
                       label="Upload Logo"
                       description="A photo larger than 400 pixels work best. Max photo size 5 MB."
-                      onFileChange={(file) => setFormData({ ...formData, logo: file })}
+                      field="logo"
+                      file={formData.logo}
+                      preview={formData.logoPreview}
+                      inputRef={logoInputRef}
                     />
                   </FormGroup>
                   <FormGroup>
@@ -1266,7 +1472,10 @@ export default function CompanyRegister() {
                     <FileUpload
                       label="Banner Image"
                       description="Banner images optimal dimension 1520*400. Supported format JPEG, PNG. Max photo size 5 MB."
-                      onFileChange={(file) => setFormData({ ...formData, banner: file })}
+                      field="banner"
+                      file={formData.banner}
+                      preview={formData.bannerPreview}
+                      inputRef={bannerInputRef}
                     />
                   </FormGroup>
                 </GridContainer>
@@ -1279,6 +1488,7 @@ export default function CompanyRegister() {
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                   placeholder="Enter your company name"
+                  required
                 />
               </FormGroup>
 
@@ -1291,6 +1501,7 @@ export default function CompanyRegister() {
                     value={formData.aboutUs}
                     onChange={(e) => setFormData({ ...formData, aboutUs: e.target.value })}
                     rows={6}
+                    required
                   />
                   <TextareaToolbar>
                     <StyledButton $variant="ghost" $size="sm">
@@ -1371,24 +1582,40 @@ export default function CompanyRegister() {
               <GridContainer $cols={2}>
                 <FormGroup>
                   <StyledLabel>Year of Establishment</StyledLabel>
-                  <div style={{ position: "relative" }}>
-                    <StyledInput
-                      placeholder="dd/mm/yyyy"
-                      value={formData.yearEstablished}
-                      onChange={(e) => setFormData({ ...formData, yearEstablished: e.target.value })}
-                    />
-                    <CalendarIcon
-                      style={{
-                        position: "absolute",
-                        right: "0.75rem",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        width: "1.25rem",
-                        height: "1.25rem",
-                        color: "#9ca3af",
-                      }}
-                    />
-                  </div>
+                  <CalendarWrapper>
+                    <CalendarInputWrapper>
+                      <StyledInput
+                        placeholder="dd/mm/yyyy"
+                        value={formData.yearEstablished}
+                        onChange={(e) => setFormData({ ...formData, yearEstablished: e.target.value })}
+                        onClick={() => setShowCalendar(!showCalendar)}
+                        required
+                      />
+                      <CalendarIcon
+                        style={{
+                          position: "absolute",
+                          right: "0.75rem",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          width: "1.25rem",
+                          height: "1.25rem",
+                          color: "#9ca3af",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setShowCalendar(!showCalendar)}
+                      />
+                    </CalendarInputWrapper>
+                    {showCalendar && (
+                      <CalendarDropdown>
+                        <Calendar
+                          onChange={handleDateChange}
+                          value={formData.yearEstablished ? new Date(formData.yearEstablished) : new Date()}
+                          maxDate={new Date()}
+                          onClickDay={() => setShowCalendar(false)}
+                        />
+                      </CalendarDropdown>
+                    )}
+                  </CalendarWrapper>
                 </FormGroup>
 
                 <FormGroup>
@@ -1450,7 +1677,6 @@ export default function CompanyRegister() {
               </FormGroup>
             </FormSection>
           )}
-
           {/* Step 3: Social Media Profile */}
           {currentStep === 3 && (
             <FormSection>
@@ -1530,6 +1756,7 @@ export default function CompanyRegister() {
                     value={formData.phoneNumber}
                     onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                     style={{ flex: 1 }}
+                    required
                     />
                 </PhoneInputWrapper>
               </FormGroup>
@@ -1542,6 +1769,7 @@ export default function CompanyRegister() {
                     placeholder="Email address"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
                   />
                   <Mail
                     style={{
@@ -1581,6 +1809,8 @@ export default function CompanyRegister() {
                     placeholder="Create a secure password"
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    required
+                    minLength="8"
                     />
                 </FormGroup>
                 <StyledButton 
@@ -1606,7 +1836,7 @@ export default function CompanyRegister() {
 
       {/* Footer */}
       <FooterWrapper>
-        <FooterText>© 2021 Jobpilot - Job Board. All rights Reserved</FooterText>
+        <FooterText>© {new Date().getFullYear()} Jobpilot - Job Board. All rights Reserved</FooterText>
       </FooterWrapper>
     </MainWrapper>
   )
