@@ -1124,35 +1124,44 @@ export default function CompanyRegister() {
     }
   };
 
+  // Update your form submission handler
   const handleSubmit = async () => {
     try {
-      // Prepare data for submission
+      // Prepare data for submission - matching backend structure
       const submissionData = {
         companyName: formData.companyName,
-        aboutUs: formData.aboutUs,
+        fullName: formData.companyName, // Using companyName as fallback
+        email: formData.email,
+        password: formData.password,
         company_logo_url: formData.logoUrl,
         company_banner_url: formData.bannerUrl,
+        aboutUs: formData.aboutUs,
         organizationType: formData.organizationType,
         industryType: formData.industryType,
         teamSize: formData.teamSize,
         yearEstablished: formData.yearEstablished,
         companyWebsite: formData.companyWebsite,
         companyVision: formData.companyVision,
-        socialLinks: formData.socialLinks,
         phoneCountryCode: formData.phoneCountryCode,
         phoneNumber: formData.phoneNumber,
-        email: formData.email,
-        password: formData.password
+        socialLinks: formData.socialLinks
       };
 
-      const data = await registerCompany(submissionData);
-      localStorage.setItem('token', data.data.token);
-      setCurrentStep(5);
-      toast.success('Registration successful!');
-    } catch (error) {
-      console.error('Registration error:', error);
-      toast.error(error.message || 'Registration failed. Please try again.');
-    }
+      // Debug log
+      console.log('Submitting data:', submissionData);
+
+       // Call your existing registerCompany function
+        const response = await registerCompany(registrationData);
+        
+        // Handle successful response
+        localStorage.setItem('token', response.data.token);
+        setCurrentStep(5);
+        toast.success('Registration successful!');
+        
+      } catch (error) {
+        console.error('Registration error:', error);
+        toast.error(error.message || 'Registration failed. Please try again.');
+      }
   };
 
   const removeFile = (field) => {
