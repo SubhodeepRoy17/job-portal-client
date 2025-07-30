@@ -1553,15 +1553,13 @@ export default function CompanyRegister() {
                   <StyledLabel>Organization Type</StyledLabel>
                   <Select
                     value={formData.organizationType}
-                    onValueChange={(value) => setFormData({ ...formData, organizationType: value })}
+                    onValueChange={(value) => setFormData({...formData, organizationType: value})}
                   >
-                    <SelectItem value="startup">solo proprietor</SelectItem>
-                    <SelectItem value="corporation">pvt LTD</SelectItem>
-                    <SelectItem value="nonprofit">LTD</SelectItem>
-                    <SelectItem value="government">OPC</SelectItem>
-                    <SelectItem value="agency">LLP</SelectItem>
-                    <SelectItem value="inc">INC</SelectItem>
-                    <SelectItem value="corporation">Corporation</SelectItem>
+                    {ORGANIZATION_TYPES.map(type => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
                   </Select>
                 </FormGroup>
 
@@ -1569,14 +1567,13 @@ export default function CompanyRegister() {
                   <StyledLabel>Industry Types</StyledLabel>
                   <Select
                     value={formData.industryType}
-                    onValueChange={(value) => setFormData({ ...formData, industryType: value })}
+                    onValueChange={(value) => setFormData({...formData, industryType: value})}
                   >
-                    <SelectItem value="technology">Fintech</SelectItem>
-                    <SelectItem value="healthcare">Engineering</SelectItem>
-                    <SelectItem value="finance">Software & IT</SelectItem>
-                    <SelectItem value="education">Edutech</SelectItem>
-                    <SelectItem value="retail">oil and gas</SelectItem>
-                    <SelectItem value="manufacturing">other</SelectItem>
+                    {INDUSTRY_TYPES.map(type => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
                   </Select>
                 </FormGroup>
 
@@ -1768,11 +1765,14 @@ export default function CompanyRegister() {
                     ))}
                     </Select>
                     <StyledInput
-                    placeholder="Phone number..."
-                    value={formData.phoneNumber}
-                    onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
-                    style={{ flex: 1 }}
-                    required
+                      placeholder="Phone number (digits only)"
+                      value={formData.phoneNumber}
+                      onChange={(e) => {
+                        // Allow only digits
+                        const digitsOnly = e.target.value.replace(/\D/g, '');
+                        setFormData({...formData, phoneNumber: digitsOnly});
+                      }}
+                      required
                     />
                 </PhoneInputWrapper>
               </FormGroup>
