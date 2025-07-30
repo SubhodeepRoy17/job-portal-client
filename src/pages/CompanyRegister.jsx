@@ -1555,11 +1555,13 @@ export default function CompanyRegister() {
                     value={formData.organizationType}
                     onValueChange={(value) => setFormData({ ...formData, organizationType: value })}
                   >
-                    <SelectItem value="startup">Startup</SelectItem>
+                    <SelectItem value="startup">solo proprietor</SelectItem>
+                    <SelectItem value="corporation">pvt LTD</SelectItem>
+                    <SelectItem value="nonprofit">LTD</SelectItem>
+                    <SelectItem value="government">OPC</SelectItem>
+                    <SelectItem value="agency">LLP</SelectItem>
+                    <SelectItem value="inc">INC</SelectItem>
                     <SelectItem value="corporation">Corporation</SelectItem>
-                    <SelectItem value="nonprofit">Non-profit</SelectItem>
-                    <SelectItem value="government">Government</SelectItem>
-                    <SelectItem value="agency">Agency</SelectItem>
                   </Select>
                 </FormGroup>
 
@@ -1569,12 +1571,12 @@ export default function CompanyRegister() {
                     value={formData.industryType}
                     onValueChange={(value) => setFormData({ ...formData, industryType: value })}
                   >
-                    <SelectItem value="technology">Technology</SelectItem>
-                    <SelectItem value="healthcare">Healthcare</SelectItem>
-                    <SelectItem value="finance">Finance</SelectItem>
-                    <SelectItem value="education">Education</SelectItem>
-                    <SelectItem value="retail">Retail</SelectItem>
-                    <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                    <SelectItem value="technology">Fintech</SelectItem>
+                    <SelectItem value="healthcare">Engineering</SelectItem>
+                    <SelectItem value="finance">Software & IT</SelectItem>
+                    <SelectItem value="education">Edutech</SelectItem>
+                    <SelectItem value="retail">oil and gas</SelectItem>
+                    <SelectItem value="manufacturing">other</SelectItem>
                   </Select>
                 </FormGroup>
 
