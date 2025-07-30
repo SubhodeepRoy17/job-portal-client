@@ -1114,7 +1114,7 @@ export default function CompanyRegister() {
         organizations_type: formData.organizationType,
         industry_type: formData.industryType,
         team_size: formData.teamSize,
-        year_of_establishment: formData.yearEstablished,
+        year_of_establishment: formatDate(formData.yearEstablished),
         company_website: formData.companyWebsite,
         company_vision: formData.companyVision,
         headquarter_phone_no: formData.phoneNumber.replace(/\D/g, ''), // Remove non-digits
@@ -1123,6 +1123,12 @@ export default function CompanyRegister() {
         instagram_url: formData.instagram_url,
         youtube_url: formData.youtube_url
       };
+
+      function formatDate(dateString) {
+        if (!dateString) return null;
+        const [day, month, year] = dateString.split('/');
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      }
 
       const response = await fetch('https://job-portal-server-six-eosin.vercel.app/api/company/register', {
         method: 'POST',
