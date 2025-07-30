@@ -1065,26 +1065,33 @@ export default function CompanyRegister() {
       
       const uploadResponse = await fetch(`${API_BASE_URL}/api/company/upload`, {
         method: 'POST',
-        body: formData
+        body: formData,
+        // Don't set Content-Type header - let browser set it with boundary
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('File upload failed');
+        const errorText = await uploadResponse.text();
+        console.error('Upload failed with status:', uploadResponse.status, 'Response:', errorText);
+        throw new Error(errorText || 'File upload failed');
       }
 
-      const { url } = await uploadResponse.json();
+      const responseData = await uploadResponse.json();
+      
+      if (!responseData.url) {
+        throw new Error('Server did not return file URL');
+      }
 
       setFormData(prev => ({
         ...prev,
         [field]: file,
         [`${field}Preview`]: previewUrl,
-        [`${field}Url`]: url
+        [`${field}Url`]: responseData.url
       }));
 
       toast.success(`${field === 'logo' ? 'Logo' : 'Banner'} uploaded successfully`);
     } catch (error) {
       console.error('Error uploading file:', error);
-      toast.error('File upload failed. Please try again.');
+      toast.error(`File upload failed: ${error.message}`);
     } finally {
       setUploading(false);
     }
