@@ -5,8 +5,9 @@ import { ToastContainer } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Flags from 'react-flags-select';
-import { useState, useRef, useCallback } from "react"
-import styled from "styled-components"
+import { useRef } from "react";
+import { useSelector, useDispatch } from 'react-redux';
+import styled from "styled-components";
 import { 
   faFacebook, 
   faTwitter, 
@@ -28,9 +29,20 @@ import {
   Link,
   Mail,
   ChevronDown,
-} from "lucide-react"
+} from "lucide-react";
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
+import {
+  setCurrentStep,
+  updateFormData,
+  updateField,
+  setUploading,
+  setShowCalendar,
+  addSocialLink,
+  removeSocialLink,
+  updateSocialLink,
+  removeFile,
+} from '../redux/slices/companyRegistrationSlice';
 
 const API_BASE_URL = 'https://job-portal-server-six-eosin.vercel.app';
 
@@ -1075,40 +1087,13 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export default function CompanyRegister() {
-  const [currentStep, setCurrentStep] = useState(1)
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [formData, setFormData] = useState({
-  // Step 1 - Company Info
-    companyName: "",
-    aboutUs: "",
-    logoUrl: null,
-    bannerUrl: null,
-
-    // Step 2 - Founding Info
-    organizationType: "",
-    industryType: "",
-    teamSize: "",
-    yearEstablished: "",
-    companyWebsite: "",
-    companyVision: "",
-
-    // Step 3 - Social Media
-    socialLinks: [
-      { platform: "facebook", url: "" },
-      { platform: "twitter", url: "" },
-      { platform: "instagram", url: "" },
-      { platform: "youtube", url: "" },
-    ],
-
-    // Step 4 - Contact
-    mapLocation: "",
-    phoneCountry: 'US', // Default country code
-    phoneCountryCode: '+1', // Default dial code
-    phoneNumber: '',
-    email: "",
-    password: "",
-  });
+  const dispatch = useDispatch();
+  const {
+    currentStep,
+    formData,
+    uploading,
+    showCalendar,
+  } = useSelector((state) => state.companyRegistration);
 
   const logoInputRef = useRef(null);
   const bannerInputRef = useRef(null);
@@ -1118,26 +1103,19 @@ export default function CompanyRegister() {
     { id: 2, title: "Founding Info", icon: Building },
     { id: 3, title: "Social Media Profile", icon: Globe },
     { id: 4, title: "Contact", icon: MessageCircle },
-  ]
+  ];
 
   const getProgress = () => {
     switch (currentStep) {
-      case 1:
-        return 0
-      case 2:
-        return 25
-      case 3:
-        return 50
-      case 4:
-        return 75
-      case 5:
-        return 100
-      default:
-        return 0
+      case 1: return 0;
+      case 2: return 25;
+      case 3: return 50;
+      case 4: return 75;
+      case 5: return 100;
+      default: return 0;
     }
-  }
+  };
 
-  // First upload files and get URLs
   const uploadFile = async (file, type) => {
     try {
       const formData = new FormData();
@@ -1146,7 +1124,6 @@ export default function CompanyRegister() {
       const response = await fetch(`${API_BASE_URL}/api/company/upload`, {
         method: 'POST',
         body: formData,
-        // Don't set Content-Type header - let the browser set it with boundary
       });
 
       if (!response.ok) {
@@ -1155,20 +1132,19 @@ export default function CompanyRegister() {
       }
 
       const data = await response.json();
-      return data.url; // Make sure your backend returns { url: "..." }
+      return data.url;
     } catch (error) {
       console.error(`${type} upload error:`, error);
       throw error;
     }
   };
 
-  // Update the handleFileChange function
   const handleFileChange = async (e, field) => {
     const file = e.target.files[0];
     if (!file) return;
 
     try {
-      setUploading(true);
+      dispatch(setUploading(true));
       const formData = new FormData();
       formData.append('file', file);
 
@@ -1183,8 +1159,7 @@ export default function CompanyRegister() {
       }
 
       const { data } = await response.json();
-      setFormData(prev => ({
-        ...prev,
+      dispatch(updateFormData({
         [`${field}Url`]: data.url,
         [`${field}Preview`]: URL.createObjectURL(file)
       }));
@@ -1194,46 +1169,20 @@ export default function CompanyRegister() {
       console.error('Upload error:', error);
       toast.error(`Upload failed: ${error.message}`);
     } finally {
-      setUploading(false);
+      dispatch(setUploading(false));
     }
   };
 
   const handleDateChange = (date) => {
-    const formattedDate = date.toLocaleDateString('en-GB'); // dd/mm/yyyy format
-    setFormData({ ...formData, yearEstablished: formattedDate });
-    setShowCalendar(false);
+    const formattedDate = date.toLocaleDateString('en-GB');
+    dispatch(updateField({ field: 'yearEstablished', value: formattedDate }));
+    dispatch(setShowCalendar(false));
   };
 
-  const handleLogin = async (credentials) => {
-    try {
-      const response = await fetch('/api/company/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(credentials)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.data.token);
-      // Redirect to dashboard
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
-
-  // Update your form submission handler
   const handleSubmit = async () => {
     try {
-      // 1. Validate all required fields
       if (!validateStep(4)) return;
 
-      // 2. Prepare the data exactly as backend expects
       const submissionData = {
         company_name: formData.companyName,
         company_mail_id: formData.email,
@@ -1243,17 +1192,13 @@ export default function CompanyRegister() {
         organizations_type: formData.organizationType,
         industry_type: formData.industryType,
         team_size: formData.teamSize,
-        year_of_establishment: formData.yearEstablished.split('/').reverse().join('-'), // DD/MM/YYYY to YYYY-MM-DD
+        year_of_establishment: formData.yearEstablished.split('/').reverse().join('-'),
         company_website: formData.companyWebsite || null,
         company_vision: formData.companyVision || null,
-        // Optional fields from step 1
         ...(formData.logoUrl && { company_logo_url: formData.logoUrl }),
         ...(formData.bannerUrl && { company_banner_url: formData.bannerUrl }),
       };
 
-      console.log('Submitting:', JSON.stringify(submissionData, null, 2));
-
-      // 3. Make the API call
       const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
         headers: {
@@ -1263,55 +1208,40 @@ export default function CompanyRegister() {
         body: JSON.stringify(submissionData)
       });
 
-      // 4. Handle response
       const result = await response.json();
       
       if (!response.ok) {
         throw new Error(result.message || 'Registration failed');
       }
 
-      // 5. On success
       if (result.success) {
         localStorage.setItem('token', result.data.token);
         localStorage.setItem('company', JSON.stringify(result.data.company));
         toast.success(result.message);
-        setCurrentStep(5); // Move to success step
+        dispatch(setCurrentStep(5));
       }
-
     } catch (error) {
       console.error('Registration error:', error);
       toast.error(error.message || 'Registration failed. Please try again.');
     }
   };
 
-  const removeFile = (field) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: null,
-      [`${field}Preview`]: null,
-      [`${field}Url`]: null
-    }));
+  const handleRemoveFile = (field) => {
+    dispatch(removeFile({ field }));
   };
 
   const getProgressText = () => {
     switch (currentStep) {
-      case 1:
-        return "0% Completed"
-      case 2:
-        return "25% Completed"
-      case 3:
-        return "50% Completed"
-      case 4:
-        return "75% Completed"
-      case 5:
-        return "100% Completed"
-      default:
-        return "0% Completed"
+      case 1: return "0% Completed";
+      case 2: return "25% Completed";
+      case 3: return "50% Completed";
+      case 4: return "75% Completed";
+      case 5: return "100% Completed";
+      default: return "0% Completed";
     }
-  }
+  };
 
   const validateStep = (step) => {
-    // Clear any previous error toasts
     toast.dismiss();
 
     switch (step) {
@@ -1350,7 +1280,6 @@ export default function CompanyRegister() {
         return true;
 
       case 3:
-        // Social links are optional but URLs must be valid if provided
         const invalidLinks = formData.socialLinks.filter(link => 
           link.url && !/^https?:\/\/.+\..+/.test(link.url)
         );
@@ -1394,29 +1323,25 @@ export default function CompanyRegister() {
 
   const handleNext = async () => {
     try {
-      // Validate current step
       if (!validateStep(currentStep)) return;
 
-      // Special handling for step 1 (file uploads)
       if (currentStep === 1) {
         if (formData.logo) {
           const logoUrl = await uploadFile(formData.logo, 'logo');
-          setFormData(prev => ({ ...prev, company_logo_url: logoUrl }));
+          dispatch(updateField({ field: 'company_logo_url', value: logoUrl }));
         }
         if (formData.banner) {
           const bannerUrl = await uploadFile(formData.banner, 'banner');
-          setFormData(prev => ({ ...prev, company_banner_url: bannerUrl }));
+          dispatch(updateField({ field: 'company_banner_url', value: bannerUrl }));
         }
       }
 
-      // Special handling for final step (registration)
       if (currentStep === 4) {
         await handleSubmit();
         return;
       }
 
-      // Proceed to next step
-      setCurrentStep(prev => prev + 1);
+      dispatch(setCurrentStep(currentStep + 1));
     } catch (error) {
       toast.error(error.message);
     }
@@ -1424,27 +1349,21 @@ export default function CompanyRegister() {
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
+      dispatch(setCurrentStep(currentStep - 1));
     }
-  }
+  };
 
-  const addSocialLink = () => {
-    setFormData({
-      ...formData,
-      socialLinks: [...formData.socialLinks, { platform: "facebook", url: "" }],
-    })
-  }
+  const handleAddSocialLink = () => {
+    dispatch(addSocialLink());
+  };
 
-  const removeSocialLink = (index) => {
-    const newLinks = formData.socialLinks.filter((_, i) => i !== index)
-    setFormData({ ...formData, socialLinks: newLinks })
-  }
+  const handleRemoveSocialLink = (index) => {
+    dispatch(removeSocialLink(index));
+  };
 
-  const updateSocialLink = (index, field, value) => {
-    const newLinks = [...formData.socialLinks]
-    newLinks[index][field] = value
-    setFormData({ ...formData, socialLinks: newLinks })
-  }
+  const handleUpdateSocialLink = (index, field, value) => {
+    dispatch(updateSocialLink({ index, field, value }));
+  };
 
   const FileUpload = ({ label, description, onFileChange, field, file, preview, inputRef }) => (
     <FileUploadWrapper 
@@ -1466,7 +1385,7 @@ export default function CompanyRegister() {
           </FilePreview>
           <RemoveFileButton onClick={(e) => {
             e.stopPropagation();
-            removeFile(field);
+            handleRemoveFile(field);
           }}>
             <X className="w-3 h-3" />
           </RemoveFileButton>
@@ -1484,7 +1403,7 @@ export default function CompanyRegister() {
       )}
       <FileUploadDescription>{description}</FileUploadDescription>
     </FileUploadWrapper>
-  )
+  );
 
   // Success/Completion Page
   if (currentStep === 5) {
@@ -1533,7 +1452,7 @@ export default function CompanyRegister() {
           <FooterText>© {new Date().getFullYear()} Jobpilot - Job Board. All rights Reserved</FooterText>
         </FixedFooter>
       </MainWrapper>
-    )
+    );
   }
 
   return (
@@ -1638,7 +1557,7 @@ export default function CompanyRegister() {
                 <StyledInput
                   id="companyName"
                   value={formData.companyName}
-                  onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                  onChange={(e) => dispatch(updateField({ field: 'companyName', value: e.target.value }))}
                   placeholder="Enter your company name"
                   required
                 />
@@ -1651,7 +1570,7 @@ export default function CompanyRegister() {
                     id="aboutUs"
                     placeholder="Write down about your company here. Let the candidate know who we are..."
                     value={formData.aboutUs}
-                    onChange={(e) => setFormData({ ...formData, aboutUs: e.target.value })}
+                    onChange={(e) => dispatch(updateField({ field: 'aboutUs', value: e.target.value }))}
                     rows={6}
                     required
                   />
@@ -1691,7 +1610,7 @@ export default function CompanyRegister() {
                   <StyledLabel>Organization Type</StyledLabel>
                   <Select
                     value={formData.organizationType}
-                    onValueChange={(value) => setFormData({...formData, organizationType: value})}
+                    onValueChange={(value) => dispatch(updateField({ field: 'organizationType', value }))}
                   >
                     {ORGANIZATION_TYPES.map(type => (
                       <SelectItem key={type.value} value={type.value}>
@@ -1705,7 +1624,7 @@ export default function CompanyRegister() {
                   <StyledLabel>Industry Types</StyledLabel>
                   <Select
                     value={formData.industryType}
-                    onValueChange={(value) => setFormData({...formData, industryType: value})}
+                    onValueChange={(value) => dispatch(updateField({ field: 'industryType', value }))}
                   >
                     {INDUSTRY_TYPES.map(type => (
                       <SelectItem key={type.value} value={type.value}>
@@ -1719,7 +1638,7 @@ export default function CompanyRegister() {
                   <StyledLabel>Team Size</StyledLabel>
                   <Select
                     value={formData.teamSize}
-                    onValueChange={(value) => setFormData({ ...formData, teamSize: value })}
+                    onValueChange={(value) => dispatch(updateField({ field: 'teamSize', value }))}
                   >
                     <SelectItem value="1-10">1-10 </SelectItem>
                     <SelectItem value="11-50">11-50 </SelectItem>
@@ -1738,8 +1657,8 @@ export default function CompanyRegister() {
                       <StyledInput
                         placeholder="dd/mm/yyyy"
                         value={formData.yearEstablished}
-                        onChange={(e) => setFormData({ ...formData, yearEstablished: e.target.value })}
-                        onClick={() => setShowCalendar(!showCalendar)}
+                        onChange={(e) => dispatch(updateField({ field: 'yearEstablished', value: e.target.value }))}
+                        onClick={() => dispatch(setShowCalendar(!showCalendar))}
                         required
                       />
                       <CalendarIcon
@@ -1753,7 +1672,7 @@ export default function CompanyRegister() {
                           color: "#9ca3af",
                           cursor: "pointer",
                         }}
-                        onClick={() => setShowCalendar(!showCalendar)}
+                        onClick={() => dispatch(setShowCalendar(!showCalendar))}
                       />
                     </CalendarInputWrapper>
                     {showCalendar && (
@@ -1762,7 +1681,7 @@ export default function CompanyRegister() {
                           onChange={handleDateChange}
                           value={formData.yearEstablished ? new Date(formData.yearEstablished) : new Date()}
                           maxDate={new Date()}
-                          onClickDay={() => setShowCalendar(false)}
+                          onClickDay={() => dispatch(setShowCalendar(false))}
                         />
                       </CalendarDropdown>
                     )}
@@ -1775,7 +1694,7 @@ export default function CompanyRegister() {
                     <StyledInput
                       placeholder="Website url..."
                       value={formData.companyWebsite}
-                      onChange={(e) => setFormData({ ...formData, companyWebsite: e.target.value })}
+                      onChange={(e) => dispatch(updateField({ field: 'companyWebsite', value: e.target.value }))}
                     />
                     <Link
                       style={{
@@ -1798,7 +1717,7 @@ export default function CompanyRegister() {
                   <StyledTextarea
                     placeholder="Tell us about your company vision..."
                     value={formData.companyVision}
-                    onChange={(e) => setFormData({ ...formData, companyVision: e.target.value })}
+                    onChange={(e) => dispatch(updateField({ field: 'companyVision', value: e.target.value }))}
                     rows={6}
                   />
                   <TextareaToolbar>
@@ -1846,16 +1765,16 @@ export default function CompanyRegister() {
                         $isSocialInput
                         placeholder={`${link.platform}.com/username`}
                         value={link.url}
-                        onChange={(e) => updateSocialLink(index, "url", e.target.value)}
+                        onChange={(e) => handleUpdateSocialLink(index, "url", e.target.value)}
                       />
-                      <RemoveButton onClick={() => removeSocialLink(index)}>
+                      <RemoveButton onClick={() => handleRemoveSocialLink(index)}>
                         <FontAwesomeIcon icon={faTimes} />
                       </RemoveButton>
                     </SocialInputGroup>
                   </SocialLinkItem>
                 ))}
                 
-                <AddButton onClick={addSocialLink}>
+                <AddButton onClick={handleAddSocialLink}>
                   <FontAwesomeIcon icon={faPlus} />
                   Add New Social Link
                 </AddButton>
@@ -1882,13 +1801,12 @@ export default function CompanyRegister() {
                     selected={formData.phoneCountry}
                     onSelect={(code) => {
                       const country = Flags.getCountry(code);
-                      setFormData({
-                        ...formData,
+                      dispatch(updateFormData({
                         phoneCountry: code,
                         phoneCountryCode: `+${country.dialCode}`
-                      });
+                      }));
                     }}
-                    countries={['US', 'GB', 'BD', 'IN', 'CA']} // Add more as needed
+                    countries={['US', 'GB', 'BD', 'IN', 'CA']}
                     className="flag-select"
                     showSelectedLabel={true}
                     selectedSize={18}
@@ -1899,10 +1817,7 @@ export default function CompanyRegister() {
                     value={formData.phoneNumber}
                     onChange={(e) => {
                       const digitsOnly = e.target.value.replace(/\D/g, '');
-                      setFormData({
-                        ...formData,
-                        phoneNumber: digitsOnly
-                      });
+                      dispatch(updateField({ field: 'phoneNumber', value: digitsOnly }));
                     }}
                     required
                   />
@@ -1920,7 +1835,7 @@ export default function CompanyRegister() {
                       if (!validateEmail(e.target.value) && e.target.value.includes('@')) {
                         toast.error('Public email domains are not allowed');
                       }
-                      setFormData({ ...formData, email: e.target.value });
+                      dispatch(updateField({ field: 'email', value: e.target.value }));
                     }}
                     required
                   />
@@ -1951,7 +1866,7 @@ export default function CompanyRegister() {
                     type="password"
                     placeholder="Create a secure password"
                     value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    onChange={(e) => dispatch(updateField({ field: 'password', value: e.target.value }))}
                     required
                     minLength="8"
                     />
@@ -1982,5 +1897,5 @@ export default function CompanyRegister() {
         <FooterText>© {new Date().getFullYear()} Jobpilot - Job Board. All rights Reserved</FooterText>
       </FooterWrapper>
     </MainWrapper>
-  )
+  );
 }
