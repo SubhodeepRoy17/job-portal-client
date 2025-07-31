@@ -1107,7 +1107,7 @@ export default function CompanyRegister() {
   // Update your form submission handler
   const handleSubmit = async () => {
     try {
-      // Format date properly for backend
+      // Format date for backend
       const formatDate = (dateString) => {
         if (!dateString) return null;
         const [day, month, year] = dateString.split('/');
@@ -1118,16 +1118,16 @@ export default function CompanyRegister() {
         full_name: formData.companyName,
         company_mail_id: formData.email,
         password: formData.password,
-        company_logo_url: formData.logoUrl,
-        company_banner_url: formData.bannerUrl,
+        company_logo_url: formData.logoUrl || null,
+        company_banner_url: formData.bannerUrl || null,
         company_name: formData.companyName,
         about_company: formData.aboutUs,
         organizations_type: formData.organizationType,
         industry_type: formData.industryType,
         team_size: formData.teamSize,
         year_of_establishment: formatDate(formData.yearEstablished),
-        company_website: formData.companyWebsite,
-        company_vision: formData.companyVision,
+        company_website: formData.companyWebsite || null,
+        company_vision: formData.companyVision || null,
         headquarter_phone_no: `${formData.phoneCountryCode}${formData.phoneNumber.replace(/\D/g, '')}`,
         facebook_url: formData.socialLinks.find(l => l.platform === 'facebook')?.url || null,
         twitter_url: formData.socialLinks.find(l => l.platform === 'twitter')?.url || null,
@@ -1135,19 +1135,25 @@ export default function CompanyRegister() {
         youtube_url: formData.socialLinks.find(l => l.platform === 'youtube')?.url || null
       };
 
-      console.log('Submitting:', submissionData); // Debug log
+      console.log('Submitting:', submissionData);
 
       const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(submissionData)
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Registration failed');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
+      }
 
-      localStorage.setItem('token', data.data.token);
-      setCurrentStep(5); // Success step
+      const { data } = await response.json();
+      localStorage.setItem('token', data.token);
+      setCurrentStep(5); // Move to success step
 
     } catch (error) {
       console.error('Registration error:', error);
