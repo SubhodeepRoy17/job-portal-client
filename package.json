@@ -30,6 +30,7 @@
         "react-circular-progressbar": "^2.2.0",
         "react-datepicker": "^4.23.0",
         "react-dom": "^18.2.0",
+        "react-flags-select": "^2.5.0",
         "react-hook-form": "^7.48.2",
         "react-icons": "^4.11.0",
         "react-loading-skeleton": "^3.5.0",
