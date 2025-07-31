@@ -1238,12 +1238,11 @@ export default function CompanyRegister() {
       };
 
       const submissionData = {
-        full_name: formData.companyName,
+        company_name: formData.companyName, // Changed from full_name to company_name
         company_mail_id: formData.email,
         password: formData.password,
         company_logo_url: formData.logoUrl || null,
         company_banner_url: formData.bannerUrl || null,
-        company_name: formData.companyName,
         about_company: formData.aboutUs,
         organizations_type: formData.organizationType,
         industry_type: formData.industryType,
@@ -1251,14 +1250,12 @@ export default function CompanyRegister() {
         year_of_establishment: formatDate(formData.yearEstablished),
         company_website: formData.companyWebsite || null,
         company_vision: formData.companyVision || null,
-        headquarter_phone_no: `${formData.phoneCountryCode}${formData.phoneNumber.replace(/\D/g, '')}`,
-        facebook_url: formData.socialLinks.find(l => l.platform === 'facebook')?.url || null,
-        twitter_url: formData.socialLinks.find(l => l.platform === 'twitter')?.url || null,
-        instagram_url: formData.socialLinks.find(l => l.platform === 'instagram')?.url || null,
-        youtube_url: formData.socialLinks.find(l => l.platform === 'youtube')?.url || null
+        headquarter_phone_no: formData.phoneNumber 
+          ? `${formData.phoneCountryCode}${formData.phoneNumber.replace(/\D/g, '')}`
+          : null
       };
 
-      console.log('Submitting:', submissionData);
+      console.log('Final submission data:', submissionData);
 
       const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
@@ -1276,8 +1273,7 @@ export default function CompanyRegister() {
 
       const { data } = await response.json();
       localStorage.setItem('token', data.token);
-      setCurrentStep(5); // Move to success step
-
+      setCurrentStep(5);
     } catch (error) {
       console.error('Registration error:', error);
       toast.error(error.message);
