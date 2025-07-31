@@ -1079,7 +1079,7 @@ export default function CompanyRegister() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
-    // Step 1 - Company Info
+  // Step 1 - Company Info
     companyName: "",
     aboutUs: "",
     logoUrl: null,
@@ -1108,7 +1108,7 @@ export default function CompanyRegister() {
     phoneNumber: '',
     email: "",
     password: "",
-  })
+  });
 
   const logoInputRef = useRef(null);
   const bannerInputRef = useRef(null);
@@ -1230,33 +1230,30 @@ export default function CompanyRegister() {
   // Update your form submission handler
   const handleSubmit = async () => {
     try {
-      // Format date for backend
-      const formatDate = (dateString) => {
-        if (!dateString) return null;
-        const [day, month, year] = dateString.split('/');
-        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-      };
+      // 1. Validate all required fields
+      if (!validateStep(4)) return;
 
+      // 2. Prepare the data exactly as backend expects
       const submissionData = {
         company_name: formData.companyName,
         company_mail_id: formData.email,
         password: formData.password,
-        company_logo_url: formData.logoUrl || null,
-        company_banner_url: formData.bannerUrl || null,
+        headquarter_phone_no: `${formData.phoneCountryCode}${formData.phoneNumber.replace(/\D/g, '')}`,
         about_company: formData.aboutUs,
         organizations_type: formData.organizationType,
         industry_type: formData.industryType,
         team_size: formData.teamSize,
-        year_of_establishment: formatDate(formData.yearEstablished),
+        year_of_establishment: formData.yearEstablished.split('/').reverse().join('-'), // DD/MM/YYYY to YYYY-MM-DD
         company_website: formData.companyWebsite || null,
         company_vision: formData.companyVision || null,
-        headquarter_phone_no: formData.phoneNumber 
-          ? `${formData.phoneCountryCode}${formData.phoneNumber.replace(/\D/g, '')}`
-          : null
+        // Optional fields from step 1
+        ...(formData.logoUrl && { company_logo_url: formData.logoUrl }),
+        ...(formData.bannerUrl && { company_banner_url: formData.bannerUrl }),
       };
 
-      console.log('Submitting:', submissionData);
+      console.log('Submitting:', JSON.stringify(submissionData, null, 2));
 
+      // 3. Make the API call
       const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
         headers: {
@@ -1266,33 +1263,24 @@ export default function CompanyRegister() {
         body: JSON.stringify(submissionData)
       });
 
-      const responseData = await response.json();
-
+      // 4. Handle response
+      const result = await response.json();
+      
       if (!response.ok) {
-        // Handle validation errors
-        if (responseData.errors) {
-          responseData.errors.forEach(err => {
-            toast.error(`${err.param}: ${err.msg}`);
-          });
-        } else {
-          throw new Error(responseData.message || 'Registration failed');
-        }
-        return;
+        throw new Error(result.message || 'Registration failed');
       }
 
-      // Success case
-      if (responseData.success) {
-        localStorage.setItem('token', responseData.data.token);
-        localStorage.setItem('company', JSON.stringify(responseData.data.company));
-        toast.success(responseData.message);
+      // 5. On success
+      if (result.success) {
+        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('company', JSON.stringify(result.data.company));
+        toast.success(result.message);
         setCurrentStep(5); // Move to success step
-      } else {
-        throw new Error(responseData.message || 'Registration failed');
       }
 
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error(error.message);
+      toast.error(error.message || 'Registration failed. Please try again.');
     }
   };
 
@@ -1891,32 +1879,28 @@ export default function CompanyRegister() {
                 <StyledLabel>Phone</StyledLabel>
                 <PhoneInputWrapper>
                   <Flags
-                    selected={formData.phoneCountry || 'US'}
+                    selected={formData.phoneCountry}
                     onSelect={(code) => {
-                      // Get the country data from the selected flag
-                      const countryData = Flags.getCountry(code);
+                      const country = Flags.getCountry(code);
                       setFormData({
                         ...formData,
                         phoneCountry: code,
-                        phoneCountryCode: `+${countryData.dialCode}`,
-                        phoneNumber: ''
+                        phoneCountryCode: `+${country.dialCode}`
                       });
                     }}
+                    countries={['US', 'GB', 'BD', 'IN', 'CA']} // Add more as needed
                     className="flag-select"
                     showSelectedLabel={true}
-                    showOptionLabel={true}
                     selectedSize={18}
-                    optionsSize={14}
                   />
                   <StyledInput
                     $isPhoneInput
                     placeholder="Phone number"
                     value={formData.phoneNumber}
                     onChange={(e) => {
-                      // Limit input to numbers only
                       const digitsOnly = e.target.value.replace(/\D/g, '');
                       setFormData({
-                        ...formData, 
+                        ...formData,
                         phoneNumber: digitsOnly
                       });
                     }}
