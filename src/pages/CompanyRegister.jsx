@@ -1414,8 +1414,9 @@ export default function CompanyRegister() {
         <HeaderWrapper>
           <HeaderContainer>
             <LogoWrapper>
-              <img src="/logo-main.webp" alt="HireNext Logo" className="w-8 h-8 rounded-full object-cover" />
-              <LogoText>Jobpilot</LogoText>
+              <Link to="/">
+                <img src="/logo-main.webp" alt="HireNext logo" />
+              </Link>
             </LogoWrapper>
             <ProgressWrapperHeader>
               <ProgressText>Setup Progress</ProgressText>
@@ -1450,7 +1451,7 @@ export default function CompanyRegister() {
 
         {/* Footer */}
         <FixedFooter>
-          <FooterText>© {new Date().getFullYear()} Jobpilot - Job Board. All rights Reserved</FooterText>
+          <FooterText>© {new Date().getFullYear()} HireNext @2025. All rights Reserved</FooterText>
         </FixedFooter>
       </MainWrapper>
     );
@@ -1465,7 +1466,9 @@ export default function CompanyRegister() {
             <LogoIcon>
               <Building className="w-5 h-5 text-white" />
             </LogoIcon>
-            <LogoText>Jobpilot</LogoText>
+            <Link to="/">
+              <img src="/logo-main.webp" alt="HireNext logo" />
+            </Link>
           </LogoWrapper>
           <ProgressWrapperHeader>
             <ProgressText>Setup Progress</ProgressText>
@@ -1895,7 +1898,7 @@ export default function CompanyRegister() {
 
       {/* Footer */}
       <FooterWrapper>
-        <FooterText>© {new Date().getFullYear()} Jobpilot - Job Board. All rights Reserved</FooterText>
+        <FooterText>© {new Date().getFullYear()} HireNext @2025. All rights Reserved</FooterText>
       </FooterWrapper>
     </MainWrapper>
   );
