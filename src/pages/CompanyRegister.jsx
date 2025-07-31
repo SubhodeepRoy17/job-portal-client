@@ -2,8 +2,18 @@
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import Flags from 'react-flags-select';
 import { useState, useRef, useCallback } from "react"
 import styled from "styled-components"
+import { 
+  faFacebook, 
+  faTwitter, 
+  faInstagram, 
+  faYoutube,
+  faLinkedin
+} from '@fortawesome/free-brands-svg-icons';
 import {
   Upload,
   User,
@@ -171,22 +181,55 @@ const StyledInput = styled.input`
   padding: 0 0.75rem;
   font-size: 0.875rem;
   transition: all 0.2s;
+  appearance: none;
+
+  /* Phone input specific styles */
+  ${({ $isPhoneInput }) => $isPhoneInput && `
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    &:focus {
+      box-shadow: none;
+    }
+  `}
+
+  /* Social input specific styles */
+  ${({ $isSocialInput }) => $isSocialInput && `
+    background: #ffffff;
+    border-color: #e5e7eb;
+    &:focus {
+      border-color: #2563eb;
+    }
+  `}
 
   &::placeholder {
     color: #9ca3af;
+    opacity: 1;
   }
 
   &:focus {
     outline: none;
     border-color: #2563eb;
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    z-index: 1; /* Ensure focus state appears above adjacent elements */
   }
 
   &:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+    background-color: #f3f4f6;
   }
-`
+
+  /* Remove number input arrows */
+  &[type='number'] {
+    -moz-appearance: textfield;
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+`;
 
 const StyledLabel = styled.label`
   font-size: 0.875rem;
@@ -199,21 +242,6 @@ const StyledLabel = styled.label`
     opacity: 0.7;
   }
 `
-const countries = [
-  { code: 'US', name: 'United States', dialCode: '+1', flag: '🇺🇸' },
-  { code: 'GB', name: 'United Kingdom', dialCode: '+44', flag: '🇬🇧' },
-  { code: 'IN', name: 'India', dialCode: '+91', flag: '🇮🇳' },
-  { code: 'BD', name: 'Bangladesh', dialCode: '+880', flag: '🇧🇩' },
-  { code: 'CA', name: 'Canada', dialCode: '+1', flag: '🇨🇦' },
-  { code: 'AU', name: 'Australia', dialCode: '+61', flag: '🇦🇺' },
-  { code: 'DE', name: 'Germany', dialCode: '+49', flag: '🇩🇪' },
-  { code: 'FR', name: 'France', dialCode: '+33', flag: '🇫🇷' },
-  { code: 'JP', name: 'Japan', dialCode: '+81', flag: '🇯🇵' },
-  { code: 'CN', name: 'China', dialCode: '+86', flag: '🇨🇳' },
-  { code: 'BR', name: 'Brazil', dialCode: '+55', flag: '🇧🇷' },
-  { code: 'RU', name: 'Russia', dialCode: '+7', flag: '🇷🇺' },
-];
-
 const StyledTextarea = styled.textarea`
   display: flex;
   min-height: 5rem;
@@ -245,6 +273,11 @@ const SelectWrapper = styled.div`
   position: relative;
   width: 100%;
 `
+const validateEmail = (email) => {
+  const publicDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com'];
+  const domain = email.split('@')[1];
+  return !publicDomains.includes(domain);
+};
 
 const StyledSelectTrigger = styled.button`
   display: flex;
@@ -273,6 +306,10 @@ const StyledSelectTrigger = styled.button`
 
   &[data-placeholder] {
     color: #9ca3af;
+  }
+    
+  &[data-state="open"] {
+    border-bottom-left-radius: 0;
   }
 `
 
@@ -370,13 +407,7 @@ const Select = ({ children, value, onValueChange, defaultValue }) => {
   )
 }
 
-const SelectTrigger = ({ children, className }) => children
-
-const SelectContent = ({ children }) => children
-
 const SelectItem = ({ value, children, onClick }) => <StyledSelectItem onClick={onClick}>{children}</StyledSelectItem>
-
-const SelectValue = ({ placeholder }) => null
 
 const Progress = ({ value, className }) => (
   <ProgressWrapper className={className}>
@@ -762,37 +793,128 @@ const TextareaToolbar = styled.div`
 `
 
 const SocialLinkWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-`
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
 
-const SocialLinkRow = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-
-  @media (min-width: 640px) {
-    flex-direction: row;
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
   }
-`
+`;
 
-const SocialLinkInputGroup = styled.div`
+const SocialLinkItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+`;
+
+const SocialPlatform = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+
+  .social-icon {
+    color: #4b5563;
+    font-size: 1.25rem;
+  }
+`;
+
+const SocialInputGroup = styled.div`
   display: flex;
   gap: 0.5rem;
-  flex: 1;
-`
+  align-items: center;
+
+  input {
+    flex: 1;
+  }
+`;
+
+const RemoveButton = styled.button`
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 0.5rem;
+`;
+
+const AddButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  cursor: pointer;
+  color: #2563eb;
+  font-weight: 500;
+  width: 100%;
+  justify-content: center;
+
+  &:hover {
+    background: #f8fafc;
+  }
+
+  @media (min-width: 768px) {
+    grid-column: span 2;
+  }
+`;
 
 const PhoneInputWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  transition: all 0.2s;
+  height: 2.5rem;
 
-  @media (min-width: 640px) {
-    flex-direction: row;
+  &:focus-within {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.5);
   }
-`
+
+  .flag-selector {
+    width: 120px;
+    height: 100%;
+    border: none;
+    border-right: 1px solid #d1d5db;
+    
+    button {
+      height: 100%;
+      padding: 0 0.75rem;
+      background: #f3f4f6;
+      border: none;
+      outline: none;
+      
+      &::after {
+        content: none;
+      }
+      
+      span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+      }
+    }
+  }
+`;
+
+const CountryCodeWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #f3f4f6;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  min-width: 80px;
+`;
 
 const MapPlaceholder = styled.div`
   margin-top: 0.5rem;
@@ -942,12 +1064,12 @@ const FixedFooter = styled.div`
 `
 
 const socialPlatforms = [
-  { value: "facebook", label: "Facebook", icon: "📘" },
-  { value: "twitter", label: "Twitter", icon: "🐦" },
-  { value: "instagram", label: "Instagram", icon: "📷" },
-  { value: "youtube", label: "Youtube", icon: "📺" },
-  { value: "linkedin", label: "LinkedIn", icon: "💼" },
-]
+  { value: "facebook", label: "Facebook", icon: faFacebook },
+  { value: "twitter", label: "Twitter", icon: faTwitter },
+  { value: "instagram", label: "Instagram", icon: faInstagram },
+  { value: "youtube", label: "YouTube", icon: faYoutube },
+  { value: "linkedin", label: "LinkedIn", icon: faLinkedin }
+];
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -1708,51 +1830,37 @@ export default function CompanyRegister() {
           {/* Step 3: Social Media Profile */}
           {currentStep === 3 && (
             <FormSection>
-              {formData.socialLinks.map((link, index) => (
-                <SocialLinkWrapper key={index}>
-                  <StyledLabel>Social Link {index + 1}</StyledLabel>
-                  <SocialLinkRow>
-                    <Select value={link.platform} onValueChange={(value) => updateSocialLink(index, "platform", value)}>
-                      {socialPlatforms.map((platform) => (
-                        <SelectItem key={platform.value} value={platform.value}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                            <span>{platform.icon}</span>
-                            <span>{platform.label}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </Select>
-                    <SocialLinkInputGroup>
+              <SocialLinkWrapper>
+                {formData.socialLinks.map((link, index) => (
+                  <SocialLinkItem key={index}>
+                    <SocialPlatform>
+                      <FontAwesomeIcon 
+                        icon={socialPlatforms.find(p => p.value === link.platform)?.icon} 
+                        className="social-icon"
+                      />
+                      <span>{socialPlatforms.find(p => p.value === link.platform)?.label}</span>
+                    </SocialPlatform>
+                    <SocialInputGroup>
                       <StyledInput
-                        placeholder="Profile link/url..."
+                        $isSocialInput
+                        placeholder={`${link.platform}.com/username`}
                         value={link.url}
                         onChange={(e) => updateSocialLink(index, "url", e.target.value)}
-                        style={{ flex: 1 }}
                       />
-                      <StyledButton
-                        $variant="ghost"
-                        $size="icon"
-                        onClick={() => removeSocialLink(index)}
-                        style={{ flexShrink: 0 }}
-                      >
-                        <X className="w-4 h-4" />
-                      </StyledButton>
-                    </SocialLinkInputGroup>
-                  </SocialLinkRow>
-                </SocialLinkWrapper>
-              ))}
-
-              <StyledButton
-                $variant="outline"
-                onClick={addSocialLink}
-                style={{ width: "100%", padding: "1.5rem 0", borderStyle: "dashed" }}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add New Social Link
-              </StyledButton>
+                      <RemoveButton onClick={() => removeSocialLink(index)}>
+                        <FontAwesomeIcon icon={faTimes} />
+                      </RemoveButton>
+                    </SocialInputGroup>
+                  </SocialLinkItem>
+                ))}
+                
+                <AddButton onClick={addSocialLink}>
+                  <FontAwesomeIcon icon={faPlus} />
+                  Add New Social Link
+                </AddButton>
+              </SocialLinkWrapper>
             </FormSection>
           )}
-
           {/* Step 4: Contact */}
           {currentStep === 4 && (
             <FormSection>
@@ -1769,26 +1877,38 @@ export default function CompanyRegister() {
               <FormGroup>
                 <StyledLabel>Phone</StyledLabel>
                 <PhoneInputWrapper>
-                    <Select 
-                    value={formData.phoneCountryCode}
-                    onValueChange={(value) => setFormData({...formData, phoneCountryCode: value})}
-                    >
-                    {countries.map(country => (
-                        <SelectItem key={country.code} value={country.dialCode}>
-                        {country.flag} {country.name} ({country.dialCode})
-                        </SelectItem>
-                    ))}
-                    </Select>
-                    <StyledInput
-                      placeholder="Phone number (digits only)"
-                      value={formData.phoneNumber}
-                      onChange={(e) => {
-                        // Allow only digits
-                        const digitsOnly = e.target.value.replace(/\D/g, '');
-                        setFormData({...formData, phoneNumber: digitsOnly});
-                      }}
-                      required
-                    />
+                  <Flags
+                    selected={formData.phoneCountry}
+                    onSelect={(code) => {
+                      const country = countries.find(c => c.code === code);
+                      setFormData({
+                        ...formData,
+                        phoneCountry: code,
+                        phoneCountryCode: country.dialCode,
+                        phoneNumber: ''
+                      });
+                    }}
+                    countries={countries.map(c => c.code)}
+                    customLabels={countries.reduce((acc, cur) => {
+                      acc[cur.code] = `${cur.flag} ${cur.dialCode}`;
+                      return acc;
+                    }, {})}
+                    className="flag-selector"
+                    showSelectedLabel={true}
+                    selectedSize={18}
+                    optionsSize={14}
+                  />
+                  <StyledInput
+                    placeholder="Phone number"
+                    value={formData.phoneNumber}
+                    onChange={(e) => {
+                      const country = countries.find(c => c.code === formData.phoneCountry);
+                      const maxDigits = country?.maxDigits || 15;
+                      const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, maxDigits);
+                      setFormData({...formData, phoneNumber: digitsOnly});
+                    }}
+                    required
+                  />
                 </PhoneInputWrapper>
               </FormGroup>
 
@@ -1797,22 +1917,17 @@ export default function CompanyRegister() {
                 <div style={{ position: "relative" }}>
                   <StyledInput
                     type="email"
-                    placeholder="Email address"
+                    placeholder="Company email address"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) => {
+                      if (!validateEmail(e.target.value) && e.target.value.includes('@')) {
+                        toast.error('Public email domains are not allowed');
+                      }
+                      setFormData({ ...formData, email: e.target.value });
+                    }}
                     required
                   />
-                  <Mail
-                    style={{
-                      position: "absolute",
-                      right: "0.75rem",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      width: "1.25rem",
-                      height: "1.25rem",
-                      color: "#2563eb",
-                    }}
-                  />
+                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-600" />
                 </div>
               </FormGroup>
             </FormSection>
