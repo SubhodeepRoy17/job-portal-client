@@ -879,7 +879,7 @@ const PhoneInputWrapper = styled.div`
     box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.5);
   }
 
-  .flag-selector {
+  .flag-select {
     width: 120px;
     height: 100%;
     border: none;
@@ -1891,17 +1891,18 @@ export default function CompanyRegister() {
                 <StyledLabel>Phone</StyledLabel>
                 <PhoneInputWrapper>
                   <Flags
-                    selected={formData.phoneCountry || 'US'} // Default to US if not set
+                    selected={formData.phoneCountry || 'US'}
                     onSelect={(code) => {
-                      // Get country code from the library's internal data
+                      // Get the country data from the selected flag
+                      const countryData = Flags.getCountry(code);
                       setFormData({
                         ...formData,
                         phoneCountry: code,
-                        phoneCountryCode: `+${Flags.getCountry(code).dialCode}`, // Get dial code from library
+                        phoneCountryCode: `+${countryData.dialCode}`,
                         phoneNumber: ''
                       });
                     }}
-                    className="flag-selector"
+                    className="flag-select"
                     showSelectedLabel={true}
                     showOptionLabel={true}
                     selectedSize={18}
@@ -1914,13 +1915,9 @@ export default function CompanyRegister() {
                     onChange={(e) => {
                       // Limit input to numbers only
                       const digitsOnly = e.target.value.replace(/\D/g, '');
-                      // Get max length for selected country (default to 15)
-                      const maxDigits = formData.phoneCountry 
-                        ? Flags.getCountry(formData.phoneCountry).format.length 
-                        : 15;
                       setFormData({
                         ...formData, 
-                        phoneNumber: digitsOnly.slice(0, maxDigits)
+                        phoneNumber: digitsOnly
                       });
                     }}
                     required
