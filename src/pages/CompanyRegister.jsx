@@ -1107,14 +1107,20 @@ export default function CompanyRegister() {
   // Update your form submission handler
   const handleSubmit = async () => {
     try {
-      // Transform data to match backend expectations
+      // Format date properly for backend
+      const formatDate = (dateString) => {
+        if (!dateString) return null;
+        const [day, month, year] = dateString.split('/');
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      };
+
       const submissionData = {
-        full_name: formData.companyName, // Using companyName as full_name
+        full_name: formData.companyName,
         company_mail_id: formData.email,
         password: formData.password,
-        company_name: formData.companyName,
         company_logo_url: formData.logoUrl,
         company_banner_url: formData.bannerUrl,
+        company_name: formData.companyName,
         about_company: formData.aboutUs,
         organizations_type: formData.organizationType,
         industry_type: formData.industryType,
@@ -1129,30 +1135,20 @@ export default function CompanyRegister() {
         youtube_url: formData.socialLinks.find(l => l.platform === 'youtube')?.url || null
       };
 
-      function formatDate(dateString) {
-        if (!dateString) return null;
-        const [day, month, year] = dateString.split('/');
-        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-      }
+      console.log('Submitting:', submissionData); // Debug log
 
       const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submissionData) // Changed from data to submissionData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submissionData)
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
-      }
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Registration failed');
 
-      const responseData = await response.json();
-      localStorage.setItem('token', responseData.data.token);
-      setCurrentStep(5); // Move to success step
-      
-      toast.success('Registration successful!');
+      localStorage.setItem('token', data.data.token);
+      setCurrentStep(5); // Success step
+
     } catch (error) {
       console.error('Registration error:', error);
       toast.error(error.message);
