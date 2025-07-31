@@ -1103,8 +1103,9 @@ export default function CompanyRegister() {
 
     // Step 4 - Contact
     mapLocation: "",
-    phoneCountryCode: "+880", // Default country code
-    phoneNumber: "",
+    phoneCountry: 'US', // Default country code
+    phoneCountryCode: '+1', // Default dial code
+    phoneNumber: '',
     email: "",
     password: "",
   })
@@ -1878,34 +1879,37 @@ export default function CompanyRegister() {
                 <StyledLabel>Phone</StyledLabel>
                 <PhoneInputWrapper>
                   <Flags
-                    selected={formData.phoneCountry}
+                    selected={formData.phoneCountry || 'US'} // Default to US if not set
                     onSelect={(code) => {
-                      const country = countries.find(c => c.code === code);
+                      // Get country code from the library's internal data
                       setFormData({
                         ...formData,
                         phoneCountry: code,
-                        phoneCountryCode: country.dialCode,
+                        phoneCountryCode: `+${Flags.getCountry(code).dialCode}`, // Get dial code from library
                         phoneNumber: ''
                       });
                     }}
-                    countries={countries.map(c => c.code)}
-                    customLabels={countries.reduce((acc, cur) => {
-                      acc[cur.code] = `${cur.flag} ${cur.dialCode}`;
-                      return acc;
-                    }, {})}
                     className="flag-selector"
                     showSelectedLabel={true}
+                    showOptionLabel={true}
                     selectedSize={18}
                     optionsSize={14}
                   />
                   <StyledInput
+                    $isPhoneInput
                     placeholder="Phone number"
                     value={formData.phoneNumber}
                     onChange={(e) => {
-                      const country = countries.find(c => c.code === formData.phoneCountry);
-                      const maxDigits = country?.maxDigits || 15;
-                      const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, maxDigits);
-                      setFormData({...formData, phoneNumber: digitsOnly});
+                      // Limit input to numbers only
+                      const digitsOnly = e.target.value.replace(/\D/g, '');
+                      // Get max length for selected country (default to 15)
+                      const maxDigits = formData.phoneCountry 
+                        ? Flags.getCountry(formData.phoneCountry).format.length 
+                        : 15;
+                      setFormData({
+                        ...formData, 
+                        phoneNumber: digitsOnly.slice(0, maxDigits)
+                      });
                     }}
                     required
                   />
