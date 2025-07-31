@@ -1238,7 +1238,7 @@ export default function CompanyRegister() {
       };
 
       const submissionData = {
-        company_name: formData.companyName, // Changed from full_name to company_name
+        company_name: formData.companyName,
         company_mail_id: formData.email,
         password: formData.password,
         company_logo_url: formData.logoUrl || null,
@@ -1255,7 +1255,7 @@ export default function CompanyRegister() {
           : null
       };
 
-      console.log('Final submission data:', submissionData);
+      console.log('Submitting:', submissionData);
 
       const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
@@ -1266,14 +1266,30 @@ export default function CompanyRegister() {
         body: JSON.stringify(submissionData)
       });
 
+      const responseData = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+        // Handle validation errors
+        if (responseData.errors) {
+          responseData.errors.forEach(err => {
+            toast.error(`${err.param}: ${err.msg}`);
+          });
+        } else {
+          throw new Error(responseData.message || 'Registration failed');
+        }
+        return;
       }
 
-      const { data } = await response.json();
-      localStorage.setItem('token', data.token);
-      setCurrentStep(5);
+      // Success case
+      if (responseData.success) {
+        localStorage.setItem('token', responseData.data.token);
+        localStorage.setItem('company', JSON.stringify(responseData.data.company));
+        toast.success(responseData.message);
+        setCurrentStep(5); // Move to success step
+      } else {
+        throw new Error(responseData.message || 'Registration failed');
+      }
+
     } catch (error) {
       console.error('Registration error:', error);
       toast.error(error.message);
