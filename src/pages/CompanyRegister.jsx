@@ -283,6 +283,10 @@ const StyledTextarea = styled.textarea`
   }
 `
 
+const LogoContainer = styled.div`
+  max-width: 120px;
+`;
+
 const SelectWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -1347,9 +1351,9 @@ export default function CompanyRegister() {
         {/* Header */}
         <HeaderWrapper>
           <HeaderContainer>
-            <div className="center">
+            <LogoContainer>
               <Logo />
-            </div>
+            </LogoContainer>
             <ProgressWrapperHeader>
               <ProgressText>Setup Progress</ProgressText>
               <ProgressContainer>
@@ -1394,9 +1398,9 @@ export default function CompanyRegister() {
       {/* Header */}
       <HeaderWrapper>
         <HeaderContainer>
-          <div className="center">
+          <LogoContainer>
             <Logo />
-          </div>
+          </LogoContainer>
           <ProgressWrapperHeader>
             <ProgressText>Setup Progress</ProgressText>
             <ProgressContainer>
