@@ -8,7 +8,7 @@ import Logo from '../components/Logo'
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input';
-import isValidPhoneNumber from 'react-phone-number-input/dist/isValidPhoneNumber';
+import { isValidPhoneNumber } from 'react-phone-number-input';
 import { useRef } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import styled from "styled-components";
