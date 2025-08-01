@@ -1852,12 +1852,29 @@ export default function CompanyRegister() {
                     defaultCountry="IN"
                     value={formData.phoneNumber}
                     onChange={(value) => {
-                      dispatch(updateField({ field: 'phoneNumber', value }));
+                      // Remove any non-digit characters
+                      const digitsOnly = value?.replace(/\D/g, '') || '';
+                      // Format as international number with +
+                      const formattedValue = digitsOnly ? `+${digitsOnly}` : '';
+                      dispatch(updateField({ field: 'phoneNumber', value: formattedValue }));
                     }}
                     inputProps={{
                       name: 'phoneNumber',
                       id: 'phoneNumber',
                       required: true,
+                      // Prevent non-digit input
+                      onKeyPress: (e) => {
+                        if (!/\d/.test(e.key) && e.key !== '+' && e.key !== 'Backspace') {
+                          e.preventDefault();
+                        }
+                      },
+                      // Handle paste
+                      onPaste: (e) => {
+                        const paste = e.clipboardData.getData('text');
+                        if (!/^[\d+]+$/.test(paste)) {
+                          e.preventDefault();
+                        }
+                      }
                     }}
                     enableSearch
                     searchPlaceholder="Search country"
