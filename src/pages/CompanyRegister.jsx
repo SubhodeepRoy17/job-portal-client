@@ -467,22 +467,6 @@ const LogoWrapper = styled.div`
   gap: 0.5rem;
 `
 
-const LogoIcon = styled.div`
-  width: 2rem;
-  height: 2rem;
-  background-color: #2563eb;
-  border-radius: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
-
-const LogoText = styled.span`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
-`
-
 const ProgressWrapperHeader = styled.div`
   display: none;
   align-items: center;
@@ -876,57 +860,6 @@ const AddButton = styled.button`
   @media (min-width: 768px) {
     grid-column: span 2;
   }
-`;
-
-const PhoneInputWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  overflow: hidden;
-  transition: all 0.2s;
-  height: 2.5rem;
-
-  &:focus-within {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.5);
-  }
-
-  .flag-select {
-    width: 120px;
-    height: 100%;
-    border: none;
-    border-right: 1px solid #d1d5db;
-    
-    button {
-      height: 100%;
-      padding: 0 0.75rem;
-      background: #f3f4f6;
-      border: none;
-      outline: none;
-      
-      &::after {
-        content: none;
-      }
-      
-      span {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-      }
-    }
-  }
-`;
-
-const CountryCodeWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: #f3f4f6;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-  min-width: 80px;
 `;
 
 const MapPlaceholder = styled.div`
@@ -1463,9 +1396,6 @@ export default function CompanyRegister() {
       <HeaderWrapper>
         <HeaderContainer>
           <LogoWrapper>
-            <LogoIcon>
-              <Building className="w-5 h-5 text-white" />
-            </LogoIcon>
             <Link to="/">
               <img src="/logo-main.webp" alt="HireNext logo" />
             </Link>
@@ -1800,23 +1730,24 @@ export default function CompanyRegister() {
 
               <FormGroup>
                 <StyledLabel>Phone</StyledLabel>
-                <PhoneInputWrapper>
-                  <Flags
-                    selected={formData.phoneCountry}
-                    onSelect={(code) => {
-                      const country = Flags.getCountry(code);
-                      dispatch(updateFormData({
-                        phoneCountry: code,
-                        phoneCountryCode: `+${country.dialCode}`
-                      }));
-                    }}
-                    countries={['US', 'GB', 'BD', 'IN', 'CA']}
-                    className="flag-select"
-                    showSelectedLabel={true}
-                    selectedSize={18}
-                  />
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <div style={{ width: '120px' }}>
+                    <Flags
+                      selected={formData.phoneCountry}
+                      onSelect={(code) => {
+                        const country = Flags.getCountry(code);
+                        dispatch(updateFormData({
+                          phoneCountry: code,
+                          phoneCountryCode: `+${country.dialCode}`
+                        }));
+                      }}
+                      countries={['US', 'GB', 'BD', 'IN', 'CA']}
+                      className="flag-select"
+                      showSelectedLabel={true}
+                      selectedSize={18}
+                    />
+                  </div>
                   <StyledInput
-                    $isPhoneInput
                     placeholder="Phone number"
                     value={formData.phoneNumber}
                     onChange={(e) => {
@@ -1825,7 +1756,7 @@ export default function CompanyRegister() {
                     }}
                     required
                   />
-                </PhoneInputWrapper>
+                </div>
               </FormGroup>
 
               <FormGroup>
