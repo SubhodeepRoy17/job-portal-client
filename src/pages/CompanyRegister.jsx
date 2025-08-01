@@ -1845,25 +1845,22 @@ export default function CompanyRegister() {
               </FormGroup>
 
               <FormGroup>
-                <StyledLabel htmlFor="phoneNumber">Phone Number</StyledLabel>
+                <StyledLabel htmlFor="headquarter_phone_no">Phone Number</StyledLabel>
                 <PhoneInputWrapper>
                   <PhoneInput
                     international
                     defaultCountry="IN"
-                    value={formData.phoneNumber ? `+${formData.phoneNumber}` : ''}
+                    value={formData.headquarter_phone_no}
                     onChange={(value) => {
-                      const digitsOnly = value?.replace(/\D/g, '') || '';
-                      dispatch(updateField({ field: 'phoneNumber', value: digitsOnly }));
+                      dispatch(updateField({ 
+                        field: 'headquarter_phone_no', 
+                        value: value || '' 
+                      }));
                     }}
                     inputProps={{
-                      name: 'phoneNumber',
-                      id: 'phoneNumber',
+                      name: 'headquarter_phone_no',
+                      id: 'headquarter_phone_no',
                       required: true,
-                      onKeyPress: (e) => {
-                        if (!/\d/.test(e.key) && e.key !== 'Backspace') {
-                          e.preventDefault();
-                        }
-                      }
                     }}
                     enableSearch
                     searchPlaceholder="Search country"
