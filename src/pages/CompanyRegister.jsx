@@ -4,6 +4,7 @@ import { useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Logo from "../Logo";
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Flags from 'react-flags-select';
 import { useRef } from "react";
@@ -1346,11 +1347,9 @@ export default function CompanyRegister() {
         {/* Header */}
         <HeaderWrapper>
           <HeaderContainer>
-            <LogoWrapper>
-              <Link to="/">
-                <img src="/logo-main.webp" alt="HireNext logo" />
-              </Link>
-            </LogoWrapper>
+            <div className="center">
+              <Logo />
+            </div>
             <ProgressWrapperHeader>
               <ProgressText>Setup Progress</ProgressText>
               <ProgressContainer>
@@ -1395,11 +1394,9 @@ export default function CompanyRegister() {
       {/* Header */}
       <HeaderWrapper>
         <HeaderContainer>
-          <LogoWrapper>
-            <Link to="/">
-              <img src="/logo-main.webp" alt="HireNext logo" />
-            </Link>
-          </LogoWrapper>
+          <div className="center">
+            <Logo />
+          </div>
           <ProgressWrapperHeader>
             <ProgressText>Setup Progress</ProgressText>
             <ProgressContainer>
