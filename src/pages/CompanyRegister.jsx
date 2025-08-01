@@ -1352,12 +1352,13 @@ export default function CompanyRegister() {
           toast.error('✉️ Please enter a valid email address');
           return false;
         }
-        if (!formData.phoneNumber) {
+        if (!formData.headquarter_phone_no) {
           toast.error('📱 Phone number is required');
           return false;
         }
-        if (!/^\d+$/.test(formData.phoneNumber)) {
-          toast.error('🔢 Phone number must contain only digits');
+        
+        if (!isValidPhoneNumber(formData.headquarter_phone_no)) {
+          toast.error('📱 Please enter a valid phone number');
           return false;
         }
         if (!formData.password) {
