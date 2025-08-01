@@ -4,7 +4,7 @@ import { useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Logo from "../Logo";
+import Logo from '../components/Logo'
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Flags from 'react-flags-select';
 import { useRef } from "react";
