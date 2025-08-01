@@ -1850,28 +1850,17 @@ export default function CompanyRegister() {
                   <PhoneInput
                     international
                     defaultCountry="IN"
-                    value={formData.phoneNumber}
+                    value={formData.phoneNumber ? `+${formData.phoneNumber}` : ''}
                     onChange={(value) => {
-                      // Remove any non-digit characters
                       const digitsOnly = value?.replace(/\D/g, '') || '';
-                      // Format as international number with +
-                      const formattedValue = digitsOnly ? `+${digitsOnly}` : '';
-                      dispatch(updateField({ field: 'phoneNumber', value: formattedValue }));
+                      dispatch(updateField({ field: 'phoneNumber', value: digitsOnly }));
                     }}
                     inputProps={{
                       name: 'phoneNumber',
                       id: 'phoneNumber',
                       required: true,
-                      // Prevent non-digit input
                       onKeyPress: (e) => {
-                        if (!/\d/.test(e.key) && e.key !== '+' && e.key !== 'Backspace') {
-                          e.preventDefault();
-                        }
-                      },
-                      // Handle paste
-                      onPaste: (e) => {
-                        const paste = e.clipboardData.getData('text');
-                        if (!/^[\d+]+$/.test(paste)) {
+                        if (!/\d/.test(e.key) && e.key !== 'Backspace') {
                           e.preventDefault();
                         }
                       }
