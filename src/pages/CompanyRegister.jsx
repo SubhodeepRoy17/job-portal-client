@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Logo from '../components/Logo'
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Flags from 'react-flags-select';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css'
 import { useRef } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import styled from "styled-components";
@@ -184,6 +186,120 @@ const StyledButton = styled.button`
     padding: 0 1rem;
   `}
 `
+const PhoneInputWrapper = styled.div`
+  --PhoneInput-color--focus: #2563eb;
+  --PhoneInputCountrySelectArrow-color: #6b7280;
+  --PhoneInputCountrySelectArrow-opacity: 1;
+  --PhoneInputCountryFlag-borderColor: transparent;
+  --PhoneInputCountryFlag-height: 24px;
+  --PhoneInputCountryFlag-width: 24px;
+  width: 100%;
+
+  .PhoneInput {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .PhoneInputInput {
+    flex: 1;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.5);
+    }
+  }
+
+  .PhoneInputCountry {
+    position: relative;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+  }
+
+  .PhoneInputCountrySelect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    border: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .PhoneInputCountryIcon {
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+  }
+
+  .PhoneInputCountrySelectArrow {
+    display: block;
+    margin-left: 4px;
+    color: #6b7280;
+    opacity: 1;
+    transition: transform 0.2s;
+  }
+
+  .PhoneInputCountrySelectArrow--open {
+    transform: rotate(180deg);
+  }
+
+  .PhoneInputCountryDropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+    margin-top: 4px;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .PhoneInputSearch {
+    padding: 8px;
+    margin: 0 8px;
+    border-bottom: 1px solid #e2e8f0;
+    width: calc(100% - 16px);
+
+    input {
+      width: 100%;
+      padding: 4px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+    }
+  }
+
+  .PhoneInputCountryList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .PhoneInputCountryListItem {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      background-color: #f3f4f6;
+    }
+  }
+`;
 
 const StyledInput = styled.input`
   display: flex;
@@ -1730,34 +1846,24 @@ export default function CompanyRegister() {
               </FormGroup>
 
               <FormGroup>
-                <StyledLabel>Phone</StyledLabel>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <div style={{ width: '120px' }}>
-                    <Flags
-                      selected={formData.phoneCountry}
-                      onSelect={(code) => {
-                        const country = Flags.getCountry(code);
-                        dispatch(updateFormData({
-                          phoneCountry: code,
-                          phoneCountryCode: `+${country.dialCode}`
-                        }));
-                      }}
-                      countries={['US', 'GB', 'BD', 'IN', 'CA']}
-                      className="flag-select"
-                      showSelectedLabel={true}
-                      selectedSize={18}
-                    />
-                  </div>
-                  <StyledInput
-                    placeholder="Phone number"
+                <StyledLabel htmlFor="phoneNumber">Phone Number</StyledLabel>
+                <PhoneInputWrapper>
+                  <PhoneInput
+                    international
+                    defaultCountry="IN"
                     value={formData.phoneNumber}
-                    onChange={(e) => {
-                      const digitsOnly = e.target.value.replace(/\D/g, '');
-                      dispatch(updateField({ field: 'phoneNumber', value: digitsOnly }));
+                    onChange={(value) => {
+                      dispatch(updateField({ field: 'phoneNumber', value }));
                     }}
-                    required
+                    inputProps={{
+                      name: 'phoneNumber',
+                      id: 'phoneNumber',
+                      required: true,
+                    }}
+                    enableSearch
+                    searchPlaceholder="Search country"
                   />
-                </div>
+                </PhoneInputWrapper>
               </FormGroup>
 
               <FormGroup>
