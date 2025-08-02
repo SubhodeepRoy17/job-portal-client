@@ -6,6 +6,8 @@ import { fetchCompanyData } from "../redux/slices/companySlice";
 import { logout } from "../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import styled from "styled-components";
+import Logo from "../components/shared/Logo";
 import { faBell, faBriefcase, faBuilding, faCalendar, faChevronDown, faCreditCard, faEye, faFileAlt, faHeart, faSignOutAlt, faEllipsisH, faPhone, faPlus, faCog, faChartLine, faUser, faUsers } from "@fortawesome/free-solid-svg-icons";
 
 export default function CompanyDashboard() {
