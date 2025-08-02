@@ -38,6 +38,10 @@ export default function CompanyDashboard() {
     { icon: faCog, label: "Settings" },
   ];
 
+  const LogoContainer = styled.div`
+    max-width: 120px;
+  `;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
