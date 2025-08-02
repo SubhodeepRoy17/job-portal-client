@@ -274,7 +274,7 @@ const Navbar = ({ navbarRef }) => {
                                         Recruiter Login
                                     </NavLink>
                                     <NavLink 
-                                        to="/company-register" 
+                                        to="/company-login" 
                                         className="dropdown-item"
                                         onClick={() => setShowEmployerDropdown(false)}
                                     >

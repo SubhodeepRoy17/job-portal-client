@@ -5,6 +5,7 @@ import {
     Register,
     Login,
     RecruiterLogin,
+    CompanyLogin,
     RecruiterRegister,
     CompanyRegister,
     Landing,
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
             {
                 path : "company-register",
                 element: <CompanyRegister/>,
+            },
+            {
+                path: "company-login",
+                element: <CompanyLogin />,
             },
             {
                 path: "user-home",

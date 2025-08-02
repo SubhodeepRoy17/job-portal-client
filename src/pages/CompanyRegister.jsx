@@ -1238,11 +1238,19 @@ export default function CompanyRegister() {
     try {
       if (!validateStep(4)) return;
 
+      // Clean phone number - remove all non-digit characters including '+' sign
+      const cleanPhone = formData.headquarter_phone_no.replace(/\D/g, '');
+
+      // Validate phone number contains only digits after cleaning
+      if (!/^\d+$/.test(cleanPhone)) {
+        throw new Error('Phone number must contain only digits');
+      }
+
       const submissionData = {
         company_name: formData.companyName,
         company_mail_id: formData.email,
         password: formData.password,
-        headquarter_phone_no: `${formData.phoneCountryCode}${formData.phoneNumber.replace(/\D/g, '')}`,
+        headquarter_phone_no: cleanPhone, // Send only digits
         about_company: formData.aboutUs,
         organizations_type: formData.organizationType,
         industry_type: formData.industryType,
@@ -1253,6 +1261,8 @@ export default function CompanyRegister() {
         ...(formData.logoUrl && { company_logo_url: formData.logoUrl }),
         ...(formData.bannerUrl && { company_banner_url: formData.bannerUrl }),
       };
+
+      console.log('Submitting:', submissionData); // Debug log
 
       const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
@@ -1276,7 +1286,11 @@ export default function CompanyRegister() {
         dispatch(setCurrentStep(5));
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Registration error:', {
+        message: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      });
       toast.error(error.message || 'Registration failed. Please try again.');
     }
   };
@@ -1298,83 +1312,75 @@ export default function CompanyRegister() {
 
   const validateStep = (step) => {
     toast.dismiss();
+    let isValid = true;
 
     switch (step) {
       case 1:
-        if (!formData.companyName.trim()) {
-          toast.error('🛑 Company name is required');
-          return false;
+        if (!formData.companyName?.trim()) {
+          toast.error('Company name is required');
+          isValid = false;
         }
-        if (!formData.aboutUs.trim()) {
-          toast.error('📝 Please write something about your company');
-          return false;
+        if (!formData.aboutUs?.trim()) {
+          toast.error('About us description is required');
+          isValid = false;
         }
-        return true;
+        break;
 
       case 2:
         if (!formData.organizationType) {
-          toast.error('🏢 Please select your organization type');
-          return false;
+          toast.error('Organization type is required');
+          isValid = false;
         }
         if (!formData.industryType) {
-          toast.error('🏭 Please select your industry type');
-          return false;
+          toast.error('Industry type is required');
+          isValid = false;
         }
         if (!formData.teamSize) {
-          toast.error('👥 Please select your team size');
-          return false;
+          toast.error('Team size is required');
+          isValid = false;
         }
         if (!formData.yearEstablished) {
-          toast.error('📅 Please select year of establishment');
-          return false;
+          toast.error('Year of establishment is required');
+          isValid = false;
         }
         if (formData.companyWebsite && !/^https?:\/\/.+\..+/.test(formData.companyWebsite)) {
-          toast.error('🌐 Website URL must be valid (include http:// or https://)');
-          return false;
+          toast.error('Website must be a valid URL (include http:// or https://)');
+          isValid = false;
         }
-        return true;
+        break;
 
       case 3:
-        const invalidLinks = formData.socialLinks.filter(link => 
-          link.url && !/^https?:\/\/.+\..+/.test(link.url)
-        );
-        if (invalidLinks.length > 0) {
-          toast.error(`🔗 Please enter valid URLs for ${invalidLinks.map(l => l.platform).join(', ')}`);
-          return false;
-        }
-        return true;
+        formData.socialLinks.forEach(link => {
+          if (link.url && !/^https?:\/\/.+\..+/.test(link.url)) {
+            toast.error(`Invalid ${link.platform} URL format`);
+            isValid = false;
+          }
+        });
+        break;
 
       case 4:
         if (!formData.email) {
-          toast.error('📧 Company email is required');
-          return false;
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-          toast.error('✉️ Please enter a valid email address');
-          return false;
-        }
-        if (!formData.headquarter_phone_no) {
-          toast.error('📱 Phone number is required');
-          return false;
+          toast.error('Company email is required');
+          isValid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+          toast.error('Please enter a valid email address');
+          isValid = false;
+        } else if (!validateEmail(formData.email)) {
+          toast.error('Please use a company email address (no public domains)');
+          isValid = false;
         }
         
-        if (!isValidPhoneNumber(formData.headquarter_phone_no)) {
-          toast.error('📱 Please enter a valid phone number');
-          return false;
-        }
         if (!formData.password) {
-          toast.error('🔑 Password is required');
-          return false;
+          toast.error('Password is required');
+          isValid = false;
+        } else if (formData.password.length < 8) {
+          toast.error('Password must be at least 8 characters');
+          isValid = false;
         }
-        if (formData.password.length < 8) {
-          toast.error('⚠️ Password must be at least 8 characters');
-          return false;
-        }
-        return true;
-
-      default:
-        return true;
+        break;
     }
+
+    return isValid;
   };
 
   const handleNext = async () => {
