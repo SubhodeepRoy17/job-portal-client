@@ -29,49 +29,62 @@ export default function CompanyLogin() {
     
     // Validate inputs
     if (!formData.company_mail_id || !formData.password) {
-      toast.error('Please fill in all fields');
-      return;
+        toast.error('Please fill in all fields');
+        return;
     }
 
     dispatch(loginStart());
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/company/login`, {
+        const response = await fetch(`${API_BASE_URL}/api/company/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
         },
         body: JSON.stringify({
-          company_mail_id: formData.company_mail_id.trim().toLowerCase(),
-          password: formData.password
+            company_mail_id: formData.company_mail_id.trim().toLowerCase(),
+            password: formData.password
         })
-      });
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok) {
+        if (!response.ok) {
         throw new Error(data.message || 'Login failed. Please check your credentials.');
-      }
+        }
 
-      // Successful login
-      dispatch(loginSuccess({
+        // Successful login
+        dispatch(loginSuccess({
         token: data.data.token,
         company: data.data.company
-      }));
+        }));
 
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('company', JSON.stringify(data.data.company));
+        // Store authentication data
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('company', JSON.stringify(data.data.company));
 
-      toast.success('Login successful!');
-      navigate('/company-dashboard');
+        // Show success message and navigate
+        toast.success('Login successful! Redirecting...');
+        
+        // Add slight delay before navigation for better UX
+        setTimeout(() => {
+        navigate('/company-dashboard', {
+            replace: true  // Prevent going back to login page with back button
+        });
+        }, 1500);
 
     } catch (error) {
-      console.error('Login error:', error);
-      dispatch(loginFailure(error.message));
-      toast.error(error.message || 'Login failed. Please try again.');
+        console.error('Login error:', {
+        error: error.toString(),
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+        });
+        
+        dispatch(loginFailure(error.message));
+        toast.error(error.message || 'Login failed. Please try again.');
     }
-  };
+    };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
