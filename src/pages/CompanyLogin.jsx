@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { loginStart, loginSuccess, loginFailure } from '../redux/slices/authSlice';
+import { useDispatch } from 'react-redux';
+import { loginStart, loginSuccess } from '../redux/slices/authSlice';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -12,10 +12,9 @@ export default function CompanyLogin() {
     company_mail_id: '',
     password: ''
   });
-
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     setFormData({
@@ -26,69 +25,64 @@ export default function CompanyLogin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate inputs
-    if (!formData.company_mail_id || !formData.password) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-
-    dispatch(loginStart());
+    setIsLoading(true);
 
     try {
+      // Debug: Log the exact payload being sent
+      console.log('Sending login request with:', {
+        company_mail_id: formData.company_mail_id.trim(),
+        password: formData.password
+      });
+
       const response = await fetch(`${API_BASE_URL}/api/company/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest' // Helps identify AJAX requests
         },
         body: JSON.stringify({
-          company_mail_id: formData.company_mail_id.trim().toLowerCase(),
+          company_mail_id: formData.company_mail_id.trim(),
           password: formData.password
         }),
-        credentials: 'include' // Important for cookies if using them
+        credentials: 'same-origin' // Important for session/cookies
       });
 
-      const data = await response.json();
+      // Debug: Log raw response
+      const responseData = await response.json();
+      console.log('Received response:', {
+        status: response.status,
+        data: responseData
+      });
 
-      // Handle 401 specifically
-      if (response.status === 401) {
-        throw new Error('Invalid company email or password');
-      }
-
-      // Handle other errors
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed. Please try again.');
+        throw new Error(responseData.message || `Login failed (HTTP ${response.status})`);
       }
-
-      // Verify response structure
-      if (!data.success || !data.data || !data.data.token) {
-        throw new Error('Invalid server response');
-      }
-
-      // Successful login
-      dispatch(loginSuccess({
-        token: data.data.token,
-        company: data.data.company
-      }));
 
       // Store authentication data
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('company', JSON.stringify(data.data.company));
+      dispatch(loginSuccess({
+        token: responseData.data.token,
+        company: responseData.data.company
+      }));
 
-      toast.success('Login successful!');
+      localStorage.setItem('token', responseData.data.token);
+      localStorage.setItem('company', JSON.stringify(responseData.data.company));
+
+      toast.success('Login successful! Redirecting...');
       navigate('/company/dashboard');
 
     } catch (error) {
-      console.error('Login error:', error);
-      dispatch(loginFailure(error.message));
+      console.error('Full error details:', {
+        error: error.toString(),
+        stack: error.stack,
+        formData
+      });
       
-      // Show appropriate error message
-      const displayMessage = error.message.includes('Invalid') 
+      toast.error(error.message.includes('Invalid') 
         ? 'Invalid company email or password' 
-        : 'Login failed. Please try again.';
-      
-      toast.error(displayMessage);
+        : 'Login failed. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
