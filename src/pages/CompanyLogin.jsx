@@ -15,7 +15,7 @@ export default function CompanyLogin() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     setFormData({
@@ -27,7 +27,7 @@ export default function CompanyLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Basic validation
+    // Validate inputs
     if (!formData.company_mail_id || !formData.password) {
       toast.error('Please fill in all fields');
       return;
@@ -40,39 +40,55 @@ export default function CompanyLogin() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
-          company_mail_id: formData.company_mail_id.toLowerCase().trim(),
+          company_mail_id: formData.company_mail_id.trim().toLowerCase(),
           password: formData.password
         }),
-        credentials: 'include' // For cookies if using them
+        credentials: 'include' // Important for cookies if using them
       });
 
       const data = await response.json();
 
+      // Handle 401 specifically
+      if (response.status === 401) {
+        throw new Error('Invalid company email or password');
+      }
+
+      // Handle other errors
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed. Please check your credentials.');
+        throw new Error(data.message || 'Login failed. Please try again.');
       }
 
-      if (!data.success) {
-        throw new Error(data.message || 'Login failed');
+      // Verify response structure
+      if (!data.success || !data.data || !data.data.token) {
+        throw new Error('Invalid server response');
       }
 
-      // Store token and company data
+      // Successful login
       dispatch(loginSuccess({
         token: data.data.token,
         company: data.data.company
       }));
 
+      // Store authentication data
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('company', JSON.stringify(data.data.company));
 
-      toast.success('Login successful! Redirecting...');
-      setTimeout(() => navigate('/company/dashboard'), 1500);
-    } catch (err) {
-      console.error('Login error:', err);
-      dispatch(loginFailure(err.message));
-      toast.error(err.message || 'Login failed. Please try again.');
+      toast.success('Login successful!');
+      navigate('/company/dashboard');
+
+    } catch (error) {
+      console.error('Login error:', error);
+      dispatch(loginFailure(error.message));
+      
+      // Show appropriate error message
+      const displayMessage = error.message.includes('Invalid') 
+        ? 'Invalid company email or password' 
+        : 'Login failed. Please try again.';
+      
+      toast.error(displayMessage);
     }
   };
 
@@ -124,16 +140,10 @@ export default function CompanyLogin() {
               </div>
             </div>
 
-            {error && (
-              <div className="text-red-500 text-sm">
-                {error}
-              </div>
-            )}
-
             <div className="flex items-center justify-between">
               <div className="text-sm">
                 <Link to="/company/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
-                  Forgot your password?
+                  Forgot password?
                 </Link>
               </div>
             </div>
