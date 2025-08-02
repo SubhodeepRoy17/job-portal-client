@@ -113,11 +113,8 @@ export default function CompanyDashboard() {
                 <FontAwesomeIcon icon={faPlus} className="mr-2" />
                 Post A Job
               </button>
-              <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  {company ? `Company - ${company.company_name}` : "Your Company Dashboard"}
-                </h1>
-                <p className="text-gray-600">Here is your daily activities and applications</p>
+              <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-medium">{company?.company_name?.charAt(0) || "C"}</span>
               </div>
             </div>
           </div>
@@ -161,8 +158,10 @@ export default function CompanyDashboard() {
           {/* Main Content */}
           <div className="flex-1">
             <div className="mb-8">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Hello, {company?.company_name || "Company"}</h1>
-              <p className="text-gray-600">Here is your daily activities and applications</p>
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                  {company ? `Company - ${company.company_name}` : "Your Company Dashboard"}
+                </h1>
+                <p className="text-gray-600">Here is your daily activities and applications</p>
             </div>
 
             {/* Stats Cards */}
