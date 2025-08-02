@@ -27,6 +27,9 @@ export default function CompanyLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Clear any existing toasts
+    toast.dismiss();
+
     // Validate inputs
     if (!formData.company_mail_id || !formData.password) {
         toast.error('Please fill in all fields');
@@ -51,7 +54,21 @@ export default function CompanyLogin() {
         const data = await response.json();
 
         if (!response.ok) {
-        throw new Error(data.message || 'Login failed. Please check your credentials.');
+        // Handle specific error cases from backend
+        switch (data.errorCode) {
+            case 'ACCOUNT_NOT_FOUND':
+            throw new Error('No company found with this email. Please register.');
+            case 'INVALID_PASSWORD':
+            throw new Error('Incorrect password. Please try again.');
+            case 'VALIDATION_ERROR':
+            // Show all validation errors
+            data.errors?.forEach(err => {
+                toast.error(`${err.param}: ${err.msg}`);
+            });
+            throw new Error('Please fix the form errors');
+            default:
+            throw new Error(data.message || 'Login failed. Please try again.');
+        }
         }
 
         // Successful login
@@ -82,7 +99,11 @@ export default function CompanyLogin() {
         });
         
         dispatch(loginFailure(error.message));
+        
+        // Only show toast if it's not a validation error (already shown above)
+        if (!error.message.includes('Please fix the form errors')) {
         toast.error(error.message || 'Login failed. Please try again.');
+        }
     }
     };
 

@@ -1198,6 +1198,20 @@ export default function CompanyRegister() {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Clear any existing toasts
+    toast.dismiss();
+
+    // Validate file
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      toast.error('Only JPG, PNG, and WEBP files are allowed');
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
     try {
       dispatch(setUploading(true));
       const formData = new FormData();
@@ -1236,6 +1250,8 @@ export default function CompanyRegister() {
 
   const handleSubmit = async () => {
     try {
+      toast.dismiss(); // Clear any existing toasts
+      
       if (!validateStep(4)) return;
 
       // Clean phone number - remove all non-digit characters including '+' sign
@@ -1250,7 +1266,7 @@ export default function CompanyRegister() {
         company_name: formData.companyName,
         company_mail_id: formData.email,
         password: formData.password,
-        headquarter_phone_no: cleanPhone, // Send only digits
+        headquarter_phone_no: cleanPhone,
         about_company: formData.aboutUs,
         organizations_type: formData.organizationType,
         industry_type: formData.industryType,
@@ -1261,8 +1277,6 @@ export default function CompanyRegister() {
         ...(formData.logoUrl && { company_logo_url: formData.logoUrl }),
         ...(formData.bannerUrl && { company_banner_url: formData.bannerUrl }),
       };
-
-      console.log('Submitting:', submissionData); // Debug log
 
       const response = await fetch(`${API_BASE_URL}/api/company/register`, {
         method: 'POST',
@@ -1276,7 +1290,19 @@ export default function CompanyRegister() {
       const result = await response.json();
       
       if (!response.ok) {
-        throw new Error(result.message || 'Registration failed');
+        // Handle specific error cases from backend
+        switch (result.errorCode) {
+          case 'EMAIL_EXISTS':
+            throw new Error('This email is already registered. Please login.');
+          case 'REGISTRATION_VALIDATION_ERROR':
+            // Show all validation errors
+            result.errors?.forEach(err => {
+              toast.error(`${err.param}: ${err.msg}`);
+            });
+            throw new Error('Please fix the form errors');
+          default:
+            throw new Error(result.message || 'Registration failed');
+        }
       }
 
       if (result.success) {
@@ -1291,7 +1317,11 @@ export default function CompanyRegister() {
         stack: error.stack,
         timestamp: new Date().toISOString()
       });
-      toast.error(error.message || 'Registration failed. Please try again.');
+      
+      // Only show toast if it's not a validation error (already shown above)
+      if (!error.message.includes('Please fix the form errors')) {
+        toast.error(error.message || 'Registration failed. Please try again.');
+      }
     }
   };
 
@@ -1311,7 +1341,7 @@ export default function CompanyRegister() {
   };
 
   const validateStep = (step) => {
-    toast.dismiss();
+    toast.dismiss(); // Clear any existing toasts
     let isValid = true;
 
     switch (step) {
