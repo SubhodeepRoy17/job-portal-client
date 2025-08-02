@@ -19,8 +19,7 @@ import {
   faInstagram, 
   faYoutube,
   faLinkedin,
-  faGithub, 
-  faGlassdoor
+  faGithub
 } from '@fortawesome/free-brands-svg-icons';
 import { faBriefcase } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -1141,7 +1140,6 @@ const socialPlatforms = [
   { value: "instagram", label: "Instagram", icon: faInstagram },
   { value: "youtube", label: "YouTube", icon: faYoutube },
   { value: "github", label: "GitHub", icon: faGithub },
-  { value: "glassdoor", label: "Glassdoor", icon: faGlassdoor },
   { value: "crunchbase", label: "Crunchbase", icon: faBriefcase }
 ];
 
