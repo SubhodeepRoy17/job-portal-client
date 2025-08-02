@@ -21,11 +21,16 @@ const initialState = {
 
     // Step 3 - Social Media
     socialLinks: [
-      { platform: "facebook", url: "" },
-      { platform: "twitter", url: "" },
-      { platform: "instagram", url: "" },
-      { platform: "youtube", url: "" },
+        { platform: 'linkedin', url: '' },
+        { platform: 'facebook', url: '' },
+        { platform: 'twitter', url: '' },
+        { platform: 'instagram', url: '' },
+        { platform: 'youtube', url: '' },
+        { platform: 'github', url: '' },
+        { platform: 'glassdoor', url: '' },
+        { platform: 'crunchbase', url: '' }
     ],
+    careersLink: '',
 
     // Step 4 - Contact
     mapLocation: "",

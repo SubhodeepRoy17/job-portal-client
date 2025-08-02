@@ -1,3 +1,4 @@
+//src\pages\CompanyRegister.jsx
 "use client"
 import { toast } from 'react-toastify';
 import { useState } from 'react';
@@ -17,8 +18,11 @@ import {
   faTwitter, 
   faInstagram, 
   faYoutube,
-  faLinkedin
+  faLinkedin,
+  faGithub, 
+  faGlassdoor
 } from '@fortawesome/free-brands-svg-icons';
+import { faBriefcase } from '@fortawesome/free-solid-svg-icons';
 import {
   Upload,
   User,
@@ -1131,11 +1135,14 @@ const FixedFooter = styled.div`
 `
 
 const socialPlatforms = [
+  { value: "linkedin", label: "LinkedIn", icon: faLinkedin },
   { value: "facebook", label: "Facebook", icon: faFacebook },
   { value: "twitter", label: "Twitter", icon: faTwitter },
   { value: "instagram", label: "Instagram", icon: faInstagram },
   { value: "youtube", label: "YouTube", icon: faYoutube },
-  { value: "linkedin", label: "LinkedIn", icon: faLinkedin }
+  { value: "github", label: "GitHub", icon: faGithub },
+  { value: "glassdoor", label: "Glassdoor", icon: faGlassdoor },
+  { value: "crunchbase", label: "Crunchbase", icon: faBriefcase }
 ];
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -1250,17 +1257,11 @@ export default function CompanyRegister() {
 
   const handleSubmit = async () => {
     try {
-      toast.dismiss(); // Clear any existing toasts
+      toast.dismiss();
       
       if (!validateStep(4)) return;
 
-      // Clean phone number - remove all non-digit characters including '+' sign
       const cleanPhone = formData.headquarter_phone_no.replace(/\D/g, '');
-
-      // Validate phone number contains only digits after cleaning
-      if (!/^\d+$/.test(cleanPhone)) {
-        throw new Error('Phone number must contain only digits');
-      }
 
       const submissionData = {
         company_name: formData.companyName,
@@ -1274,6 +1275,13 @@ export default function CompanyRegister() {
         year_of_establishment: formData.yearEstablished.split('/').reverse().join('-'),
         company_website: formData.companyWebsite || null,
         company_vision: formData.companyVision || null,
+        careers_link: formData.careersLink || null,
+        social_links: formData.socialLinks.reduce((acc, link) => {
+          if (link.url) {
+            acc[link.platform] = link.url;
+          }
+          return acc;
+        }, {}),
         ...(formData.logoUrl && { company_logo_url: formData.logoUrl }),
         ...(formData.bannerUrl && { company_banner_url: formData.bannerUrl }),
       };
@@ -1375,6 +1383,10 @@ export default function CompanyRegister() {
         }
         if (formData.companyWebsite && !/^https?:\/\/.+\..+/.test(formData.companyWebsite)) {
           toast.error('Website must be a valid URL (include http:// or https://)');
+          isValid = false;
+        }
+        if (formData.careersLink && !/^https?:\/\/.+\..+/.test(formData.careersLink)) {
+          toast.error('Careers link must be a valid URL (include http:// or https://)');
           isValid = false;
         }
         break;
@@ -1792,6 +1804,27 @@ export default function CompanyRegister() {
                       placeholder="Website url..."
                       value={formData.companyWebsite}
                       onChange={(e) => dispatch(updateField({ field: 'companyWebsite', value: e.target.value }))}
+                    />
+                    <Link
+                      style={{
+                        position: "absolute",
+                        right: "0.75rem",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        width: "1.25rem",
+                        height: "1.25rem",
+                        color: "#2563eb",
+                      }}
+                    />
+                  </div>
+                </FormGroup>
+                <FormGroup>
+                  <StyledLabel>Official Careers Link</StyledLabel>
+                  <div style={{ position: "relative" }}>
+                    <StyledInput
+                      placeholder="https://yourcompany.com/careers"
+                      value={formData.careersLink}
+                      onChange={(e) => dispatch(updateField({ field: 'careersLink', value: e.target.value }))}
                     />
                     <Link
                       style={{
