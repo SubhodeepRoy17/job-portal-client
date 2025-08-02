@@ -34,9 +34,11 @@ const initialState = {
     phoneNumber: '',
     email: "",
     password: "",
+    confirmPassword: "" // Added for password confirmation
   },
   uploading: false,
   showCalendar: false,
+  formErrors: {} // Added for form validation
 };
 
 export const companyRegistrationSlice = createSlice({
@@ -48,10 +50,16 @@ export const companyRegistrationSlice = createSlice({
     },
     updateFormData: (state, action) => {
       state.formData = { ...state.formData, ...action.payload };
+      // Clear errors when updating form data
+      state.formErrors = {};
     },
     updateField: (state, action) => {
       const { field, value } = action.payload;
       state.formData[field] = value;
+      // Clear error for this field when updated
+      if (state.formErrors[field]) {
+        delete state.formErrors[field];
+      }
     },
     setUploading: (state, action) => {
       state.uploading = action.payload;
@@ -77,6 +85,10 @@ export const companyRegistrationSlice = createSlice({
       state.formData[`${field}Url`] = null;
       state.formData[`${field}Preview`] = null;
     },
+    // Added for form validation
+    setFormErrors: (state, action) => {
+      state.formErrors = action.payload;
+    },
     resetForm: () => initialState,
   },
 });
@@ -91,6 +103,7 @@ export const {
   removeSocialLink,
   updateSocialLink,
   removeFile,
+  setFormErrors,
   resetForm,
 } = companyRegistrationSlice.actions;
 

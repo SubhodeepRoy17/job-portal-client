@@ -1,51 +1,31 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { fetchCompanyData } from "../redux/slices/companySlice"
-import { logout } from "../redux/slices/authSlice"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-  faBell,
-  faBriefcase,
-  faBuilding,
-  faCalendar,
-  faChevronDown,
-  faCreditCard,
-  faEye,
-  faFileAlt,
-  faHeart,
-  faSignOutAlt,
-  faEllipsisH,
-  faPhone,
-  faPlus,
-  faCog,
-  faChartLine,
-  faUser,
-  faUsers
-} from "@fortawesome/free-solid-svg-icons"
-import { useNavigate } from "react-router-dom" // Changed from useRouter to useNavigate
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCompanyData } from "../redux/slices/companySlice";
+import { logout } from "../redux/slices/authSlice";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBell, faBriefcase, faBuilding, faCalendar, faChevronDown, faCreditCard, faEye, faFileAlt, faHeart, faSignOutAlt, faEllipsisH, faPhone, faPlus, faCog, faChartLine, faUser, faUsers } from "@fortawesome/free-solid-svg-icons";
 
 export default function CompanyDashboard() {
-  const dispatch = useDispatch()
-  const navigate = useNavigate() // Using useNavigate instead of useRouter
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { company } = useSelector((state) => state.auth);
-  const { 
-    stats = { openJobs: 0, savedCandidates: 0 }, 
-    jobs = [], 
-    loading = false 
-  } = useSelector((state) => state.company || {});
+  const { stats, jobs, loading } = useSelector((state) => state.company);
   
-  const [activeJob, setActiveJob] = useState(null)
+  const [activeJob, setActiveJob] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchCompanyData())
-  }, [dispatch])
+    if (company) {
+      dispatch(fetchCompanyData());
+    }
+  }, [dispatch, company]);
 
   const handleLogout = () => {
-    dispatch(logout())
-    navigate("/company-login") // Changed from router.push to navigate
-  }
+    dispatch(logout());
+    navigate("/company-login");
+  };
 
   const sidebarItems = [
     { icon: faFileAlt, label: "Overview", active: true },
@@ -56,14 +36,14 @@ export default function CompanyDashboard() {
     { icon: faCreditCard, label: "Plans & Billing" },
     { icon: faBuilding, label: "All Companies" },
     { icon: faCog, label: "Settings" },
-  ]
+  ];
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -113,11 +93,10 @@ export default function CompanyDashboard() {
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center">
               <div className="flex items-center">
-                <div className="bg-blue-600 rounded-lg p-2 mr-3">
-                  <FontAwesomeIcon icon={faBriefcase} className="h-6 w-6 text-white" />
+                <LogoContainer>
+                  <Logo />
+                </LogoContainer>
                 </div>
-                <span className="text-2xl font-bold text-gray-900">Jobpilot</span>
-              </div>
             </div>
             <div className="flex items-center space-x-4">
               <button className="p-2 rounded-full hover:bg-gray-100 relative">
@@ -128,8 +107,11 @@ export default function CompanyDashboard() {
                 <FontAwesomeIcon icon={faPlus} className="mr-2" />
                 Post A Job
               </button>
-              <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-medium">{company?.company_name?.charAt(0) || "C"}</span>
+              <div className="mb-8">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                  {company ? `Company - ${company.company_name}` : "Your Company Dashboard"}
+                </h1>
+                <p className="text-gray-600">Here is your daily activities and applications</p>
               </div>
             </div>
           </div>

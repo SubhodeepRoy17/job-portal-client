@@ -1,6 +1,6 @@
 // src/redux/slices/companySlice.js
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchCompanyData as fetchCompanyDataService } from '../../services/companyService'; // Renamed import
+import { fetchCompanyData as fetchCompanyDataService } from '../../services/companyService';
 
 const initialState = {
   stats: {
@@ -12,12 +12,12 @@ const initialState = {
   error: null
 };
 
-// Using the renamed import in the thunk
 export const fetchCompanyData = createAsyncThunk(
   'company/fetchData',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      const response = await fetchCompanyDataService(); // Using renamed function
+      const { auth } = getState();
+      const response = await fetchCompanyDataService(auth.token);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -29,9 +29,7 @@ const companySlice = createSlice({
   name: 'company',
   initialState,
   reducers: {
-    resetCompanyState: (state) => {
-      return initialState;
-    }
+    resetCompanyState: (state) => initialState
   },
   extraReducers: (builder) => {
     builder
@@ -46,7 +44,7 @@ const companySlice = createSlice({
       })
       .addCase(fetchCompanyData.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch company data';
+        state.error = action.payload;
       });
   }
 });
