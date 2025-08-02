@@ -2,10 +2,42 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginStart, loginSuccess, loginFailure } from '../redux/slices/authSlice';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import styled from "styled-components";
 
 const API_BASE_URL = 'https://job-portal-server-six-eosin.vercel.app';
+
+// Styled component for the toast container
+const StyledToastContainer = styled(ToastContainer)`
+  .Toastify__toast {
+    font-family: inherit;
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .Toastify__toast--error {
+    background: #FFEBEE;
+    color: #B71C1C;
+    border-left: 4px solid #F44336;
+  }
+  
+  .Toastify__toast--success {
+    background: #E8F5E9;
+    color: #1B5E20;
+    border-left: 4px solid #4CAF50;
+  }
+  
+  .Toastify__close-button {
+    color: inherit;
+    opacity: 0.8;
+  }
+  
+  .Toastify__progress-bar {
+    background: rgba(0, 0, 0, 0.1);
+  }
+`;
 
 export default function CompanyLogin() {
   const [formData, setFormData] = useState({
@@ -32,83 +64,102 @@ export default function CompanyLogin() {
 
     // Validate inputs
     if (!formData.company_mail_id || !formData.password) {
-        toast.error('Please fill in all fields');
-        return;
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.company_mail_id)) {
+      toast.error('Please enter a valid email address');
+      return;
     }
 
     dispatch(loginStart());
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/company/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/company/login`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
-            company_mail_id: formData.company_mail_id.trim().toLowerCase(),
-            password: formData.password
+          company_mail_id: formData.company_mail_id.trim().toLowerCase(),
+          password: formData.password
         })
-        });
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (!response.ok) {
+      if (!response.ok) {
         // Handle specific error cases from backend
         switch (data.errorCode) {
-            case 'ACCOUNT_NOT_FOUND':
+          case 'ACCOUNT_NOT_FOUND':
             throw new Error('No company found with this email. Please register.');
-            case 'INVALID_PASSWORD':
+          case 'INVALID_PASSWORD':
             throw new Error('Incorrect password. Please try again.');
-            case 'VALIDATION_ERROR':
+          case 'VALIDATION_ERROR':
             // Show all validation errors
             data.errors?.forEach(err => {
-                toast.error(`${err.param}: ${err.msg}`);
+              toast.error(`${err.param}: ${err.msg}`);
             });
             throw new Error('Please fix the form errors');
-            default:
+          default:
             throw new Error(data.message || 'Login failed. Please try again.');
         }
-        }
+      }
 
-        // Successful login
-        dispatch(loginSuccess({
+      // Successful login
+      dispatch(loginSuccess({
         token: data.data.token,
         company: data.data.company
-        }));
+      }));
 
-        // Store authentication data
-        localStorage.setItem('token', data.data.token);
-        localStorage.setItem('company', JSON.stringify(data.data.company));
+      // Store authentication data
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('company', JSON.stringify(data.data.company));
 
-        // Show success message and navigate
-        toast.success('Login successful! Redirecting...');
-        
-        // Add slight delay before navigation for better UX
-        setTimeout(() => {
+      // Show success message and navigate
+      toast.success('Login successful! Redirecting...');
+      
+      // Add slight delay before navigation for better UX
+      setTimeout(() => {
         navigate('/company-dashboard', {
-            replace: true  // Prevent going back to login page with back button
+          replace: true  // Prevent going back to login page with back button
         });
-        }, 1500);
+      }, 1500);
 
     } catch (error) {
-        console.error('Login error:', {
+      console.error('Login error:', {
         error: error.toString(),
         stack: error.stack,
         timestamp: new Date().toISOString()
-        });
-        
-        dispatch(loginFailure(error.message));
-        
-        // Only show toast if it's not a validation error (already shown above)
-        if (!error.message.includes('Please fix the form errors')) {
+      });
+      
+      dispatch(loginFailure(error.message));
+      
+      // Only show toast if it's not a validation error (already shown above)
+      if (!error.message.includes('Please fix the form errors')) {
         toast.error(error.message || 'Login failed. Please try again.');
-        }
+      }
     }
-    };
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
+      {/* Toast Container positioned at the top */}
+      <StyledToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Company Login
