@@ -64,7 +64,7 @@ export default function CompanyLogin() {
       localStorage.setItem('company', JSON.stringify(data.data.company));
 
       toast.success('Login successful!');
-      navigate('/company/dashboard');
+      navigate('/company-dashboard');
 
     } catch (error) {
       console.error('Login error:', error);

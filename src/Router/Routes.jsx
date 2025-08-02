@@ -8,6 +8,7 @@ import {
     CompanyLogin,
     RecruiterRegister,
     CompanyRegister,
+    CompanyDashboard,
     Landing,
     Error,
     AllJobs,
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
             {
                 path : "company-register",
                 element: <CompanyRegister/>,
+            },
+            {
+                path: "company-dashboard",
+                element: <CompanyDashboard />,
             },
             {
                 path: "company-login",
