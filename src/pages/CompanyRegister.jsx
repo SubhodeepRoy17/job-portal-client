@@ -1498,10 +1498,19 @@ export default function CompanyRegister() {
               Your company profile has been successfully registered. You can now post jobs, manage candidates, and access all the features of our platform.
             </SuccessDescription>
             <SuccessButtonGroup>
-              <StyledButton $variant="outline" $size="lg">
+              <StyledButton 
+                $variant="outline" 
+                $size="lg"
+                as="a" 
+                href="/company-login"
+              >
                 View Dashboard
               </StyledButton>
-              <StyledButton $size="lg">
+              <StyledButton 
+                $size="lg"
+                as="a" 
+                href="/company-login"
+              >
                 Post Job <ArrowRight className="ml-2 h-4 w-4" />
               </StyledButton>
             </SuccessButtonGroup>
