@@ -136,7 +136,7 @@ const CompanyRegisterForm = () => {
         title: "Registration Successful!",
         text: `Account created for ${company.email}`,
       }).then(() => {
-        navigate("/login-company");
+        navigate("/login-companyform");
         dispatch(resetAuthState());
       });
     }
