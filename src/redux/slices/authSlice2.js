@@ -1,3 +1,4 @@
+// Enhanced authSlice2.js with better error handling and debugging
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -5,6 +6,14 @@ export const registerCompany = createAsyncThunk(
   'auth/registerCompany',
   async (companyData, { rejectWithValue }) => {
     try {
+      console.log('Sending company data:', companyData);
+      console.log('Data types:', {
+        email: typeof companyData.email,
+        password: typeof companyData.password,
+        full_name: typeof companyData.full_name,
+        mobile_no: typeof companyData.mobile_no
+      });
+      
       const response = await axios.post(
         'https://job-portal-server-six-eosin.vercel.app/api/auth/register-company',
         companyData,
@@ -17,21 +26,33 @@ export const registerCompany = createAsyncThunk(
         }
       );
       
+      console.log('Server response:', response.data);
+      
       if (!response.data.status) {
         return rejectWithValue(response.data.message || 'Registration failed');
       }
       
       return response.data.company;
     } catch (error) {
+      console.error('Registration error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers
+      });
+      
       if (error.response) {
-        return rejectWithValue(
-          error.response.data.message || 
-          error.response.data.error || 
-          'Registration failed'
-        );
+        // Server responded with error status
+        const errorMessage = error.response.data?.message || 
+                           error.response.data?.error || 
+                           error.response.data?.errors ||
+                           `Server error: ${error.response.status}`;
+        return rejectWithValue(errorMessage);
       } else if (error.request) {
-        return rejectWithValue('No response from server');
+        // Request made but no response received
+        return rejectWithValue('No response from server. Please check your internet connection.');
       } else {
+        // Something happened in setting up the request
         return rejectWithValue(error.message || 'Registration failed');
       }
     }
@@ -45,11 +66,17 @@ export const loginCompany = createAsyncThunk(
       const response = await axios.post(
         'https://job-portal-server-six-eosin.vercel.app/api/auth/login-company',
         credentials,
-        { withCredentials: true }
+        { 
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      console.error('Login error:', error.response?.data);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );

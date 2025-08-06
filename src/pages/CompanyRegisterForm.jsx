@@ -1,9 +1,10 @@
-//src/pages/CompanyRegisterForm.jsx
+// Enhanced CompanyRegisterForm.jsx with better validation and debugging
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { registerCompany, resetAuthState } from "../redux/slices/authSlice2";
 import { useForm } from "react-hook-form";
 import PhoneInput from 'react-phone-number-input';
+import { isValidPhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import Swal from "sweetalert2";
 import styled from "styled-components";
@@ -45,7 +46,20 @@ const CompanyRegisterForm = () => {
   }, [watch('password')]);
 
   const onSubmit = (data) => {
+    console.log('Form data before validation:', data);
+    console.log('Phone value:', phoneValue);
+    
+    // Enhanced phone validation
     if (!phoneValue) {
+      Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "Please enter a phone number",
+      });
+      return;
+    }
+    
+    if (!isValidPhoneNumber(phoneValue)) {
       Swal.fire({
         icon: "error",
         title: "Validation Error",
@@ -54,23 +68,61 @@ const CompanyRegisterForm = () => {
       return;
     }
 
+    // Ensure all fields are strings and properly formatted
     const companyData = {
-      email: data.email.toLowerCase(),
-      password: data.password,
-      full_name: data.full_name,
-      mobile_no: phoneValue // react-phone-number-input already provides E.164 format
+      email: String(data.email).toLowerCase().trim(),
+      password: String(data.password),
+      full_name: String(data.full_name).trim(),
+      mobile_no: String(phoneValue) // Ensure it's a string
     };
-    console.log("Company Data:", companyData);
+
+    // Additional validation
+    if (!companyData.email || !companyData.password || !companyData.full_name || !companyData.mobile_no) {
+      Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "All fields are required",
+      });
+      return;
+    }
+
+    console.log("Final company data being sent:", companyData);
+    console.log("Data structure check:", {
+      hasEmail: !!companyData.email,
+      hasPassword: !!companyData.password,
+      hasFullName: !!companyData.full_name,
+      hasMobileNo: !!companyData.mobile_no,
+      emailLength: companyData.email.length,
+      passwordLength: companyData.password.length,
+      fullNameLength: companyData.full_name.length,
+      mobileNoLength: companyData.mobile_no.length
+    });
+    
     dispatch(registerCompany(companyData));
   };
 
-  // Handle success/error messages
+  // Handle success/error messages with more detailed error display
   useEffect(() => {
     if (error) {
+      console.error('Registration error in component:', error);
+      
+      let errorMessage = 'Registration failed';
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.errors) {
+        // Handle validation errors from server
+        errorMessage = Array.isArray(error.errors) 
+          ? error.errors.join(', ') 
+          : JSON.stringify(error.errors);
+      }
+      
       Swal.fire({
         icon: "error",
         title: "Registration Failed",
-        text: typeof error === 'string' ? error : error.message || 'Registration failed',
+        text: errorMessage,
+        footer: '<p style="font-size: 12px; color: #666;">Check console for more details</p>'
       });
       dispatch(resetAuthState());
     }
@@ -115,6 +167,10 @@ const CompanyRegisterForm = () => {
                 maxLength: {
                   value: 100,
                   message: "Maximum 100 characters allowed"
+                },
+                pattern: {
+                  value: /^[a-zA-Z0-9\s&.-]+$/,
+                  message: "Company name contains invalid characters"
                 }
               })}
             />
@@ -137,8 +193,8 @@ const CompanyRegisterForm = () => {
                   message: "Email is required",
                 },
                 pattern: {
-                  value: /^[a-zA-Z0-9._%+-]+@(?!gmail\.com|outlook\.com|icloud\.com)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: "Use company email with your domain",
+                  value: /^[a-zA-Z0-9._%+-]+@(?!gmail\.com|outlook\.com|icloud\.com|yahoo\.com|hotmail\.com)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message: "Use company email with your domain (not Gmail, Outlook, etc.)",
                 },
               })}
             />
@@ -163,13 +219,34 @@ const CompanyRegisterForm = () => {
                   hasUpper: v => /[A-Z]/.test(v) || "Need 1 uppercase letter",
                   hasLower: v => /[a-z]/.test(v) || "Need 1 lowercase letter",
                   hasNumber: v => /[0-9]/.test(v) || "Need 1 number",
-                  hasSpecial: v => /[!@#$%^&*]/.test(v) || "Need 1 special character"
+                  hasSpecial: v => /[!@#$%^&*]/.test(v) || "Need 1 special character (!@#$%^&*)"
                 }
               })}
               placeholder="Create password"
             />
             {errors.password && (
               <span className="error-text">{errors.password.message}</span>
+            )}
+            
+            {/* Password strength indicator */}
+            {watch('password') && (
+              <div className="password-strength">
+                <div className={`strength-item ${passwordValidation.length ? 'valid' : 'invalid'}`}>
+                  ✓ At least 8 characters
+                </div>
+                <div className={`strength-item ${passwordValidation.upperCase ? 'valid' : 'invalid'}`}>
+                  ✓ One uppercase letter
+                </div>
+                <div className={`strength-item ${passwordValidation.lowerCase ? 'valid' : 'invalid'}`}>
+                  ✓ One lowercase letter
+                </div>
+                <div className={`strength-item ${passwordValidation.number ? 'valid' : 'invalid'}`}>
+                  ✓ One number
+                </div>
+                <div className={`strength-item ${passwordValidation.specialChar ? 'valid' : 'invalid'}`}>
+                  ✓ One special character
+                </div>
+              </div>
             )}
           </div>
           
@@ -181,14 +258,18 @@ const CompanyRegisterForm = () => {
                 defaultCountry="IN"
                 value={phoneValue}
                 onChange={setPhoneValue}
-                required
+                placeholder="Enter phone number"
+                error={phoneValue && !isValidPhoneNumber(phoneValue) ? 'Invalid phone number' : undefined}
               />
+              {phoneValue && !isValidPhoneNumber(phoneValue) && (
+                <span className="error-text">Please enter a valid phone number</span>
+              )}
             </div>
           </div>
           
           <div className="flex justify-center">
             <button type="submit" disabled={loading}>
-              {loading ? "Loading..." : "Register"}
+              {loading ? "Registering..." : "Register"}
             </button>
           </div>
         </form>
@@ -234,64 +315,6 @@ const Wrapper = styled.div`
     color: #1d1f2b;
   }
 
-  .google-btn-container {
-    width: 100%;
-  }
-
-  .google-btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 15px;
-    font-weight: 500;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    background-color: #ffffff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-  }
-
-  .google-btn:hover {
-    background-color: #f5f5f5;
-  }
-
-  .google-btn:disabled {
-    background-color: #fafafa;
-    cursor: not-allowed;
-  }
-
-  .google-icon {
-    font-size: 18px;
-  }
-
-  .divider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #999;
-    font-size: 13px;
-    position: relative;
-  }
-
-  .divider::before,
-  .divider::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background-color: #e0e0e0;
-  }
-
-  .divider::before {
-    margin-right: 12px;
-  }
-
-  .divider::after {
-    margin-left: 12px;
-  }
-
   form {
     display: flex;
     flex-direction: column;
@@ -332,17 +355,36 @@ const Wrapper = styled.div`
     font-size: 12px;
     color: #d32f2f;
     font-weight: 500;
-    margin-top: -10px;
+    margin-top: 4px;
     padding-left: 2px;
   }
 
-  button[type="submit"],
-  .user-btn {
+  .password-strength {
+    margin-top: 8px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+
+  .strength-item {
+    margin-bottom: 2px;
+  }
+
+  .strength-item.valid {
+    color: #28a745;
+  }
+
+  .strength-item.invalid {
+    color: #dc3545;
+  }
+
+  button[type="submit"] {
     width: 100%;
     padding: 12px;
     font-size: 15px;
     font-weight: 600;
-    background-color:var(--color-accent);
+    background-color: var(--color-accent);
     color: white;
     border: none;
     border-radius: 8px;
@@ -350,22 +392,14 @@ const Wrapper = styled.div`
     transition: background 0.2s ease;
   }
 
-  button[type="submit"]:hover,
-  .user-btn:hover {
+  button[type="submit"]:hover:not(:disabled) {
     background-color: #4178c0;
   }
 
   button:disabled {
     background-color: #c4c4c4;
     cursor: not-allowed;
-  }
-
-  .alt-actions {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    color: #666;
-    margin-top: 10px;
+    opacity: 0.6;
   }
 
   .phone-input-wrapper {
@@ -382,6 +416,7 @@ const Wrapper = styled.div`
         &:focus {
           outline: none;
           border-color: #4a90e2;
+          box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
         }
         
         &.error {
