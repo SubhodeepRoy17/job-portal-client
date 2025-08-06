@@ -258,7 +258,7 @@ export default function CompanyDashboard() {
           <div className={`flex-1 ${sidebarOpen ? 'ml-64 lg:ml-0' : ''} pb-16 lg:pb-0`}>
             <div className="mb-8">
                 <h1 className="text-xl lg:text-2xl font-bold text-gray-900 mb-2">
-                  {company ? `Company - ${company.company_name}` : "Your Company Dashboard"}
+                  {company ? `Company - ${company.full_name}` : "Your Company Dashboard"}
                 </h1>
                 <p className="text-gray-600">Here is your daily activities and applications</p>
             </div>
