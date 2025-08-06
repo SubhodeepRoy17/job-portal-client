@@ -8,6 +8,7 @@ import 'react-phone-number-input/style.css';
 import Swal from "sweetalert2";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
+import Logo from "../components/Logo";
 
 const CompanyRegisterForm = () => {
   const [phoneValue, setPhoneValue] = useState('');
