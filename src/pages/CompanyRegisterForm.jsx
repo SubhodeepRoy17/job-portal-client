@@ -60,7 +60,7 @@ const CompanyRegisterForm = () => {
       full_name: data.full_name,
       mobile_no: phoneValue // react-phone-number-input already provides E.164 format
     };
-
+    console.log("Company Data:", companyData);
     dispatch(registerCompany(companyData));
   };
 
