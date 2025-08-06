@@ -280,7 +280,7 @@ const CompanyRegisterForm = () => {
         <div className="">
           <p className="text-center text-[10px] font-semibold opacity-9 mt-3">
             Already registered as Company.
-            <Link className="ml-1 link" to="/login-company">
+            <Link className="ml-1 link" to="/login-companyform">
               Login now
             </Link>
           </p>
