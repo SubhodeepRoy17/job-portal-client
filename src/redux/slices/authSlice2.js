@@ -72,6 +72,8 @@ export const loginCompany = createAsyncThunk(
   'auth/loginCompany',
   async (credentials, { rejectWithValue }) => {
     try {
+      console.log('Sending login data:', credentials);
+      
       const response = await axios.post(
         'https://job-portal-server-six-eosin.vercel.app/api/auth/login-company',
         credentials,
@@ -79,13 +81,44 @@ export const loginCompany = createAsyncThunk(
           withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
-          }
+          },
+          timeout: 10000
         }
       );
-      return response.data;
+      
+      console.log('Login response:', response.data);
+      
+      // Check if login was successful
+      if (response.data.status === false) {
+        return rejectWithValue(response.data.message || 'Login failed');
+      }
+      
+      // Return the company/user data
+      return response.data.user || response.data.company || response.data;
     } catch (error) {
-      console.error('Login error:', error.response?.data);
-      return rejectWithValue(error.response?.data || error.message);
+      console.error('Login error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      if (error.response) {
+        let errorMessage;
+        
+        if (Array.isArray(error.response.data)) {
+          errorMessage = error.response.data.map(err => err.msg || err.message || err).join(', ');
+        } else {
+          errorMessage = error.response.data?.message || 
+                        error.response.data?.error ||
+                        `Login failed with status ${error.response.status}`;
+        }
+        
+        return rejectWithValue(error.response.data || errorMessage);
+      } else if (error.request) {
+        return rejectWithValue('No response from server. Please check your internet connection.');
+      } else {
+        return rejectWithValue(error.message || 'Login failed');
+      }
     }
   }
 );
@@ -124,14 +157,19 @@ const authSlice = createSlice({
       .addCase(loginCompany.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = false;
       })
       .addCase(loginCompany.fulfilled, (state, action) => {
         state.loading = false;
-        state.company = action.payload.user;
+        state.error = null;
+        state.company = action.payload;
+        state.success = true;
       })
       .addCase(loginCompany.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.message || 'Login failed';
+        state.company = null;
+        state.success = false;
+        state.error = action.payload?.message || action.payload || 'Login failed';
       });
   }
 });
