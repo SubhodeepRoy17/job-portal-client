@@ -7,7 +7,6 @@ import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import Swal from "sweetalert2";
 import styled from "styled-components";
-import Logo from "../components/Logo";
 import { Link, useNavigate } from "react-router-dom";
 
 const CompanyRegisterForm = () => {
@@ -15,72 +14,77 @@ const CompanyRegisterForm = () => {
   const {
     register,
     handleSubmit,
-    reset: resetForm,
     formState: { errors },
+    watch
   } = useForm();
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error, success, company } = useSelector((state) => state.auth);
 
-  const onSubmit = async (data) => {
-    // Phone number validation
+  // Password validation state
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    upperCase: false,
+    lowerCase: false,
+    number: false,
+    specialChar: false
+  });
+
+  // Watch password changes for real-time validation
+  useEffect(() => {
+    const password = watch('password') || '';
+    setPasswordValidation({
+      length: password.length >= 8,
+      upperCase: /[A-Z]/.test(password),
+      lowerCase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      specialChar: /[!@#$%^&*]/.test(password)
+    });
+  }, [watch('password')]);
+
+  const onSubmit = (data) => {
     if (!phoneValue) {
       Swal.fire({
         icon: "error",
         title: "Validation Error",
-        text: "Please enter a valid international phone number",
+        text: "Please enter a valid phone number",
       });
       return;
     }
 
-    try {
-      // Prepare the request payload
-      const companyData = {
-        email: data.email.toLowerCase(),
-        password: data.password,
-        full_name: data.full_name,
-        mobile_no: phoneValue
-      };
+    const companyData = {
+      email: data.email.toLowerCase(),
+      password: data.password,
+      full_name: data.full_name,
+      mobile_no: phoneValue // react-phone-number-input already provides E.164 format
+    };
 
-      dispatch(registerCompany(companyData));
-    } catch (error) {
-      console.error('Registration error:', error);
-      Swal.fire({
-        icon: "error",
-        title: "Registration Error",
-        text: "An unexpected error occurred. Please try again.",
-      });
-    }
+    dispatch(registerCompany(companyData));
   };
 
-  useEffect(() => {
-    if (success && company) {
-      Swal.fire({
-        icon: "success",
-        title: "Registration Successful!",
-        text: `Account created for ${company.email}`,
-        timer: 2000,
-        timerProgressBar: true,
-      }).then(() => {
-        resetForm();
-        navigate("/login-company");
-        dispatch(resetAuthState());
-      });
-    }
-  }, [success, company, navigate, resetForm, dispatch]);
-
+  // Handle success/error messages
   useEffect(() => {
     if (error) {
       Swal.fire({
         icon: "error",
         title: "Registration Failed",
-        html: `<div style="text-align:left">${error}</div>`,
-        showConfirmButton: true,
+        text: typeof error === 'string' ? error : error.message || 'Registration failed',
       });
       dispatch(resetAuthState());
     }
-  }, [error, dispatch]);
+
+    if (success && company) {
+      Swal.fire({
+        icon: "success",
+        title: "Registration Successful!",
+        text: `Account created for ${company.email}`,
+      }).then(() => {
+        navigate("/login-company");
+        dispatch(resetAuthState());
+      });
+    }
+  }, [error, success, company, navigate, dispatch]);
 
   return (
     <Wrapper>
@@ -147,30 +151,24 @@ const CompanyRegisterForm = () => {
           <div className="row">
             <label htmlFor="password">Password</label>
             <input
-                type="password"
-                name="password"
-                placeholder="Type Here"
-                {...register("password", {
-                required: {
-                    value: true,
-                    message: "Password is required",
-                },
+              type="password"
+              {...register("password", {
+                required: "Password is required",
                 minLength: {
-                    value: 8,
-                    message: "Minimum 8 characters required"
+                  value: 8,
+                  message: "Minimum 8 characters required"
                 },
                 validate: {
-                    hasUpperCase: value => /[A-Z]/.test(value) || "At least one uppercase letter",
-                    hasLowerCase: value => /[a-z]/.test(value) || "At least one lowercase letter",
-                    hasNumber: value => /[0-9]/.test(value) || "At least one number",
-                    hasSpecialChar: value => /[!@#$%^&*(),.?":{}|<>]/.test(value) || "At least one special character"
+                  hasUpper: v => /[A-Z]/.test(v) || "Need 1 uppercase letter",
+                  hasLower: v => /[a-z]/.test(v) || "Need 1 lowercase letter",
+                  hasNumber: v => /[0-9]/.test(v) || "Need 1 number",
+                  hasSpecial: v => /[!@#$%^&*]/.test(v) || "Need 1 special character"
                 }
-                })}
+              })}
+              placeholder="Create password"
             />
-            {errors?.password && (
-                <span className="text-[10px] font-semibold text-red-600 mt-1 pl-1 tracking-wider">
-                {errors?.password?.message}
-                </span>
+            {errors.password && (
+              <span className="error-text">{errors.password.message}</span>
             )}
           </div>
           
