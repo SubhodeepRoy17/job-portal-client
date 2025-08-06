@@ -41,7 +41,7 @@ const CompanyRegisterForm = () => {
       upperCase: /[A-Z]/.test(password),
       lowerCase: /[a-z]/.test(password),
       number: /[0-9]/.test(password),
-      specialChar: /[!@#$%^&*]/.test(password)
+      specialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)
     });
   }, [watch('password')]);
 
@@ -111,10 +111,13 @@ const CompanyRegisterForm = () => {
         errorMessage = error;
       } else if (error?.message) {
         errorMessage = error.message;
+      } else if (Array.isArray(error)) {
+        // Handle validation errors array from server
+        errorMessage = error.map(err => err.msg || err.message || err).join(', ');
       } else if (error?.errors) {
         // Handle validation errors from server
         errorMessage = Array.isArray(error.errors) 
-          ? error.errors.join(', ') 
+          ? error.errors.map(err => err.msg || err.message || err).join(', ')
           : JSON.stringify(error.errors);
       }
       
@@ -219,7 +222,7 @@ const CompanyRegisterForm = () => {
                   hasUpper: v => /[A-Z]/.test(v) || "Need 1 uppercase letter",
                   hasLower: v => /[a-z]/.test(v) || "Need 1 lowercase letter",
                   hasNumber: v => /[0-9]/.test(v) || "Need 1 number",
-                  hasSpecial: v => /[!@#$%^&*]/.test(v) || "Need 1 special character (!@#$%^&*)"
+                  hasSpecial: v => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(v) || "Need 1 special character"
                 }
               })}
               placeholder="Create password"

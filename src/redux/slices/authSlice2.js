@@ -43,11 +43,20 @@ export const registerCompany = createAsyncThunk(
       
       if (error.response) {
         // Server responded with error status
-        const errorMessage = error.response.data?.message || 
-                           error.response.data?.error || 
-                           error.response.data?.errors ||
-                           `Server error: ${error.response.status}`;
-        return rejectWithValue(errorMessage);
+        let errorMessage;
+        
+        if (Array.isArray(error.response.data)) {
+          // Handle array of validation errors
+          errorMessage = error.response.data.map(err => err.msg || err.message || err).join(', ');
+        } else {
+          // Handle single error object
+          errorMessage = error.response.data?.message || 
+                        error.response.data?.error || 
+                        error.response.data?.errors ||
+                        `Server error: ${error.response.status}`;
+        }
+        
+        return rejectWithValue(error.response.data || errorMessage);
       } else if (error.request) {
         // Request made but no response received
         return rejectWithValue('No response from server. Please check your internet connection.');
