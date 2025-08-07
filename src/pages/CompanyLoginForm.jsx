@@ -21,12 +21,11 @@ const CompanyLoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/company-dashboard";
+  const from = location.state?.from?.pathname || "/dashboard/company-profile";
   
   const { loading, error, company } = useSelector((state) => state.auth);
 
   const onSubmit = (data) => {
-    // Add basic validation and formatting
     const loginData = {
       email: data.email.toLowerCase().trim(),
       password: data.password
@@ -36,12 +35,10 @@ const CompanyLoginForm = () => {
     dispatch(loginCompany(loginData));
   };
 
-  // Handle successful login
   useEffect(() => {
     if (company) {
       console.log('Login successful, company data:', company);
       
-      // Check account status
       if (company.ac_status === 2) {
         toast.warning(
           <div>
@@ -66,37 +63,35 @@ const CompanyLoginForm = () => {
         return;
       }
 
-      // Check if account status is not active (assuming 1 is active)
       if (company.ac_status !== 1 && company.ac_status !== undefined) {
         toast.warning("Account status needs verification. Please contact support.");
         dispatch(resetAuthState());
         return;
       }
 
-      // Check role (assuming role 4 is company)
       if (company.role && company.role !== 4) {
         toast.error("Invalid account type for company login");
         dispatch(resetAuthState());
         return;
       }
 
-      // Success - show welcome message and navigate
       const companyName = company.full_name || company.company_name || company.name || 'Company';
       toast.success(`Welcome back, ${companyName}!`);
       
       resetForm();
       
-      // Navigate to company dashboard
       setTimeout(() => {
-        navigate('/company-dashboard', {
-          replace: true,  // Prevent going back to login page with back button
-          state: { from: location.pathname }
+        navigate('/dashboard/company-profile', {
+          replace: true,
+          state: { 
+            from: location.pathname,
+            companyData: company
+          }
         });
-      }, 1000); // Reduced delay for better UX
+      }, 1000);
     }
   }, [company, navigate, location.pathname, resetForm, dispatch]);
 
-  // Handle login errors
   useEffect(() => {
     if (error) {
       console.error('Login error:', error);
@@ -111,7 +106,6 @@ const CompanyLoginForm = () => {
         errorMessage = error.map(err => err.msg || err.message || err).join(', ');
       }
       
-      // Show specific error messages for common issues
       if (errorMessage.toLowerCase().includes('invalid credentials') || 
           errorMessage.toLowerCase().includes('incorrect password') ||
           errorMessage.toLowerCase().includes('user not found')) {

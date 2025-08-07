@@ -127,6 +127,17 @@ const ProfileHeader = ({ userData, isMobile, activeTab, setActiveTab }) => {
                 return {};
               })
           );
+        } else if (user.role === 4) {
+            promises.push(
+                axios.get("https://job-portal-server-six-eosin.vercel.app/api/company-profile", 
+                { withCredentials: true })
+                .then(res => {
+                    return { companyProfile: res.data };
+                })
+                .catch(() => {
+                    return {};
+                })
+            );
         }
 
         const results = await Promise.all(promises);
@@ -375,7 +386,7 @@ const Profile = () => {
     return (
     <>
         <ToastContainer position="top-right" autoClose={5000} closeOnClick={false} />
-        {user?.role === 3 && [2, 3].includes(user?.ac_status) && (
+        {([3, 4].includes(user?.role)) && [2, 3].includes(user?.ac_status) && (
         <div className="status-banner">
             {user.ac_status === 2 && (
             <span className="warning">
@@ -444,9 +455,10 @@ const Profile = () => {
                     <div className="info-item">
                         <span className="info-label">Role:</span>
                         <span className="info-value">
-                        {userData?.role === 1 ? 'Admin' : 
-                        userData?.role === 2 ? 'Recruiter' : 
-                        'User'}
+                            {userData?.role === 1 ? 'Admin' : 
+                            userData?.role === 2 ? 'Recruiter' : 
+                            userData?.role === 4 ? 'Company' : 
+                            'User'}
                         </span>
                     </div>
                     <div className="info-item">
@@ -576,6 +588,54 @@ const Profile = () => {
                     </div>
                 </div>
                 </div>
+            )}
+
+            {/* Company Profile Section */}
+            {user?.role === 4 && userData.companyProfile && (
+            <div className="wrapper">
+                <div className="section-header">
+                <h5 className="title">Company Information</h5>
+                <Link to="/dashboard/edit-company-profile" className="edit-link">
+                    <FiEdit size={16} /> Edit
+                </Link>
+                </div>
+                <div className="profile-details">
+                <div className="detail-grid">
+                    <div className="detail-item">
+                    <span className="detail-label">Company Name</span>
+                    <span className="detail-value">{userData.companyProfile.company_name || "-"}</span>
+                    </div>
+                    <div className="detail-item">
+                    <span className="detail-label">Industry</span>
+                    <span className="detail-value">{userData.companyProfile.industry || "-"}</span>
+                    </div>
+                    <div className="detail-item">
+                    <span className="detail-label">Company Size</span>
+                    <span className="detail-value">{userData.companyProfile.company_size || "-"}</span>
+                    </div>
+                    <div className="detail-item">
+                    <span className="detail-label">Website</span>
+                    <span className="detail-value">
+                        {userData.companyProfile.website ? (
+                        <a href={userData.companyProfile.website} target="_blank" rel="noopener noreferrer">
+                            {userData.companyProfile.website}
+                        </a>
+                        ) : "-"}
+                    </span>
+                    </div>
+                    <div className="detail-item full-width">
+                    <span className="detail-label">About</span>
+                    <span className="detail-value">{userData.companyProfile.about || "-"}</span>
+                    </div>
+                    <div className="detail-item full-width">
+                    <span className="detail-label">Address</span>
+                    <span className="detail-value address-value line-clamp">
+                        {decodeHTMLEntities(userData.companyProfile.address || "-")}
+                    </span>
+                    </div>
+                </div>
+                </div>
+            </div>
             )}
             
             {/* Skills Section */}
