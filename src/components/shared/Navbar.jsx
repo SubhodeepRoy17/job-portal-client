@@ -197,7 +197,6 @@ const Navbar = ({ navbarRef }) => {
     const handleLinkClick = (item) => {
         if (item.key === "logout") {
             handleLogout();
-            // Check if user is a company (assuming role 2 is for companies)
             if (user?.role === 4) {
                 navigate("/login-companyform");
             } else {

@@ -80,15 +80,12 @@ const CompanyLoginForm = () => {
       
       resetForm();
       
-      setTimeout(() => {
-        navigate('/', {
-          replace: true,
-          state: { 
-            from: location.pathname,
-            companyData: company
-          }
-        });
-      }, 1000);
+      navigate(from, {
+        replace: true,
+        state: {
+          companyData: company
+        }
+      });
     }
   }, [company, navigate, location.pathname, resetForm, dispatch]);
 
