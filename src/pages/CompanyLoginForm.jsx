@@ -21,7 +21,7 @@ const CompanyLoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/company-home";
+  const from = location.state?.from?.pathname || "/";
   
   const { loading, error, company } = useSelector((state) => state.auth);
 
@@ -81,7 +81,7 @@ const CompanyLoginForm = () => {
       resetForm();
       
       setTimeout(() => {
-        navigate('/company-home', {
+        navigate('/', {
           replace: true,
           state: { 
             from: location.pathname,
