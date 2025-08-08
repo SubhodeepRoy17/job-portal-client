@@ -81,7 +81,7 @@ const CompanyLoginForm = () => {
       resetForm();
       
       setTimeout(() => {
-        navigate('/dashboard/company-profile', {
+        navigate('/company-home', {
           replace: true,
           state: { 
             from: location.pathname,
