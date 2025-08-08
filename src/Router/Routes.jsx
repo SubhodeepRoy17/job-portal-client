@@ -26,6 +26,7 @@ import {
     UserHomePage,
     AdminHomePage,
     RecruiterHomePage,
+    CompanyHomePage,
     Notifications,
     Settings,
     FAQs,
@@ -105,6 +106,10 @@ const router = createBrowserRouter([
             {
                 path: "recruiter-home",
                 element: <RecruiterHomePage />,
+            },
+            {
+                path: "company-home",
+                element: <CompanyHomePage />,
             },
             {
                 path: "dashboard",

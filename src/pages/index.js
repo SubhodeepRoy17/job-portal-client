@@ -27,6 +27,7 @@ export { default as CookieConsentBanner } from './CookieConsentBanner';
 export { default as UserHomePage } from './user_homepage';
 export { default as AdminHomePage } from './admin_homepage';
 export { default as RecruiterHomePage } from './recruiter_homepage';
+export { default as CompanyHomePage } from './company_homepage';
 export { default as Notifications } from './Notifications';
 export { default as Settings } from './settings';
 export { default as FAQs } from './FAQs';

@@ -21,7 +21,7 @@ const CompanyLoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/dashboard/company-profile";
+  const from = location.state?.from?.pathname || "/company-home";
   
   const { loading, error, company } = useSelector((state) => state.auth);
 
