@@ -49,7 +49,6 @@ import 'react-calendar/dist/Calendar.css'
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { isValidPhoneNumber } from 'react-phone-number-input';
-import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { getSingleHandler } from "../utils/FetchHandlers";
 import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
