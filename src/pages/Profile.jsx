@@ -23,6 +23,7 @@ import {
   FiCode,
   FiLink 
 } from "react-icons/fi";
+import { SiCrunchbase } from 'react-icons/si';
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(advancedFormat);
@@ -601,43 +602,142 @@ const Profile = () => {
                 </div>
                 <div className="profile-details">
                 <div className="detail-grid">
+                    {/* Company Logo and Banner */}
                     <div className="detail-item">
-                    <span className="detail-label">Company Name</span>
-                    <span className="detail-value">{userData.companyProfile.company_name || "-"}</span>
-                    </div>
-                    <div className="detail-item">
-                    <span className="detail-label">Industry</span>
-                    <span className="detail-value">{userData.companyProfile.industry || "-"}</span>
-                    </div>
-                    <div className="detail-item">
-                    <span className="detail-label">Company Size</span>
-                    <span className="detail-value">{userData.companyProfile.company_size || "-"}</span>
-                    </div>
-                    <div className="detail-item">
-                    <span className="detail-label">Website</span>
+                    <span className="detail-label">Company Logo</span>
                     <span className="detail-value">
-                        {userData.companyProfile.website ? (
-                        <a href={userData.companyProfile.website} target="_blank" rel="noopener noreferrer">
-                            {userData.companyProfile.website}
+                        {userData.companyProfile.company_logo ? (
+                        <img 
+                            src={userData.companyProfile.company_logo} 
+                            alt="Company Logo" 
+                            className="company-logo-preview"
+                            onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.textContent = 'Not provided';
+                            }}
+                        />
+                        ) : "-"}
+                    </span>
+                    </div>
+                    
+                    <div className="detail-item">
+                    <span className="detail-label">Banner Logo</span>
+                    <span className="detail-value">
+                        {userData.companyProfile.banner_logo ? (
+                        <img 
+                            src={userData.companyProfile.banner_logo} 
+                            alt="Banner Logo" 
+                            className="banner-logo-preview"
+                            onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.textContent = 'Not provided';
+                            }}
+                        />
+                        ) : "-"}
+                    </span>
+                    </div>
+
+                    {/* Organization Details */}
+                    <div className="detail-item">
+                    <span className="detail-label">Organization Type</span>
+                    <span className="detail-value">{userData.companyProfile.organization_type || "-"}</span>
+                    </div>
+                    
+                    <div className="detail-item">
+                    <span className="detail-label">Industry Type</span>
+                    <span className="detail-value">{userData.companyProfile.industry_type || "-"}</span>
+                    </div>
+                    
+                    <div className="detail-item">
+                    <span className="detail-label">Team Size</span>
+                    <span className="detail-value">{userData.companyProfile.team_size || "-"}</span>
+                    </div>
+                    
+                    <div className="detail-item">
+                    <span className="detail-label">Established</span>
+                    <span className="detail-value">{userData.companyProfile.year_of_establishment || "-"}</span>
+                    </div>
+
+                    {/* Careers Section */}
+                    <div className="detail-item">
+                    <span className="detail-label">Careers Link</span>
+                    <span className="detail-value">
+                        {userData.companyProfile.careers_link ? (
+                        <a href={userData.companyProfile.careers_link} target="_blank" rel="noopener noreferrer">
+                            {userData.companyProfile.careers_link.length > 30 
+                            ? userData.companyProfile.careers_link.substring(0, 30) + '...' 
+                            : userData.companyProfile.careers_link}
                         </a>
                         ) : "-"}
                     </span>
                     </div>
+
+                    {/* About and Vision */}
                     <div className="detail-item full-width">
-                    <span className="detail-label">About</span>
+                    <span className="detail-label">About Us</span>
                     <span className="detail-value">{userData.companyProfile.about || "-"}</span>
                     </div>
+                    
                     <div className="detail-item full-width">
-                    <span className="detail-label">Address</span>
-                    <span className="detail-value address-value line-clamp">
-                        {decodeHTMLEntities(userData.companyProfile.address || "-")}
+                    <span className="detail-label">Company Vision</span>
+                    <span className="detail-value">{userData.companyProfile.company_vision || "-"}</span>
+                    </div>
+
+                    {/* Location */}
+                    <div className="detail-item full-width">
+                    <span className="detail-label">Map Location</span>
+                    <span className="detail-value">
+                        {userData.companyProfile.map_location ? (
+                        <a href={userData.companyProfile.map_location} target="_blank" rel="noopener noreferrer">
+                            View on Google Maps
+                        </a>
+                        ) : "-"}
                     </span>
                     </div>
+
+                    {/* Social Links */}
+                    {userData.companyProfile.social_links && (
+                    <div className="detail-item full-width">
+                        <span className="detail-label">Social Links</span>
+                        <div className="social-links-container">
+                        {userData.companyProfile.social_links.linkedin && (
+                            <a href={userData.companyProfile.social_links.linkedin} target="_blank" rel="noopener noreferrer">
+                            <FaLinkedin className="social-icon" />
+                            </a>
+                        )}
+                        {userData.companyProfile.social_links.facebook && (
+                            <a href={userData.companyProfile.social_links.facebook} target="_blank" rel="noopener noreferrer">
+                            <FaFacebook className="social-icon" />
+                            </a>
+                        )}
+                        {userData.companyProfile.social_links.instagram && (
+                            <a href={userData.companyProfile.social_links.instagram} target="_blank" rel="noopener noreferrer">
+                            <FaInstagram className="social-icon" />
+                            </a>
+                        )}
+                        {userData.companyProfile.social_links.twitter && (
+                            <a href={userData.companyProfile.social_links.twitter} target="_blank" rel="noopener noreferrer">
+                            <FaTwitter className="social-icon" />
+                            </a>
+                        )}
+                        {userData.companyProfile.social_links.github && (
+                            <a href={userData.companyProfile.social_links.github} target="_blank" rel="noopener noreferrer">
+                            <FaGithub className="social-icon" />
+                            </a>
+                        )}
+                        {userData.companyProfile.social_links.crunchbase && (
+                            <a href={userData.companyProfile.social_links.crunchbase} target="_blank" rel="noopener noreferrer">
+                            <SiCrunchbase className="social-icon" />
+                            </a>
+                        )}
+                        </div>
+                    </div>
+                    )}
                 </div>
                 </div>
             </div>
             )}
-            
+
             {/* Skills Section */}
             {user?.role === 3 && skills.length > 0 && (
                 <div className="wrapper">
@@ -1569,6 +1669,14 @@ const Wrapper = styled.section`
         line-height: 1.5;
     }
 
+    .company-logo-preview,
+    .banner-logo-preview {
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    }
+
     /* Certificates Section */
     .certificate-list {
         display: flex;
@@ -1649,6 +1757,10 @@ const Wrapper = styled.section`
         font-size: 1.1rem;
         color: #64748b;
         flex-shrink: 0;
+    }
+
+    .detail-value.address-value {
+        white-space: pre-line;
     }
 
     .active-link {

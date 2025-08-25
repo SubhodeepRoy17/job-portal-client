@@ -19,6 +19,36 @@ import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth
 import { initializeApp } from "firebase/app";
 import { setUpRecaptcha, auth } from "../firebase";
 import Box from '@mui/material/Box';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faFacebook, 
+  faTwitter, 
+  faInstagram, 
+  faYoutube,
+  faLinkedin,
+  faGithub
+} from '@fortawesome/free-brands-svg-icons';
+import { faBriefcase } from '@fortawesome/free-solid-svg-icons';
+import {
+  Upload,
+  User,
+  Building,
+  Globe,
+  MessageCircle,
+  X,
+  Plus,
+  Check,
+  ArrowRight,
+  CalendarIcon,
+  Link,
+  Mail,
+  ChevronDown,
+} from "lucide-react";
+import Calendar from 'react-calendar'
+import 'react-calendar/dist/Calendar.css'
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+import { isValidPhoneNumber } from 'react-phone-number-input';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { getSingleHandler } from "../utils/FetchHandlers";
@@ -191,6 +221,38 @@ const SkillsAutocomplete = ({
     skill => !value.includes(skill.id)
   );
 
+  const ORGANIZATION_TYPES = [
+  { value: "solo proprietor", label: "Sole Proprietor" },
+  { value: "pvt LTD", label: "Private Limited" },
+  { value: "LTD", label: "Limited" },
+  { value: "OPC", label: "One Person Company" },
+  { value: "LLP", label: "LLP" },
+  { value: "INC", label: "Incorporated" },
+  { value: "Corporation", label: "Corporation" }
+];
+
+const INDUSTRY_TYPES = [
+  { value: "Fintech", label: "Fintech" },
+  { value: "Engineering", label: "Engineering" },
+  { value: "Software & IT", label: "Software & IT" },
+  { value: "edutech", label: "Edtech" },
+  { value: "oil and gas", label: "Oil & Gas" },
+  { value: "other", label: "Other" }
+];
+
+const socialPlatforms = [
+  { value: "linkedin", label: "LinkedIn", icon: faLinkedin },
+  { value: "facebook", label: "Facebook", icon: faFacebook },
+  { value: "twitter", label: "Twitter", icon: faTwitter },
+  { value: "instagram", label: "Instagram", icon: faInstagram },
+  { value: "youtube", label: "YouTube", icon: faYoutube },
+  { value: "github", label: "GitHub", icon: faGithub },
+  { value: "crunchbase", label: "Crunchbase", icon: faBriefcase }
+];
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
   return (
     <div className="skills-autocomplete">
       {/* Display current skills as tags */}
@@ -307,6 +369,29 @@ const EditProfile = () => {
   const [socialLinks, setSocialLinks] = useState({});
   const [showSocialLinksForm, setShowSocialLinksForm] = useState(false);
 
+  const [companyProfile, setCompanyProfile] = useState({
+    companyName: '',
+    aboutUs: '',
+    organizationType: '',
+    industryType: '',
+    teamSize: '',
+    yearEstablished: '',
+    companyWebsite: '',
+    companyVision: '',
+    careersLink: '',
+    headquarter_phone_no: '',
+    email: '',
+    socialLinks: [],
+    logoUrl: '',
+    logoPreview: '',
+    bannerUrl: '',
+    bannerPreview: '',
+    showCalendar: false
+  });
+
+  const logoInputRef = useRef(null);
+  const bannerInputRef = useRef(null);
+
   const {
     register,
     handleSubmit,
@@ -321,6 +406,213 @@ const EditProfile = () => {
       setIsAuthReady(true);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user?.role === 4) {
+      const fetchCompanyProfile = async () => {
+        try {
+          const response = await axios.get(
+            "https://job-portal-server-six-eosin.vercel.app/api/company/profile",
+            { withCredentials: true }
+          );
+          const profile = response.data;
+          setCompanyProfile(prev => ({
+            ...prev,
+            companyName: profile.company_name || '',
+            aboutUs: profile.about_company || '',
+            organizationType: profile.organizations_type || '',
+            industryType: profile.industry_type || '',
+            teamSize: profile.team_size || '',
+            yearEstablished: profile.year_of_establishment || '',
+            companyWebsite: profile.company_website || '',
+            companyVision: profile.company_vision || '',
+            careersLink: profile.careers_link || '',
+            headquarter_phone_no: profile.headquarter_phone_no || '',
+            email: profile.company_mail_id || '',
+            socialLinks: Object.entries(profile.social_links || {}).map(([platform, url]) => ({
+              platform,
+              url
+            })),
+            logoUrl: profile.company_logo_url || '',
+            bannerUrl: profile.company_banner_url || ''
+          }));
+        } catch (error) {
+          console.error("Error fetching company profile:", error);
+        }
+      };
+      fetchCompanyProfile();
+    }
+  }, [user]);
+
+  // Add these helper functions
+  const handleFileChange = async (e, field) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    toast.dismiss();
+
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      toast.error('Only JPG, PNG, and WEBP files are allowed');
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`${API_BASE_URL}/api/company/upload`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Upload failed');
+      }
+
+      const { data } = await response.json();
+      setCompanyProfile(prev => ({
+        ...prev,
+        [`${field}Url`]: data.url,
+        [`${field}Preview`]: URL.createObjectURL(file)
+      }));
+      
+      toast.success('File uploaded successfully!');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error(`Upload failed: ${error.message}`);
+    }
+  };
+
+  const handleDateChange = (date) => {
+    const formattedDate = date.toLocaleDateString('en-GB');
+    setCompanyProfile(prev => ({ ...prev, yearEstablished: formattedDate, showCalendar: false }));
+  };
+
+  const handleRemoveSocialLink = (index) => {
+    setCompanyProfile(prev => ({
+      ...prev,
+      socialLinks: prev.socialLinks.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleUpdateSocialLink = (index, field, value) => {
+    setCompanyProfile(prev => ({
+      ...prev,
+      socialLinks: prev.socialLinks.map((link, i) => 
+        i === index ? { ...link, [field]: value } : link
+      )
+    }));
+  };
+
+  const handleRemoveFile = (field) => {
+    setCompanyProfile(prev => ({
+      ...prev,
+      [`${field}Url`]: '',
+      [`${field}Preview`]: ''
+    }));
+  };
+
+  const validateEmail = (email) => {
+    const publicDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com'];
+    const domain = email.split('@')[1];
+    return !publicDomains.includes(domain);
+  };
+
+  const handleCompanySubmit = async () => {
+    try {
+      toast.dismiss();
+      
+      const cleanPhone = companyProfile.headquarter_phone_no.replace(/\D/g, '');
+
+      const submissionData = {
+        company_name: companyProfile.companyName,
+        company_mail_id: companyProfile.email,
+        headquarter_phone_no: cleanPhone,
+        about_company: companyProfile.aboutUs,
+        organizations_type: companyProfile.organizationType,
+        industry_type: companyProfile.industryType,
+        team_size: companyProfile.teamSize,
+        year_of_establishment: companyProfile.yearEstablished.split('/').reverse().join('-'),
+        company_website: companyProfile.companyWebsite || null,
+        company_vision: companyProfile.companyVision || null,
+        careers_link: companyProfile.careersLink || null,
+        social_links: companyProfile.socialLinks.reduce((acc, link) => {
+          if (link.url) {
+            acc[link.platform] = link.url;
+          }
+          return acc;
+        }, {}),
+        ...(companyProfile.logoUrl && { company_logo_url: companyProfile.logoUrl }),
+        ...(companyProfile.bannerUrl && { company_banner_url: companyProfile.bannerUrl }),
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/company/update`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(submissionData)
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Update failed');
+      }
+
+      toast.success('Company profile updated successfully!');
+    } catch (error) {
+      console.error('Update error:', error);
+      toast.error(error.message || 'Update failed. Please try again.');
+    }
+  };
+
+  const FileUpload = ({ label, description, onFileChange, field, file, preview, inputRef }) => (
+    <div className="file-upload-wrapper" data-has-file={!!file}>
+      <input
+        type="file"
+        ref={inputRef}
+        onChange={(e) => handleFileChange(e, field)}
+        accept="image/jpeg, image/png, image/webp"
+        style={{ display: 'none' }}
+      />
+      
+      {preview ? (
+        <>
+          <div className="file-preview">
+            <img src={preview} alt={`${field} preview`} className="file-preview-image" />
+          </div>
+          <button 
+            className="remove-file-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRemoveFile(field);
+            }}
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </>
+      ) : (
+        <div className="file-upload-content" onClick={() => inputRef.current?.click()}>
+          <Upload className="h-12 w-12 text-gray-400" />
+          <div className="file-upload-text">
+            <button type="button" className="file-upload-button">Browse photo</button>
+            <span className="text-gray-500"> or drop here</span>
+          </div>
+        </div>
+      )}
+      <p className="file-upload-description">{description}</p>
+    </div>
+  );
 
   // Fetch user profile if candidate
   useEffect(() => {
@@ -1193,35 +1485,60 @@ const EditProfile = () => {
         
         <div className="profile-layout">
           {isMobile ? (
-            <div className="mobile-tabbar">
-              <div className="tabbar-scroll">
-                {[
-                  { id: 'basic', label: 'Basic' },
-                  { id: 'resume', label: 'Resume' },
-                  ...(user?.role === 3 ? [{ id: 'current', label: 'Current' }] : []),
-                  { id: 'skills', label: 'Skills' },
-                  { id: 'education', label: 'Education' },
-                  ...((user?.role === 2 || user?.role === 3) ? [{ id: 'about', label: 'About' }] : []),
-                  ...(user?.role === 3 ? [{ id: 'experience', label: 'Experience' }] : []),
-                  ...(user?.role === 3 ? [{ id: 'projects', label: 'Projects' }] : []),
-                  { id: 'certificates', label: 'Certificates' },
-                  { id: 'social', label: 'Social' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    className={`tab ${activeSection === tab.id ? 'active' : ''} ${
-                      isSectionComplete(tab.id) ? 'complete' : ''
-                    }`}
-                    onClick={() => setActiveSection(tab.id)}
-                  >
-                    {isSectionComplete(tab.id) ? (
-                      <FaCheckCircle className="icon" />
-                    ) : (
-                      <FaRegCircle className="icon" />
-                    )}
-                    {tab.label}
-                  </button>
-                ))}
+  <div className="mobile-tabbar">
+    <div className="tabbar-scroll">
+      {user?.role === 4 ? (
+        // Company tabs for role 4
+        [
+          { id: 'company-info', label: 'Company Info' },
+          { id: 'company-founding', label: 'Founding' },
+          { id: 'company-social', label: 'Social' },
+          { id: 'company-contact', label: 'Contact' }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            className={`tab ${activeSection === tab.id ? 'active' : ''} ${
+              isSectionComplete(tab.id) ? 'complete' : ''
+            }`}
+            onClick={() => setActiveSection(tab.id)}
+          >
+            {isSectionComplete(tab.id) ? (
+              <FaCheckCircle className="icon" />
+            ) : (
+              <FaRegCircle className="icon" />
+            )}
+            {tab.label}
+          </button>
+        ))
+      ) : (
+        // Individual tabs for other roles
+        [
+          { id: 'basic', label: 'Basic' },
+          { id: 'resume', label: 'Resume' },
+          ...(user?.role === 3 ? [{ id: 'current', label: 'Current' }] : []),
+          { id: 'skills', label: 'Skills' },
+          { id: 'education', label: 'Education' },
+          ...((user?.role === 2 || user?.role === 3) ? [{ id: 'about', label: 'About' }] : []),
+          ...(user?.role === 3 ? [{ id: 'experience', label: 'Experience' }] : []),
+          ...(user?.role === 3 ? [{ id: 'projects', label: 'Projects' }] : []),
+          { id: 'certificates', label: 'Certificates' },
+          { id: 'social', label: 'Social' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            className={`tab ${activeSection === tab.id ? 'active' : ''} ${
+              isSectionComplete(tab.id) ? 'complete' : ''
+            }`}
+            onClick={() => setActiveSection(tab.id)}
+          >
+            {isSectionComplete(tab.id) ? (
+              <FaCheckCircle className="icon" />
+            ) : (
+              <FaRegCircle className="icon" />
+            )}
+            {tab.label}
+          </button>
+        )))}
               </div>
             </div>
           ) : (
@@ -1251,6 +1568,56 @@ const EditProfile = () => {
                     {isSectionComplete('current') ? <FaCheckCircle className="icon complete" /> : <FaRegCircle className="icon" />}
                     Current Details
                   </li>
+                )}
+
+                {user?.role === 4 && (
+                  <>
+                    <li 
+                      className={activeSection === 'company-info' ? 'active' : ''}
+                      onClick={() => setActiveSection('company-info')}
+                    >
+                      {companyProfile.companyName && companyProfile.aboutUs ? (
+                        <FaCheckCircle className="icon complete" />
+                      ) : (
+                        <FaRegCircle className="icon" />
+                      )}
+                      Company Info
+                    </li>
+                    <li 
+                      className={activeSection === 'company-founding' ? 'active' : ''}
+                      onClick={() => setActiveSection('company-founding')}
+                    >
+                      {companyProfile.organizationType && companyProfile.industryType && 
+                      companyProfile.teamSize && companyProfile.yearEstablished ? (
+                        <FaCheckCircle className="icon complete" />
+                      ) : (
+                        <FaRegCircle className="icon" />
+                      )}
+                      Founding Info
+                    </li>
+                    <li 
+                      className={activeSection === 'company-social' ? 'active' : ''}
+                      onClick={() => setActiveSection('company-social')}
+                    >
+                      {companyProfile.socialLinks.length > 0 ? (
+                        <FaCheckCircle className="icon complete" />
+                      ) : (
+                        <FaRegCircle className="icon" />
+                      )}
+                      Social Media
+                    </li>
+                    <li 
+                      className={activeSection === 'company-contact' ? 'active' : ''}
+                      onClick={() => setActiveSection('company-contact')}
+                    >
+                      {companyProfile.email && companyProfile.headquarter_phone_no ? (
+                        <FaCheckCircle className="icon complete" />
+                      ) : (
+                        <FaRegCircle className="icon" />
+                      )}
+                      Contact Info
+                    </li>
+                  </>
                 )}
                 
                 {user?.role === 2 && (
@@ -1440,7 +1807,8 @@ const EditProfile = () => {
                         placeholder="Type Here"
                         defaultValue={
                           user?.role === 1 ? 'Admin' : 
-                          user?.role === 2 ? 'Recruiter' : 'Candidate'
+                          user?.role === 2 ? 'Recruiter' :
+                          user?.role === 4 ? 'Company' : 'Candidate'
                         }
                         readOnly
                       />
@@ -1507,6 +1875,18 @@ const EditProfile = () => {
                         </span>
                       )}
                     </div>
+
+                    {(user?.role === 4 && ['company-info', 'company-founding', 'company-social', 'company-contact'].includes(activeSection)) && (
+                        <div className="form-actions">
+                          <button
+                            type="button"
+                            onClick={handleCompanySubmit}
+                            className="save-btn"
+                          >
+                            Save Company Details
+                          </button>
+                        </div>
+                      )}
 
                     {/* Recruiter Specific Fields */}
                     {user?.role === 2 && (
@@ -1794,6 +2174,266 @@ const EditProfile = () => {
                       >
                         {user?.resume ? "Update Resume" : "Add Resume"}
                       </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeSection === 'company-info' && user?.role === 4) && (
+                <div className="section-content">
+                  <h3>Company Information</h3>
+                  <div className="form-grid">
+                    <div>
+                      <label>Upload Logo</label>
+                      <FileUpload
+                        label="Upload Logo"
+                        description="A photo larger than 400 pixels work best. Max photo size 5 MB."
+                        field="logo"
+                        file={companyProfile.logoUrl}
+                        preview={companyProfile.logoPreview}
+                        inputRef={logoInputRef}
+                      />
+                    </div>
+                    <div>
+                      <label>Banner Image</label>
+                      <FileUpload
+                        label="Banner Image"
+                        description="Banner images optimal dimension 1520*400. Supported format JPEG, PNG. Max photo size 5 MB."
+                        field="banner"
+                        file={companyProfile.bannerUrl}
+                        preview={companyProfile.bannerPreview}
+                        inputRef={bannerInputRef}
+                      />
+                    </div>
+
+                    <div className="row full-width">
+                      <label htmlFor="companyName">Company name</label>
+                      <input
+                        id="companyName"
+                        value={companyProfile.companyName}
+                        onChange={(e) => setCompanyProfile(prev => ({ ...prev, companyName: e.target.value }))}
+                        placeholder="Enter your company name"
+                        required
+                      />
+                    </div>
+
+                    <div className="row full-width">
+                      <label htmlFor="aboutUs">About Us</label>
+                      <textarea
+                        id="aboutUs"
+                        placeholder="Write down about your company here. Let the candidate know who we are..."
+                        value={companyProfile.aboutUs}
+                        onChange={(e) => setCompanyProfile(prev => ({ ...prev, aboutUs: e.target.value }))}
+                        rows={6}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeSection === 'company-founding' && user?.role === 4) && (
+                <div className="section-content">
+                  <h3>Founding Information</h3>
+                  <div className="form-grid">
+                    <div className="row">
+                      <label>Organization Type</label>
+                      <select
+                        value={companyProfile.organizationType}
+                        onChange={(e) => setCompanyProfile(prev => ({ ...prev, organizationType: e.target.value }))}
+                      >
+                        <option value="">Select Organization Type</option>
+                        {ORGANIZATION_TYPES.map(type => (
+                          <option key={type.value} value={type.value}>{type.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="row">
+                      <label>Industry Types</label>
+                      <select
+                        value={companyProfile.industryType}
+                        onChange={(e) => setCompanyProfile(prev => ({ ...prev, industryType: e.target.value }))}
+                      >
+                        <option value="">Select Industry Type</option>
+                        {INDUSTRY_TYPES.map(type => (
+                          <option key={type.value} value={type.value}>{type.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="row">
+                      <label>Team Size</label>
+                      <select
+                        value={companyProfile.teamSize}
+                        onChange={(e) => setCompanyProfile(prev => ({ ...prev, teamSize: e.target.value }))}
+                      >
+                        <option value="">Select Team Size</option>
+                        <option value="1-10">1-10</option>
+                        <option value="11-50">11-50</option>
+                        <option value="51-200">51-200</option>
+                        <option value="201-500">201-500</option>
+                        <option value="500+">500+</option>
+                      </select>
+                    </div>
+
+                    <div className="row">
+                      <label>Year of Establishment</label>
+                      <div className="calendar-wrapper">
+                        <div className="calendar-input-wrapper">
+                          <input
+                            placeholder="dd/mm/yyyy"
+                            value={companyProfile.yearEstablished}
+                            onChange={(e) => setCompanyProfile(prev => ({ ...prev, yearEstablished: e.target.value }))}
+                            onClick={() => setCompanyProfile(prev => ({ ...prev, showCalendar: !prev.showCalendar }))}
+                            required
+                          />
+                          <CalendarIcon
+                            className="calendar-icon"
+                            onClick={() => setCompanyProfile(prev => ({ ...prev, showCalendar: !prev.showCalendar }))}
+                          />
+                        </div>
+                        {companyProfile.showCalendar && (
+                          <div className="calendar-dropdown">
+                            <Calendar
+                              onChange={handleDateChange}
+                              value={companyProfile.yearEstablished ? new Date(companyProfile.yearEstablished) : new Date()}
+                              maxDate={new Date()}
+                              onClickDay={() => setCompanyProfile(prev => ({ ...prev, showCalendar: false }))}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="row">
+                      <label>Company Website</label>
+                      <div className="relative">
+                        <input
+                          placeholder="Website url..."
+                          value={companyProfile.companyWebsite}
+                          onChange={(e) => setCompanyProfile(prev => ({ ...prev, companyWebsite: e.target.value }))}
+                        />
+                        <Link className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-600" />
+                      </div>
+                    </div>
+
+                    <div className="row">
+                      <label>Official Careers Link</label>
+                      <div className="relative">
+                        <input
+                          placeholder="https://yourcompany.com/careers"
+                          value={companyProfile.careersLink}
+                          onChange={(e) => setCompanyProfile(prev => ({ ...prev, careersLink: e.target.value }))}
+                        />
+                        <Link className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-600" />
+                      </div>
+                    </div>
+
+                    <div className="row full-width">
+                      <label>Company Vision</label>
+                      <textarea
+                        placeholder="Tell us about your company vision..."
+                        value={companyProfile.companyVision}
+                        onChange={(e) => setCompanyProfile(prev => ({ ...prev, companyVision: e.target.value }))}
+                        rows={6}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeSection === 'company-social' && user?.role === 4) && (
+                <div className="section-content">
+                  <h3>Social Media Profiles</h3>
+                  <div className="social-links-grid">
+                    {companyProfile.socialLinks.map((link, index) => (
+                      <div key={index} className="social-link-item">
+                        <div className="social-platform">
+                          <FontAwesomeIcon 
+                            icon={socialPlatforms.find(p => p.value === link.platform)?.icon} 
+                            className="social-icon"
+                          />
+                          <span>{socialPlatforms.find(p => p.value === link.platform)?.label}</span>
+                        </div>
+                        <div className="social-input-group">
+                          <input
+                            placeholder={`${link.platform}.com/username`}
+                            value={link.url}
+                            onChange={(e) => handleUpdateSocialLink(index, "url", e.target.value)}
+                          />
+                          <button 
+                            className="remove-btn"
+                            onClick={() => handleRemoveSocialLink(index)}
+                          >
+                            <FontAwesomeIcon icon={faTimes} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    <button 
+                      className="add-social-btn"
+                      onClick={handleAddSocialLink}
+                      type="button"
+                    >
+                      <FontAwesomeIcon icon={faPlus} />
+                      Add New Social Link
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {(activeSection === 'company-contact' && user?.role === 4) && (
+                <div className="section-content">
+                  <h3>Contact Information</h3>
+                  <div className="form-grid">
+                    <div className="row full-width">
+                      <label>Map Location</label>
+                      <div className="map-placeholder">
+                        <div className="map-placeholder-content">
+                          <Globe className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                          <span className="text-gray-500">Map integration would go here</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="row">
+                      <label htmlFor="headquarter_phone_no">Phone Number</label>
+                      <div className="phone-input-wrapper">
+                        <PhoneInput
+                          international
+                          defaultCountry="IN"
+                          value={companyProfile.headquarter_phone_no}
+                          onChange={(value) => setCompanyProfile(prev => ({ ...prev, headquarter_phone_no: value || '' }))}
+                          inputProps={{
+                            name: 'headquarter_phone_no',
+                            id: 'headquarter_phone_no',
+                            required: true,
+                          }}
+                          enableSearch
+                          searchPlaceholder="Search country"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="row">
+                      <label>Email</label>
+                      <div className="relative">
+                        <input
+                          type="email"
+                          placeholder="Company email address"
+                          value={companyProfile.email}
+                          onChange={(e) => {
+                            if (!validateEmail(e.target.value) && e.target.value.includes('@')) {
+                              toast.error('Public email domains are not allowed');
+                            }
+                            setCompanyProfile(prev => ({ ...prev, email: e.target.value }));
+                          }}
+                          required
+                        />
+                        <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-600" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3036,6 +3676,256 @@ const Wrapper = styled.section`
     gap: 1rem;
     margin-bottom: 1.5rem;
     width: 100%;
+  }
+
+  .file-upload-wrapper {
+    border: 2px dashed #d1d5db;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+    
+    &[data-has-file="true"] {
+      border-color: #2563eb;
+      background-color: #f0f7ff;
+    }
+    
+    &:hover {
+      border-color: #9ca3af;
+    }
+  }
+
+  .file-upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .file-upload-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .file-upload-button {
+    color: #2563eb;
+    font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
+    
+    &:hover {
+      color: #1d4ed8;
+    }
+  }
+
+  .file-upload-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+  }
+
+  .file-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 2;
+  }
+
+  .file-preview-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .remove-file-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  .calendar-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .calendar-input-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .calendar-icon {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #9ca3af;
+    cursor: pointer;
+  }
+
+  .calendar-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    margin-top: 0.25rem;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+  }
+
+  .social-links-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .social-link-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+  }
+
+  .social-platform {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+
+    .social-icon {
+      color: #4b5563;
+      font-size: 1.25rem;
+    }
+  }
+
+  .social-input-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    input {
+      flex: 1;
+    }
+  }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+
+  .add-social-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: 1px dashed #d1d5db;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    cursor: pointer;
+    color: #2563eb;
+    font-weight: 500;
+    width: 100%;
+    justify-content: center;
+
+    &:hover {
+      background: #f8fafc;
+    }
+
+    @media (min-width: 768px) {
+      grid-column: span 2;
+    }
+  }
+
+  .map-placeholder {
+    margin-top: 0.5rem;
+    height: 12rem;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    border: 2px dashed #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (min-width: 640px) {
+      height: 16rem;
+    }
+  }
+
+  .map-placeholder-content {
+    text-align: center;
+  }
+
+  .phone-input-wrapper {
+    --PhoneInput-color--focus: #2563eb;
+    --PhoneInputCountrySelectArrow-color: #6b7280;
+    --PhoneInputCountrySelectArrow-opacity: 1;
+    --PhoneInputCountryFlag-borderColor: transparent;
+    --PhoneInputCountryFlag-height: 24px;
+    --PhoneInputCountryFlag-width: 24px;
+    width: 100%;
+
+    .PhoneInput {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .PhoneInputInput {
+      flex: 1;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.5);
+      }
+    }
   }
 
   .link-item p {

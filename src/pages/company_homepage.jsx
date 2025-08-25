@@ -98,7 +98,7 @@ const CompanyHomePage = () => {
                           Updated {lastUpdated || "recently"}
                         </p>
                         <Link
-                            to={`/dashboard/edit-profile/${user?.id}`}
+                            to={`/dashboard/company-edit-profile/${user?.id}`}
                             className="text-blue-600 font-semibold text-sm hover:text-blue-600"
                             >
                             Update Company Profile

@@ -21,6 +21,7 @@ import {
     Job,
     MyJobs,
     EditProfile,
+    CompanyEditProfile,
     ManageUsers,
     AdminManageJobs,
     UserHomePage,
@@ -196,6 +197,10 @@ const router = createBrowserRouter([
                     {
                         path: "edit-profile/:id",
                         element: <EditProfile />,
+                    },
+                    {
+                        path: "company-edit-profile/:id",
+                        element: <CompanyEditProfile />,
                     },
                     {
                         path: "stats",

@@ -18,6 +18,7 @@ export  { default as CompanyDashboard } from "./CompanyDashboard";
 export { default as CompanyLogin } from "./CompanyLogin";
 export { default as Profile } from "./Profile";
 export { default as EditProfile } from "./EditProfile";
+export { default as CompanyEditProfile } from "./CompanyEditProfile";
 export { default as ManageUsers } from "./ManageUsers";
 export { default as Register } from "./Register";
 export { default as Stats } from "./Stats";
