@@ -203,11 +203,14 @@ const ProfileHeader = ({ userData, isMobile, activeTab, setActiveTab }) => {
           </div>
 
           <Link
-            to={`/dashboard/edit-profile/${userData?.id}`}
+            to={userData?.role === 4 
+                ? `/dashboard/company-edit-profile/${userData?.id}`
+                : `/dashboard/edit-profile/${userData?.id}`
+            }
             className="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 rounded-md font-medium transition text-sm"
-          >
+            >
             <span>Edit Profile</span>
-          </Link>
+            </Link>
         </div>
 
         <div className="profile-info">
