@@ -1,3 +1,4 @@
+//src\pages\CompanyEditProfile.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { CiSquarePlus } from "react-icons/ci";
 import { FaCheckCircle, FaRegCircle } from "react-icons/fa";
@@ -106,7 +107,9 @@ const CompanyEditProfile = () => {
       try {
         const response = await axios.get(
           "https://job-portal-server-six-eosin.vercel.app/api/company-profile",
-          { withCredentials: true }
+          { withCredentials: true,
+            timeout: 10000
+           }
         );
         const profile = response.data;
         setCompanyProfile(profile);
@@ -137,8 +140,10 @@ const CompanyEditProfile = () => {
           }
         }
       } catch (error) {
-        console.error("Error fetching company profile:", error);
-      }
+          console.error("Full error details:", error.response?.data);
+          console.error("Status:", error.response?.status);
+          console.error("Headers:", error.response?.headers);
+        }
     };
     
     if (user?.company_id) {

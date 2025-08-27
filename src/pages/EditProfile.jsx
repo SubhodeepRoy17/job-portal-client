@@ -552,7 +552,7 @@ const EditProfile = () => {
         ...(companyProfile.bannerUrl && { company_banner_url: companyProfile.bannerUrl }),
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/company/update`, {
+      const response = await fetch(`${API_BASE_URL}/api/company-profile`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
