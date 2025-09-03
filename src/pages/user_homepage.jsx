@@ -1,11 +1,10 @@
 "use client"
-import { useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { useUserContext } from "../context/UserContext"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import axios from "axios"
-import styled from "styled-components"
 import calculateProfileCompletion from "../utils/profileCompletion"
 
 dayjs.extend(relativeTime)
