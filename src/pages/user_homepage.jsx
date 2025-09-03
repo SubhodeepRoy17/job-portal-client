@@ -245,17 +245,26 @@ function ProfileCompletion({ user }) {
 
 /* 1) Top banner carousel (two banners side-by-side) + Featured Opportunities */
 function BannerCarousel() {
-  // One "slide" shows two banners side-by-side
+  // For mobile, we'll show one banner at a time, for desktop two side-by-side
   const slides = useMemo(
     () => [
+      // Mobile slides (single banners)
       [
         { id: "a1", color: "from-slate-900 to-indigo-900", title: "Hiring Challenge Season 4", cta: "Register Now" },
-        {
-          id: "a2",
-          color: "from-emerald-500 to-teal-400",
-          title: "Where can your imagination take you?",
-          cta: "Registration",
-        },
+      ],
+      [
+        { id: "a2", color: "from-emerald-500 to-teal-400", title: "Where can your imagination take you?", cta: "Registration" },
+      ],
+      [
+        { id: "b1", color: "from-fuchsia-600 to-rose-500", title: "CodeFest 2025", cta: "Join" },
+      ],
+      [
+        { id: "b2", color: "from-blue-600 to-cyan-500", title: "Designathon", cta: "Apply" },
+      ],
+      // Desktop slides (two banners side-by-side)
+      [
+        { id: "a1", color: "from-slate-900 to-indigo-900", title: "Hiring Challenge Season 4", cta: "Register Now" },
+        { id: "a2", color: "from-emerald-500 to-teal-400", title: "Where can your imagination take you?", cta: "Registration" },
       ],
       [
         { id: "b1", color: "from-fuchsia-600 to-rose-500", title: "CodeFest 2025", cta: "Join" },
@@ -264,15 +273,36 @@ function BannerCarousel() {
     ],
     [],
   )
+  
   const [index, setIndex] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
 
-  const prev = () => setIndex((i) => (i - 1 + slides.length) % slides.length)
-  const next = () => setIndex((i) => (i + 1) % slides.length)
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkIsMobile()
+    window.addEventListener('resize', checkIsMobile)
+    
+    return () => {
+      window.removeEventListener('resize', checkIsMobile)
+    }
+  }, [])
+
+  const mobileSlidesCount = 4 // Number of mobile slides
+  const desktopSlidesCount = 2 // Number of desktop slides
+  
+  const currentSlides = isMobile ? slides.slice(0, mobileSlidesCount) : slides.slice(mobileSlidesCount)
+  const currentSlidesCount = isMobile ? mobileSlidesCount : desktopSlidesCount
+
+  const prev = () => setIndex((i) => (i - 1 + currentSlidesCount) % currentSlidesCount)
+  const next = () => setIndex((i) => (i + 1) % currentSlidesCount)
 
   return (
     <section className="relative mx-auto w-full">
       <div className="relative grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-        {slides[index].map((b) => (
+        {currentSlides[index].map((b) => (
           <div
             key={b.id}
             className={`rounded-xl md:rounded-2xl bg-gradient-to-r ${b.color} p-4 md:p-6 text-white h-40 md:h-60 lg:h-64 flex items-end`}
@@ -289,19 +319,20 @@ function BannerCarousel() {
         ))}
       </div>
 
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-1 md:pl-2 md:-left-6">
+      {/* Hide arrows on mobile */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 hidden md:flex items-center pl-1 md:pl-2 md:-left-6">
         <div className="pointer-events-auto">
           <ArrowButton direction="left" onClick={prev} />
         </div>
       </div>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1 md:pr-2 md:-right-6">
+      <div className="pointer-events-none absolute inset-y-0 right-0 hidden md:flex items-center pr-1 md:pr-2 md:-right-6">
         <div className="pointer-events-auto">
           <ArrowButton direction="right" onClick={next} />
         </div>
       </div>
 
       <div className="mt-3 md:mt-4">
-        <Dots total={slides.length} active={index} onDot={setIndex} />
+        <Dots total={currentSlidesCount} active={index} onDot={setIndex} />
       </div>
     </section>
   )
@@ -374,7 +405,21 @@ function FeaturedOpportunities() {
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
   const autoPlayRef = useRef()
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkIsMobile()
+    window.addEventListener('resize', checkIsMobile)
+    
+    return () => {
+      window.removeEventListener('resize', checkIsMobile)
+    }
+  }, [])
 
   // Number of cards to show based on screen size
   const getCardsToShow = () => {
@@ -440,7 +485,8 @@ function FeaturedOpportunities() {
             Check out the curated opportunities handpicked for you from top organizations.
           </p>
         </div>
-        <div className="flex items-center gap-2 md:gap-3">
+        {/* Hide arrows on mobile */}
+        <div className="hidden md:flex items-center gap-2 md:gap-3">
           <ArrowButton direction="left" onClick={prevSlide} />
           <ArrowButton direction="right" onClick={nextSlide} />
         </div>
@@ -490,26 +536,47 @@ function FeaturedOpportunities() {
 /* Shared horizontal rail with overlay arrows */
 function ScrollRail({ children }) {
   const scrollerRef = useRef(null)
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkIsMobile()
+    window.addEventListener('resize', checkIsMobile)
+    
+    return () => {
+      window.removeEventListener('resize', checkIsMobile)
+    }
+  }, [])
+  
   const scrollBy = (amount) => {
     const el = scrollerRef.current
     if (!el) return
     el.scrollBy({ left: amount, behavior: "smooth" })
   }
+  
   return (
     <div className="relative">
       <div ref={scrollerRef} className="scroll-smooth overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none]">
         <div className="flex min-w-full gap-4 md:gap-6 pb-2">{children}</div>
       </div>
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center">
-        <div className="pointer-events-auto -ml-2 md:-ml-3">
-          <ArrowButton direction="left" onClick={() => scrollBy(-300)} />
-        </div>
-      </div>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center">
-        <div className="pointer-events-auto -mr-2 md:-mr-3">
-          <ArrowButton direction="right" onClick={() => scrollBy(300)} />
-        </div>
-      </div>
+      {/* Hide arrows on mobile */}
+      {!isMobile && (
+        <>
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center">
+            <div className="pointer-events-auto -ml-2 md:-ml-3">
+              <ArrowButton direction="left" onClick={() => scrollBy(-300)} />
+            </div>
+          </div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center">
+            <div className="pointer-events-auto -mr-2 md:-mr-3">
+              <ArrowButton direction="right" onClick={() => scrollBy(300)} />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
