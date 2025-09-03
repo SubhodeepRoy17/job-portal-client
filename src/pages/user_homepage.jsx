@@ -16,7 +16,7 @@ function Chevron({ direction = "right", className = "" }) {
     <svg
       aria-hidden="true"
       viewBox="0 0 24 24"
-      className={`h-5 w-5 ${rotate} ${className}`}
+      className={`h-4 w-4 md:h-5 md:w-5 ${rotate} ${className}`}
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
@@ -32,7 +32,7 @@ function ArrowButton({ onClick, direction = "right", className = "", label }) {
       type="button"
       aria-label={label || (direction === "left" ? "Previous" : "Next")}
       onClick={onClick}
-      className={`inline-flex items-center justify-center rounded-full bg-white text-gray-700 shadow-md ring-1 ring-gray-200 hover:bg-gray-50 h-10 w-10 ${className}`}
+      className={`inline-flex items-center justify-center rounded-full bg-white text-gray-700 shadow-md ring-1 ring-gray-200 hover:bg-gray-50 h-8 w-8 md:h-10 md:w-10 ${className}`}
     >
       <Chevron direction={direction} />
     </button>
@@ -41,13 +41,13 @@ function ArrowButton({ onClick, direction = "right", className = "", label }) {
 
 function Dots({ total, active, onDot }) {
   return (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-1.5 md:gap-2">
       {Array.from({ length: total }).map((_, i) => (
         <button
           key={i}
           aria-label={`Go to slide ${i + 1}`}
           onClick={() => onDot?.(i)}
-          className={`h-1.5 rounded-full transition-all ${i === active ? "bg-gray-700 w-5" : "bg-gray-300 w-3"}`}
+          className={`h-1.5 rounded-full transition-all ${i === active ? "bg-gray-700 w-4 md:w-5" : "bg-gray-300 w-2 md:w-3"}`}
         />
       ))}
     </div>
@@ -187,34 +187,34 @@ function ProfileCompletion({ user }) {
   const progressColor = getProgressColor(profileCompletion)
 
   return (
-    <div className="mb-10 md:mb-14">
+    <div className="mb-6 md:mb-10 lg:mb-14">
       <div className="max-w-md mx-auto">
-        <div className="bg-white shadow rounded-xl p-6">
-          <div className="flex items-center gap-4">
-            <div className="relative w-24 h-24 flex-shrink-0">
+        <div className="bg-white shadow rounded-xl p-4 md:p-6">
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="relative w-16 h-16 md:w-24 md:h-24 flex-shrink-0">
               <div 
                 className="w-full h-full rounded-full flex items-center justify-center"
                 style={{
                   background: `conic-gradient(${progressColor} ${profileCompletion * 3.6}deg, #e0e0e0 ${profileCompletion * 3.6}deg)`
                 }}
               >
-                <div className="bg-white w-[88px] h-[88px] rounded-full flex items-center justify-center">
+                <div className="bg-white w-[56px] h-[56px] md:w-[88px] md:h-[88px] rounded-full flex items-center justify-center">
                   {user?.profile_photo ? (
                     <img
                       src={user.profile_photo}
                       alt="Profile"
-                      className="w-20 h-20 rounded-full object-cover"
+                      className="w-12 h-12 md:w-20 md:h-20 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-20 h-20 rounded-full bg-gray-100 flex flex-col items-center justify-center text-gray-500 text-center">
-                      <div className="text-lg font-bold">+</div>
-                      <div className="text-xs">Add photo</div>
+                    <div className="w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-100 flex flex-col items-center justify-center text-gray-500 text-center">
+                      <div className="text-sm md:text-lg font-bold">+</div>
+                      <div className="text-[10px] md:text-xs">Add photo</div>
                     </div>
                   )}
                 </div>
               </div>
               <div 
-                className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded-full text-xs font-medium border"
+                className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-white px-1.5 py-0.5 md:px-2 md:py-1 rounded-full text-[10px] md:text-xs font-medium border"
                 style={{ 
                   borderColor: progressColor,
                   color: progressColor
@@ -224,14 +224,14 @@ function ProfileCompletion({ user }) {
               </div>
             </div>
 
-            <div className="flex-1">
-              <h2 className="text-base font-semibold mb-1">{user?.full_name || "User"}</h2>
-              <p className="text-sm text-gray-500 mb-1">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-sm md:text-base font-semibold mb-1 truncate">{user?.full_name || "User"}</h2>
+              <p className="text-xs md:text-sm text-gray-500 mb-1">
                 Updated {lastUpdated || "recently"}
               </p>
               <Link
                 to={`/dashboard/edit-profile/${user?.id}`}
-                className="text-blue-600 font-semibold text-sm hover:text-blue-600"
+                className="text-blue-600 font-semibold text-xs md:text-sm hover:text-blue-600"
               >
                 Update Profile
               </Link>
@@ -271,36 +271,36 @@ function BannerCarousel() {
 
   return (
     <section className="relative mx-auto w-full">
-      <div className="relative grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="relative grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
         {slides[index].map((b) => (
           <div
             key={b.id}
-            className={`rounded-2xl bg-gradient-to-r ${b.color} p-6 text-white h-56 md:h-60 lg:h-64 flex items-end`}
+            className={`rounded-xl md:rounded-2xl bg-gradient-to-r ${b.color} p-4 md:p-6 text-white h-40 md:h-60 lg:h-64 flex items-end`}
           >
             <div>
               <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
-              <h3 className="text-2xl font-semibold max-w-[28ch] text-pretty">{b.title}</h3>
-              <button className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900">
+              <h3 className="text-lg md:text-2xl font-semibold max-w-[28ch] text-pretty">{b.title}</h3>
+              <button className="mt-2 md:mt-3 inline-flex items-center gap-1 md:gap-2 rounded-full bg-white px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-gray-900">
                 {b.cta}
-                <Chevron className="h-4 w-4 text-gray-900" />
+                <Chevron className="h-3 w-3 md:h-4 md:w-4 text-gray-900" />
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2 md:-left-6">
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-1 md:pl-2 md:-left-6">
         <div className="pointer-events-auto">
           <ArrowButton direction="left" onClick={prev} />
         </div>
       </div>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 md:-right-6">
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1 md:pr-2 md:-right-6">
         <div className="pointer-events-auto">
           <ArrowButton direction="right" onClick={next} />
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-3 md:mt-4">
         <Dots total={slides.length} active={index} onDot={setIndex} />
       </div>
     </section>
@@ -352,11 +352,11 @@ function FeaturedOpportunities() {
   ]
 
   return (
-    <section className="relative rounded-3xl bg-gradient-to-b from-white to-gray-50 p-6 md:p-8">
-      <div className="mb-6 flex items-center justify-between gap-4">
+    <section className="relative rounded-xl md:rounded-3xl bg-gradient-to-b from-white to-gray-50 p-4 md:p-6 lg:p-8">
+      <div className="mb-4 md:mb-6 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-balance text-2xl font-semibold text-gray-900 sm:text-3xl">Featured Opportunities</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <h2 className="text-balance text-xl md:text-2xl font-semibold text-gray-900 sm:text-2xl md:sm:text-3xl">Featured Opportunities</h2>
+          <p className="mt-1 md:mt-2 text-xs md:text-sm text-gray-600">
             Check out the curated opportunities handpicked for you from top organizations.
           </p>
         </div>
@@ -366,30 +366,30 @@ function FeaturedOpportunities() {
         </div>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <article
             key={c.id}
-            className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
+            className="overflow-hidden rounded-xl md:rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
           >
-            <div className={`h-40 bg-gradient-to-r ${c.color} p-3`}>
-              <div className="flex gap-2">
+            <div className={`h-32 md:h-40 bg-gradient-to-r ${c.color} p-3`}>
+              <div className="flex gap-1.5 md:gap-2">
                 {c.badge && (
-                  <span className="rounded-md bg-white/90 px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+                  <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
                     {c.badge}
                   </span>
                 )}
                 {c.badge2 && (
-                  <span className="rounded-md bg-white/90 px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+                  <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
                     {c.badge2}
                   </span>
                 )}
               </div>
             </div>
-            <div className="space-y-2 p-4">
-              <h3 className="font-semibold text-gray-900">{c.title}</h3>
-              <p className="text-sm text-gray-600">{c.desc}</p>
-              <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+            <div className="space-y-2 p-3 md:p-4">
+              <h3 className="text-sm md:text-base font-semibold text-gray-900">{c.title}</h3>
+              <p className="text-xs md:text-sm text-gray-600">{c.desc}</p>
+              <div className="mt-2 md:mt-3 flex items-center justify-between text-xs text-gray-500">
                 <span>{c.stats}</span>
                 <span>{c.time}</span>
               </div>
@@ -412,16 +412,16 @@ function ScrollRail({ children }) {
   return (
     <div className="relative">
       <div ref={scrollerRef} className="scroll-smooth overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none]">
-        <div className="flex min-w-full gap-6">{children}</div>
+        <div className="flex min-w-full gap-4 md:gap-6 pb-2">{children}</div>
       </div>
       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center">
-        <div className="pointer-events-auto -ml-3">
-          <ArrowButton direction="left" onClick={() => scrollBy(-360)} />
+        <div className="pointer-events-auto -ml-2 md:-ml-3">
+          <ArrowButton direction="left" onClick={() => scrollBy(-300)} />
         </div>
       </div>
       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center">
-        <div className="pointer-events-auto -mr-3">
-          <ArrowButton direction="right" onClick={() => scrollBy(360)} />
+        <div className="pointer-events-auto -mr-2 md:-mr-3">
+          <ArrowButton direction="right" onClick={() => scrollBy(300)} />
         </div>
       </div>
     </div>
@@ -460,25 +460,25 @@ function MockTests() {
   ]
 
   return (
-    <section className="space-y-5">
+    <section className="space-y-4 md:space-y-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900 sm:text-3xl">AI-Powered Mock Tests</h2>
-          <p className="mt-1 text-sm text-gray-600">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 sm:text-2xl md:sm:text-3xl">AI-Powered Mock Tests</h2>
+          <p className="mt-1 text-xs md:text-sm text-gray-600">
             Master your concepts with AI-Powered full-length mock tests for 360° preparation!
           </p>
         </div>
-        <a href="#" className="shrink-0 text-sm font-medium text-blue-600 hover:underline">
+        <a href="#" className="shrink-0 text-xs md:text-sm font-medium text-blue-600 hover:underline">
           View all →
         </a>
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2 md:gap-3">
         {tabs.map((t) => (
           <button
             key={t}
             onClick={() => setActive(t)}
-            className={`rounded-full border px-4 py-2 text-sm transition ${
+            className={`rounded-full border px-3 py-1.5 text-xs md:px-4 md:py-2 md:text-sm transition ${
               active === t
                 ? "border-blue-600 bg-blue-50 text-blue-700"
                 : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
@@ -493,15 +493,15 @@ function MockTests() {
         {tests.map((t) => (
           <article
             key={t.id}
-            className="w-72 shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+            className="w-64 md:w-72 shrink-0 overflow-hidden rounded-xl md:rounded-2xl border border-gray-200 bg-white shadow-sm"
           >
-            <div className={`h-36 bg-gradient-to-tr ${t.color} p-4 text-white`}>
-              <div className="mt-5 text-xl font-semibold">{t.role}</div>
+            <div className={`h-28 md:h-36 bg-gradient-to-tr ${t.color} p-3 md:p-4 text-white`}>
+              <div className="mt-4 md:mt-5 text-lg md:text-xl font-semibold">{t.role}</div>
             </div>
-            <div className="space-y-3 p-4">
-              <p className="text-sm text-gray-600">{t.desc}</p>
+            <div className="space-y-2 md:space-y-3 p-3 md:p-4">
+              <p className="text-xs md:text-sm text-gray-600">{t.desc}</p>
               <div className="flex items-center justify-between">
-                <a href="#" className="text-sm font-medium text-blue-700 hover:underline">
+                <a href="#" className="text-xs md:text-sm font-medium text-blue-700 hover:underline">
                   Start Test
                 </a>
                 <ArrowButton onClick={() => {}} label="Open" />
@@ -517,21 +517,21 @@ function MockTests() {
 /* 3) Internships & Jobs rails */
 function ListingCard({ item }) {
   return (
-    <article className="w-80 shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <div className={`h-28 bg-gradient-to-r ${item.color} relative`}>
-        <span className="absolute left-3 top-3 rounded-md bg-white/95 px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+    <article className="w-64 md:w-80 shrink-0 overflow-hidden rounded-xl md:rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className={`h-24 md:h-28 bg-gradient-to-r ${item.color} relative`}>
+        <span className="absolute left-2 top-2 md:left-3 md:top-3 rounded-md bg-white/95 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
           {item.tag}
         </span>
         {item.tag2 && (
-          <span className="absolute left-20 top-3 rounded-md bg-amber-400/95 px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+          <span className="absolute left-16 top-2 md:left-20 md:top-3 rounded-md bg-amber-400/95 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
             {item.tag2}
           </span>
         )}
       </div>
-      <div className="space-y-2 p-4">
-        <h3 className="font-semibold text-gray-900">{item.title}</h3>
-        <p className="text-sm text-gray-600">{item.company}</p>
-        <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+      <div className="space-y-2 p-3 md:p-4">
+        <h3 className="text-sm md:text-base font-semibold text-gray-900">{item.title}</h3>
+        <p className="text-xs md:text-sm text-gray-600">{item.company}</p>
+        <div className="mt-2 md:mt-3 flex items-center justify-between text-xs text-gray-500">
           <span>{item.meta1}</span>
           <span>{item.meta2}</span>
         </div>
@@ -542,17 +542,17 @@ function ListingCard({ item }) {
 
 function RailSection({ title, items }) {
   return (
-    <section className="space-y-4">
+    <section className="space-y-3 md:space-y-4">
       <div className="flex items-end justify-between">
         <div>
-          <h3 className="text-2xl font-semibold text-gray-900">{title}</h3>
-          <p className="mt-1 text-sm text-gray-600">
+          <h3 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h3>
+          <p className="mt-1 text-xs md:text-sm text-gray-600">
             {title === "Internships"
               ? "Find the Internships that fit your career aspirations."
               : "Find jobs that fit your career aspirations."}
           </p>
         </div>
-        <a href="#" className="shrink-0 text-sm font-medium text-blue-600 hover:underline">
+        <a href="#" className="shrink-0 text-xs md:text-sm font-medium text-blue-600 hover:underline">
           View all →
         </a>
       </div>
@@ -652,23 +652,23 @@ export default function UserHomepage() {
   ]
 
   return (
-    <main className="mx-auto max-w-[1400px] px-4 py-6 md:py-8 lg:py-10">
+    <main className="mx-auto max-w-[1400px] px-3 py-4 md:px-4 md:py-6 lg:py-8 pb-20 md:pb-8">
       {/* Profile Completion Section */}
       <ProfileCompletion user={user} />
       
       {/* 1) Hero banners + Featured opportunities */}
       <BannerCarousel />
-      <div className="mt-10 md:mt-14">
+      <div className="mt-6 md:mt-10 lg:mt-14">
         <FeaturedOpportunities />
       </div>
 
       {/* 2) AI-Powered Mock Tests */}
-      <div className="mt-12 md:mt-16">
+      <div className="mt-8 md:mt-12 lg:mt-16">
         <MockTests />
       </div>
 
       {/* 3) Internships & Jobs */}
-      <div className="mt-12 md:mt-16 space-y-12">
+      <div className="mt-8 md:mt-12 lg:mt-16 space-y-8 md:space-y-12">
         <RailSection title="Internships" items={internships} />
         <RailSection title="Jobs" items={jobs} />
       </div>
