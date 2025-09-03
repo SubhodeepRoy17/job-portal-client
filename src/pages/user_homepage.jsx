@@ -307,6 +307,7 @@ function BannerCarousel() {
   )
 }
 
+/* Featured Opportunities with Carousel Effect */
 function FeaturedOpportunities() {
   const cards = [
     {
@@ -349,7 +350,86 @@ function FeaturedOpportunities() {
       time: "—",
       color: "from-amber-400 to-yellow-300",
     },
+    {
+      id: 5,
+      badge: "Hackathon",
+      badge2: "Prize",
+      title: "AI Innovation Challenge 2025",
+      desc: "Build the next big AI solution",
+      stats: "5,230 Registered",
+      time: "12 days left",
+      color: "from-purple-500 to-blue-400",
+    },
+    {
+      id: 6,
+      badge: "Competition",
+      badge2: "Scholarship",
+      title: "National Coding Championship",
+      desc: "Showcase your coding skills",
+      stats: "18,450 Registered",
+      time: "25 days left",
+      color: "from-green-500 to-teal-400",
+    },
   ]
+
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const autoPlayRef = useRef()
+
+  // Number of cards to show based on screen size
+  const getCardsToShow = () => {
+    if (typeof window === 'undefined') return 4
+    if (window.innerWidth < 640) return 1
+    if (window.innerWidth < 1024) return 2
+    return 4
+  }
+
+  const [cardsToShow, setCardsToShow] = useState(getCardsToShow())
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setCardsToShow(getCardsToShow())
+    }
+    
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const totalSlides = Math.ceil(cards.length / cardsToShow)
+
+  useEffect(() => {
+    if (!isAutoPlaying) return
+
+    autoPlayRef.current = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % totalSlides)
+    }, 5000)
+
+    return () => clearInterval(autoPlayRef.current)
+  }, [isAutoPlaying, totalSlides])
+
+  const nextSlide = () => {
+    setIsAutoPlaying(false)
+    setCurrentIndex(prev => (prev + 1) % totalSlides)
+    setTimeout(() => setIsAutoPlaying(true), 10000)
+  }
+
+  const prevSlide = () => {
+    setIsAutoPlaying(false)
+    setCurrentIndex(prev => (prev - 1 + totalSlides) % totalSlides)
+    setTimeout(() => setIsAutoPlaying(true), 10000)
+  }
+
+  const goToSlide = (index) => {
+    setIsAutoPlaying(false)
+    setCurrentIndex(index)
+    setTimeout(() => setIsAutoPlaying(true), 10000)
+  }
+
+  // Get current slide cards
+  const getCurrentSlideCards = () => {
+    const start = currentIndex * cardsToShow
+    return cards.slice(start, start + cardsToShow)
+  }
 
   return (
     <section className="relative rounded-xl md:rounded-3xl bg-gradient-to-b from-white to-gray-50 p-4 md:p-6 lg:p-8">
@@ -360,42 +440,48 @@ function FeaturedOpportunities() {
             Check out the curated opportunities handpicked for you from top organizations.
           </p>
         </div>
-        <div className="hidden md:flex items-center gap-3">
-          <ArrowButton direction="left" onClick={() => {}} />
-          <ArrowButton direction="right" onClick={() => {}} />
+        <div className="flex items-center gap-2 md:gap-3">
+          <ArrowButton direction="left" onClick={prevSlide} />
+          <ArrowButton direction="right" onClick={nextSlide} />
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((c) => (
-          <article
-            key={c.id}
-            className="overflow-hidden rounded-xl md:rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
-          >
-            <div className={`h-32 md:h-40 bg-gradient-to-r ${c.color} p-3`}>
-              <div className="flex gap-1.5 md:gap-2">
-                {c.badge && (
-                  <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
-                    {c.badge}
-                  </span>
-                )}
-                {c.badge2 && (
-                  <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
-                    {c.badge2}
-                  </span>
-                )}
+      <div className="relative overflow-hidden">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 transition-transform duration-500 ease-in-out">
+          {getCurrentSlideCards().map((c) => (
+            <article
+              key={c.id}
+              className="overflow-hidden rounded-xl md:rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
+            >
+              <div className={`h-32 md:h-40 bg-gradient-to-r ${c.color} p-3`}>
+                <div className="flex gap-1.5 md:gap-2">
+                  {c.badge && (
+                    <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+                      {c.badge}
+                    </span>
+                  )}
+                  {c.badge2 && (
+                    <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+                      {c.badge2}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="space-y-2 p-3 md:p-4">
-              <h3 className="text-sm md:text-base font-semibold text-gray-900">{c.title}</h3>
-              <p className="text-xs md:text-sm text-gray-600">{c.desc}</p>
-              <div className="mt-2 md:mt-3 flex items-center justify-between text-xs text-gray-500">
-                <span>{c.stats}</span>
-                <span>{c.time}</span>
+              <div className="space-y-2 p-3 md:p-4">
+                <h3 className="text-sm md:text-base font-semibold text-gray-900">{c.title}</h3>
+                <p className="text-xs md:text-sm text-gray-600">{c.desc}</p>
+                <div className="mt-2 md:mt-3 flex items-center justify-between text-xs text-gray-500">
+                  <span>{c.stats}</span>
+                  <span>{c.time}</span>
+                </div>
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 md:mt-6">
+        <Dots total={totalSlides} active={currentIndex} onDot={goToSlide} />
       </div>
     </section>
   )
