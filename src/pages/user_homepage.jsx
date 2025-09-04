@@ -909,11 +909,11 @@ function ListingCard({ item }) {
           </span>
         )}
 
-        {/* Stacked Logo */}
+        {/* Company Logo (inside gradient box) */}
         <img
           src="https://bluestock.in/static/assets/logo/logo-android.webp"
           alt="logo"
-          className="absolute right-2 top-2 md:right-3 md:top-3 w-12 h-12 md:w-14 md:h-14 rounded-lg bg-white p-1.5 shadow-md"
+          className="absolute right-2 bottom-2 md:right-3 md:bottom-3 w-12 h-12 md:w-14 md:h-14 rounded-lg bg-white p-1.5 shadow-md"
         />
       </div>
 
