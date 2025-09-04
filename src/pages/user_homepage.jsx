@@ -417,10 +417,7 @@ function BannerCarousel() {
           ].map((b) => (
             <div
               key={b.id}
-              className="flex-shrink-0 w-1/2 rounded-2xl bg-gradient-to-r p-6 text-white h-60 flex items-end"
-              style={{ 
-                background: `linear-gradient(to right, ${b.color.split(' ')[0].replace('from-', '')}, ${b.color.split(' ')[1].replace('to-', '')})`
-              }}
+              className={`flex-shrink-0 w-1/2 rounded-2xl bg-gradient-to-r ${b.color} p-6 text-white h-60 flex items-end`}
             >
               <div>
                 <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
