@@ -900,11 +900,11 @@ function ListingCard({ item }) {
     <article className="w-64 md:w-80 shrink-0 overflow-hidden rounded-xl md:rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className={`h-24 md:h-28 bg-gradient-to-r ${item.color} relative`}>
         {/* Tags */}
-        <span className="absolute left-2 top-2 md:left-3 md:top-3 rounded-md bg-white/95 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+        <span className="rounded-md bg-white/95 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
           {item.tag}
         </span>
         {item.tag2 && (
-          <span className="absolute left-16 top-2 md:left-20 md:top-3 rounded-md bg-amber-400/95 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+          <span className="rounded-md bg-amber-400/95 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
             {item.tag2}
           </span>
         )}
