@@ -275,7 +275,7 @@ function BannerCarousel() {
     }
   }, [])
 
-  // Auto-scroll for mobile
+  // Auto-scroll for mobile - 4 seconds, clockwise only
   useEffect(() => {
     if (!isMobile) return
 
@@ -285,7 +285,7 @@ function BannerCarousel() {
         scrollToIndex(newIndex)
         return newIndex
       })
-    }, 2000)
+    }, 4000)
 
     return () => clearInterval(autoPlayRef.current)
   }, [isMobile, banners.length])
@@ -329,8 +329,9 @@ function BannerCarousel() {
       <div className="md:hidden relative">
         <div 
           ref={scrollerRef}
-          className="flex overflow-x-auto scrollbar-hide gap-4 pb-4 snap-x snap-mandatory"
+          className="flex overflow-x-auto scrollbar-hide gap-4 pb-4 snap-x snap-mandatory no-scrollbar"
           onScroll={handleScroll}
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {banners.map((b) => (
             <div
@@ -476,7 +477,7 @@ function FeaturedOpportunities() {
     }
   }, [])
 
-  // Auto-scroll for mobile
+  // Auto-scroll for mobile - 4 seconds, clockwise only
   useEffect(() => {
     if (!isMobile || !isAutoPlaying) return
 
@@ -486,7 +487,7 @@ function FeaturedOpportunities() {
         scrollToIndex(newIndex)
         return newIndex
       })
-    }, 2000)
+    }, 4000)
 
     return () => clearInterval(autoPlayRef.current)
   }, [isMobile, isAutoPlaying, cards.length])
@@ -556,8 +557,9 @@ function FeaturedOpportunities() {
       <div className="md:hidden relative">
         <div 
           ref={scrollerRef}
-          className="flex overflow-x-auto scrollbar-hide gap-4 pb-4 snap-x snap-mandatory"
+          className="flex overflow-x-auto scrollbar-hide gap-4 pb-4 snap-x snap-mandatory no-scrollbar"
           onScroll={handleScroll}
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {cards.map((c) => (
             <article
