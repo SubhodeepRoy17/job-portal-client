@@ -904,7 +904,7 @@ function ListingCard({ item }) {
           {item.tag}
         </span>
         {item.tag2 && (
-          <span className="rounded-md bg-amber-400/95 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+          <span className="ml-1 rounded-md bg-amber-400/95 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
             {item.tag2}
           </span>
         )}
