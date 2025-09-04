@@ -279,6 +279,7 @@ function BannerCarousel() {
           el.scrollLeft = 0
         }
         el.scrollBy({ left: el.offsetWidth, behavior: "smooth" })
+        setCurrentIndex((prev) => (prev + 1) % banners.length)
       } else {
         setCurrentIndex(prev => (prev + 1) % banners.length)
       }
@@ -312,6 +313,18 @@ function BannerCarousel() {
                 </div>
               </div>
             </div>
+          ))}
+        </div>
+
+        {/* Mobile dots indicator */}
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          {banners.map((_, i) => (
+            <span
+              key={i}
+              className={`w-2 h-2 rounded-full ${
+                i === currentIndex ? "bg-blue-600" : "bg-gray-300"
+              }`}
+            />
           ))}
         </div>
       </div>
@@ -390,8 +403,30 @@ function FeaturedOpportunities() {
     return () => clearInterval(interval)
   }, [isMobile, cards.length])
 
-  const nextSlide = () => setCurrentIndex(prev => (prev + 1) % cards.length)
-  const prevSlide = () => setCurrentIndex(prev => (prev - 1 + cards.length) % cards.length)
+  const scrollToIndex = (index) => {
+    if (scrollerRef.current) {
+      scrollerRef.current.scrollTo({
+        left: index * scrollerRef.current.offsetWidth,
+        behavior: "smooth",
+      })
+    }
+  }
+
+  const nextSlide = () => {
+    setCurrentIndex(prev => {
+      const newIndex = (prev + 1) % cards.length
+      scrollToIndex(newIndex)
+      return newIndex
+    })
+  }
+
+  const prevSlide = () => {
+    setCurrentIndex(prev => {
+      const newIndex = (prev - 1 + cards.length) % cards.length
+      scrollToIndex(newIndex)
+      return newIndex
+    })
+  }
 
   return (
     <section className="relative rounded-xl md:rounded-3xl bg-gradient-to-b from-white to-gray-50 p-4 md:p-6 lg:p-8">
@@ -439,7 +474,10 @@ function FeaturedOpportunities() {
 
       {/* Desktop view */}
       <div className="hidden md:block relative">
-        <div className="flex gap-4 relative">
+        <div 
+          ref={scrollerRef}
+          className="flex gap-4 relative overflow-hidden"
+        >
           {[cards[currentIndex % cards.length], cards[(currentIndex + 1) % cards.length], cards[(currentIndex + 2) % cards.length], cards[(currentIndex + 3) % cards.length]].map((c, i) => (
             <div key={`${c.id}-${i}`} className="flex-shrink-0 w-1/4">
               <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
