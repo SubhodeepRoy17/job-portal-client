@@ -260,6 +260,7 @@ function BannerCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const autoPlayRef = useRef()
+  const isScrollingRef = useRef(false)
 
   useEffect(() => {
     const checkIsMobile = () => setIsMobile(window.innerWidth < 768)
@@ -268,40 +269,81 @@ function BannerCarousel() {
     return () => window.removeEventListener('resize', checkIsMobile)
   }, [])
 
-  // Auto-scroll for mobile
+  // Create duplicated banners for infinite scroll effect
+  const duplicatedBanners = useMemo(() => {
+    return [...banners, ...banners, ...banners];
+  }, [banners]);
+
+  // Reset scroll position when at the beginning or end of duplicated items
+  const checkScrollPosition = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    
+    const scrollWidth = el.scrollWidth;
+    const scrollLeft = el.scrollLeft;
+    const clientWidth = el.clientWidth;
+    
+    // If we're at the beginning of the duplicated set, jump to the middle
+    if (scrollLeft < clientWidth) {
+      isScrollingRef.current = true;
+      el.scrollTo({
+        left: scrollWidth / 3,
+        behavior: 'instant'
+      });
+      setCurrentIndex(0);
+    } 
+    // If we're at the end of the duplicated set, jump to the middle
+    else if (scrollLeft > scrollWidth - clientWidth * 2) {
+      isScrollingRef.current = true;
+      el.scrollTo({
+        left: scrollWidth / 3 - clientWidth,
+        behavior: 'instant'
+      });
+      setCurrentIndex(banners.length - 1);
+    }
+  }
+
+  // Auto-scroll for mobile - continuous in same direction
   useEffect(() => {
     const el = scrollerRef.current
     if (!el || !isMobile) return
 
     autoPlayRef.current = setInterval(() => {
-      setCurrentIndex(prev => {
-        const newIndex = (prev + 1) % banners.length
-        scrollToIndex(newIndex)
-        return newIndex
-      })
+      const cardWidth = el.querySelector('.banner-card')?.offsetWidth || 0;
+      const gap = 16; // gap-4 is 16px
+      const scrollAmount = cardWidth + gap;
+      
+      el.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+      
+      // Update current index based on scroll position
+      const scrollPosition = el.scrollLeft;
+      const newIndex = Math.round((scrollPosition % (banners.length * (cardWidth + gap))) / (cardWidth + gap));
+      setCurrentIndex(newIndex);
     }, 4000)
 
     return () => clearInterval(autoPlayRef.current)
   }, [isMobile, banners.length])
 
-  const scrollToIndex = (index) => {
+  const handleScroll = () => {
+    if (isScrollingRef.current) {
+      isScrollingRef.current = false;
+      return;
+    }
+    
     const el = scrollerRef.current
     if (!el) return
     
-    const cardWidth = el.querySelector('.banner-card')?.offsetWidth || 0
-    el.scrollTo({
-      left: index * (cardWidth + 16),
-      behavior: 'smooth'
-    })
-  }
-
-  const handleScroll = () => {
-    const el = scrollerRef.current
-    if (!el) return
+    checkScrollPosition();
     
     const scrollPosition = el.scrollLeft
     const cardWidth = el.querySelector('.banner-card')?.offsetWidth || 0
-    const newIndex = Math.round(scrollPosition / (cardWidth + 16))
+    const gap = 16;
+    
+    // Calculate index based on modulo to handle the infinite scroll
+    const newIndex = Math.round((scrollPosition % (banners.length * (cardWidth + gap))) / (cardWidth + gap));
     
     if (newIndex !== currentIndex && newIndex < banners.length) {
       setCurrentIndex(newIndex)
@@ -327,9 +369,9 @@ function BannerCarousel() {
           onScroll={handleScroll}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {banners.map((b) => (
+          {duplicatedBanners.map((b, index) => (
             <div
-              key={b.id}
+              key={`${b.id}-${index}`}
               className="banner-card flex-shrink-0 w-[85vw] snap-start"
             >
               <div className={`rounded-xl bg-gradient-to-r ${b.color} p-4 text-white h-40 flex items-end`}>
@@ -348,7 +390,21 @@ function BannerCarousel() {
         
         {/* Mobile dots indicator - same as desktop */}
         <div className="mt-3 flex justify-center">
-          <Dots total={banners.length} active={currentIndex} onDot={scrollToIndex} />
+          <Dots total={banners.length} active={currentIndex} onDot={(index) => {
+            const el = scrollerRef.current;
+            if (!el) return;
+            
+            const cardWidth = el.querySelector('.banner-card')?.offsetWidth || 0;
+            const gap = 16;
+            const middleSectionStart = banners.length * (cardWidth + gap);
+            
+            el.scrollTo({
+              left: middleSectionStart + index * (cardWidth + gap),
+              behavior: 'smooth'
+            });
+            
+            setCurrentIndex(index);
+          }} />
         </div>
       </div>
 
@@ -408,6 +464,7 @@ function FeaturedOpportunities() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const autoPlayRef = useRef()
+  const isScrollingRef = useRef(false)
 
   useEffect(() => {
     const checkIsMobile = () => setIsMobile(window.innerWidth < 768)
@@ -416,40 +473,81 @@ function FeaturedOpportunities() {
     return () => window.removeEventListener('resize', checkIsMobile)
   }, [])
 
-  // Auto-scroll for mobile
+  // Create duplicated cards for infinite scroll effect
+  const duplicatedCards = useMemo(() => {
+    return [...cards, ...cards, ...cards];
+  }, [cards]);
+
+  // Reset scroll position when at the beginning or end of duplicated items
+  const checkScrollPosition = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    
+    const scrollWidth = el.scrollWidth;
+    const scrollLeft = el.scrollLeft;
+    const clientWidth = el.clientWidth;
+    
+    // If we're at the beginning of the duplicated set, jump to the middle
+    if (scrollLeft < clientWidth) {
+      isScrollingRef.current = true;
+      el.scrollTo({
+        left: scrollWidth / 3,
+        behavior: 'instant'
+      });
+      setCurrentIndex(0);
+    } 
+    // If we're at the end of the duplicated set, jump to the middle
+    else if (scrollLeft > scrollWidth - clientWidth * 2) {
+      isScrollingRef.current = true;
+      el.scrollTo({
+        left: scrollWidth / 3 - clientWidth,
+        behavior: 'instant'
+      });
+      setCurrentIndex(cards.length - 1);
+    }
+  }
+
+  // Auto-scroll for mobile - continuous in same direction
   useEffect(() => {
     const el = scrollerRef.current
     if (!el || !isMobile) return
 
     autoPlayRef.current = setInterval(() => {
-      setCurrentIndex(prev => {
-        const newIndex = (prev + 1) % cards.length
-        scrollToIndex(newIndex)
-        return newIndex
-      })
+      const cardWidth = el.querySelector('.opportunity-card')?.offsetWidth || 0;
+      const gap = 16; // gap-4 is 16px
+      const scrollAmount = cardWidth + gap;
+      
+      el.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+      
+      // Update current index based on scroll position
+      const scrollPosition = el.scrollLeft;
+      const newIndex = Math.round((scrollPosition % (cards.length * (cardWidth + gap))) / (cardWidth + gap));
+      setCurrentIndex(newIndex);
     }, 4000)
 
     return () => clearInterval(autoPlayRef.current)
   }, [isMobile, cards.length])
 
-  const scrollToIndex = (index) => {
+  const handleScroll = () => {
+    if (isScrollingRef.current) {
+      isScrollingRef.current = false;
+      return;
+    }
+    
     const el = scrollerRef.current
     if (!el) return
     
-    const cardWidth = el.querySelector('.opportunity-card')?.offsetWidth || 0
-    el.scrollTo({
-      left: index * (cardWidth + 16),
-      behavior: 'smooth'
-    })
-  }
-
-  const handleScroll = () => {
-    const el = scrollerRef.current
-    if (!el) return
+    checkScrollPosition();
     
     const scrollPosition = el.scrollLeft
     const cardWidth = el.querySelector('.opportunity-card')?.offsetWidth || 0
-    const newIndex = Math.round(scrollPosition / (cardWidth + 16))
+    const gap = 16;
+    
+    // Calculate index based on modulo to handle the infinite scroll
+    const newIndex = Math.round((scrollPosition % (cards.length * (cardWidth + gap))) / (cardWidth + gap));
     
     if (newIndex !== currentIndex && newIndex < cards.length) {
       setCurrentIndex(newIndex)
@@ -488,9 +586,9 @@ function FeaturedOpportunities() {
           onScroll={handleScroll}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {cards.map((c) => (
+          {duplicatedCards.map((c, index) => (
             <article
-              key={c.id}
+              key={`${c.id}-${index}`}
               className="opportunity-card flex-shrink-0 w-[85vw] snap-start"
             >
               <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
@@ -515,7 +613,21 @@ function FeaturedOpportunities() {
         
         {/* Mobile dots indicator - same as desktop */}
         <div className="mt-3 flex justify-center">
-          <Dots total={cards.length} active={currentIndex} onDot={scrollToIndex} />
+          <Dots total={cards.length} active={currentIndex} onDot={(index) => {
+            const el = scrollerRef.current;
+            if (!el) return;
+            
+            const cardWidth = el.querySelector('.opportunity-card')?.offsetWidth || 0;
+            const gap = 16;
+            const middleSectionStart = cards.length * (cardWidth + gap);
+            
+            el.scrollTo({
+              left: middleSectionStart + index * (cardWidth + gap),
+              behavior: 'smooth'
+            });
+            
+            setCurrentIndex(index);
+          }} />
         </div>
       </div>
 
@@ -555,6 +667,46 @@ function FeaturedOpportunities() {
       </div>
     </section>
   )
+}
+
+// Helper components (assuming these exist)
+function Chevron({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+    </svg>
+  );
+}
+
+function ArrowButton({ direction, onClick, label }) {
+  return (
+    <button 
+      onClick={onClick} 
+      className="rounded-full bg-white p-2 shadow-md transition hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+      aria-label={label}
+    >
+      <svg className={`h-5 w-5 text-gray-900 ${direction === 'left' ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+      </svg>
+    </button>
+  );
+}
+
+function Dots({ total, active, onDot }) {
+  return (
+    <div className="flex gap-1.5">
+      {Array.from({ length: total }).map((_, i) => (
+        <button
+          key={i}
+          onClick={() => onDot(i)}
+          className={`h-2 rounded-full transition-all ${
+            i === active ? 'w-6 bg-indigo-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
+          }`}
+          aria-label={`Go to slide ${i + 1}`}
+        />
+      ))}
+    </div>
+  );
 }
 
 /* Shared horizontal rail with overlay arrows - Hidden on mobile */
