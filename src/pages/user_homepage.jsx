@@ -322,7 +322,7 @@ function BannerCarousel() {
       const scrollPosition = el.scrollLeft;
       const newIndex = Math.round((scrollPosition % (banners.length * (cardWidth + gap))) / (cardWidth + gap));
       setCurrentIndex(newIndex);
-    }, 4000)
+    }, 6000) // Changed from 4000 to 6000
 
     return () => clearInterval(autoPlayRef.current)
   }, [isMobile, banners.length])
@@ -365,7 +365,7 @@ function BannerCarousel() {
     
     autoPlayRef.current = setInterval(() => {
       nextSlide();
-    }, 4000)
+    }, 6000) // Changed from 4000 to 6000
 
     return () => clearInterval(autoPlayRef.current)
   }, [isMobile])
@@ -899,6 +899,7 @@ function ListingCard({ item }) {
   return (
     <article className="w-64 md:w-80 shrink-0 overflow-hidden rounded-xl md:rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className={`h-24 md:h-28 bg-gradient-to-r ${item.color} relative`}>
+        {/* Tags */}
         <span className="absolute left-2 top-2 md:left-3 md:top-3 rounded-md bg-white/95 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
           {item.tag}
         </span>
@@ -907,7 +908,15 @@ function ListingCard({ item }) {
             {item.tag2}
           </span>
         )}
+
+        {/* Stacked Logo */}
+        <img
+          src="https://bluestock.in/static/assets/logo/logo-android.webp"
+          alt="logo"
+          className="absolute right-2 top-2 md:right-3 md:top-3 w-8 h-8 md:w-10 md:h-10 rounded-md bg-white p-1 shadow-sm"
+        />
       </div>
+
       <div className="space-y-2 p-3 md:p-4">
         <h3 className="text-sm md:text-base font-semibold text-gray-900">{item.title}</h3>
         <p className="text-xs md:text-sm text-gray-600">{item.company}</p>
