@@ -275,14 +275,14 @@ function BannerCarousel() {
     }
   }, [])
 
-  // Auto-scroll for mobile - 4 seconds, clockwise only
+  // Auto-scroll for both mobile and desktop - 4 seconds, infinite clockwise
   useEffect(() => {
-    if (!isMobile) return
-
     autoPlayRef.current = setInterval(() => {
       setCurrentIndex(prev => {
         const newIndex = (prev + 1) % banners.length
-        scrollToIndex(newIndex)
+        if (isMobile) {
+          scrollToIndex(newIndex)
+        }
         return newIndex
       })
     }, 4000)
@@ -357,13 +357,13 @@ function BannerCarousel() {
         </div>
       </div>
 
-      {/* Desktop view - two banners vertically with navigation */}
+      {/* Desktop view - Horizontal layout with navigation */}
       <div className="hidden md:block relative">
-        <div className="grid grid-cols-1 gap-4 relative">
+        <div className="flex gap-4 relative">
           {banners.slice(currentIndex, currentIndex + 2).map((b) => (
             <div
               key={b.id}
-              className={`rounded-2xl bg-gradient-to-r ${b.color} p-6 text-white h-60 flex items-end`}
+              className={`flex-shrink-0 w-1/2 rounded-2xl bg-gradient-to-r ${b.color} p-6 text-white h-60 flex items-end`}
             >
               <div>
                 <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
@@ -461,7 +461,6 @@ function FeaturedOpportunities() {
   const scrollerRef = useRef(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const autoPlayRef = useRef()
 
   useEffect(() => {
@@ -477,9 +476,9 @@ function FeaturedOpportunities() {
     }
   }, [])
 
-  // Auto-scroll for mobile - 4 seconds, clockwise only
+  // Auto-scroll for mobile - 4 seconds, infinite clockwise
   useEffect(() => {
-    if (!isMobile || !isAutoPlaying) return
+    if (!isMobile) return
 
     autoPlayRef.current = setInterval(() => {
       setCurrentIndex(prev => {
@@ -490,7 +489,7 @@ function FeaturedOpportunities() {
     }, 4000)
 
     return () => clearInterval(autoPlayRef.current)
-  }, [isMobile, isAutoPlaying, cards.length])
+  }, [isMobile, cards.length])
 
   const scrollToIndex = (index) => {
     const el = scrollerRef.current
@@ -513,29 +512,23 @@ function FeaturedOpportunities() {
     
     if (newIndex !== currentIndex) {
       setCurrentIndex(newIndex)
-      setIsAutoPlaying(false)
-      setTimeout(() => setIsAutoPlaying(true), 5000)
     }
   }
 
   const nextSlide = () => {
-    setIsAutoPlaying(false)
     setCurrentIndex(prev => {
       const newIndex = (prev + 1) % cards.length
       scrollToIndex(newIndex)
       return newIndex
     })
-    setTimeout(() => setIsAutoPlaying(true), 5000)
   }
 
   const prevSlide = () => {
-    setIsAutoPlaying(false)
     setCurrentIndex(prev => {
       const newIndex = (prev - 1 + cards.length) % cards.length
       scrollToIndex(newIndex)
       return newIndex
     })
-    setTimeout(() => setIsAutoPlaying(true), 5000)
   }
 
   return (
