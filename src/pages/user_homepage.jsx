@@ -259,6 +259,7 @@ function BannerCarousel() {
   const scrollerRef = useRef(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const autoPlayRef = useRef()
 
   useEffect(() => {
     const checkIsMobile = () => setIsMobile(window.innerWidth < 768)
@@ -267,14 +268,21 @@ function BannerCarousel() {
     return () => window.removeEventListener('resize', checkIsMobile)
   }, [])
 
-  // Auto-scroll for both mobile & desktop
+  // Auto-scroll for mobile
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % banners.length)
+    const el = scrollerRef.current
+    if (!el || !isMobile) return
+
+    autoPlayRef.current = setInterval(() => {
+      setCurrentIndex(prev => {
+        const newIndex = (prev + 1) % banners.length
+        scrollToIndex(newIndex)
+        return newIndex
+      })
     }, 4000)
 
-    return () => clearInterval(interval)
-  }, [banners.length])
+    return () => clearInterval(autoPlayRef.current)
+  }, [isMobile, banners.length])
 
   const scrollToIndex = (index) => {
     const el = scrollerRef.current
@@ -285,7 +293,6 @@ function BannerCarousel() {
       left: index * (cardWidth + 16),
       behavior: 'smooth'
     })
-    setCurrentIndex(index)
   }
 
   const handleScroll = () => {
@@ -301,14 +308,13 @@ function BannerCarousel() {
     }
   }
 
+  // Desktop navigation functions
   const nextSlide = () => {
-    const newIndex = (currentIndex + 1) % banners.length
-    scrollToIndex(newIndex)
+    setCurrentIndex(prev => (prev + 1) % banners.length)
   }
 
   const prevSlide = () => {
-    const newIndex = (currentIndex - 1 + banners.length) % banners.length
-    scrollToIndex(newIndex)
+    setCurrentIndex(prev => (prev - 1 + banners.length) % banners.length)
   }
 
   return (
@@ -338,14 +344,6 @@ function BannerCarousel() {
               </div>
             </div>
           ))}
-        </div>
-        
-        {/* Mobile navigation arrows */}
-        <div className="absolute top-1/2 left-2 transform -translate-y-1/2">
-          <ArrowButton direction="left" onClick={prevSlide} label="Previous banner" />
-        </div>
-        <div className="absolute top-1/2 right-2 transform -translate-y-1/2">
-          <ArrowButton direction="right" onClick={nextSlide} label="Next banner" />
         </div>
         
         {/* Mobile dots indicator - same as desktop */}
@@ -389,7 +387,7 @@ function BannerCarousel() {
         </div>
         
         <div className="mt-4">
-          <Dots total={banners.length} active={currentIndex} onDot={scrollToIndex} />
+          <Dots total={banners.length} active={currentIndex} onDot={(index) => setCurrentIndex(index)} />
         </div>
       </div>
     </section>
@@ -409,6 +407,7 @@ function FeaturedOpportunities() {
   const scrollerRef = useRef(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const autoPlayRef = useRef()
 
   useEffect(() => {
     const checkIsMobile = () => setIsMobile(window.innerWidth < 768)
@@ -417,14 +416,21 @@ function FeaturedOpportunities() {
     return () => window.removeEventListener('resize', checkIsMobile)
   }, [])
 
-  // Auto-scroll for both mobile & desktop
+  // Auto-scroll for mobile
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % cards.length)
+    const el = scrollerRef.current
+    if (!el || !isMobile) return
+
+    autoPlayRef.current = setInterval(() => {
+      setCurrentIndex(prev => {
+        const newIndex = (prev + 1) % cards.length
+        scrollToIndex(newIndex)
+        return newIndex
+      })
     }, 4000)
 
-    return () => clearInterval(interval)
-  }, [cards.length])
+    return () => clearInterval(autoPlayRef.current)
+  }, [isMobile, cards.length])
 
   const scrollToIndex = (index) => {
     const el = scrollerRef.current
@@ -435,7 +441,6 @@ function FeaturedOpportunities() {
       left: index * (cardWidth + 16),
       behavior: 'smooth'
     })
-    setCurrentIndex(index)
   }
 
   const handleScroll = () => {
@@ -451,14 +456,13 @@ function FeaturedOpportunities() {
     }
   }
 
+  // Desktop navigation functions
   const nextSlide = () => {
-    const newIndex = (currentIndex + 1) % cards.length
-    scrollToIndex(newIndex)
+    setCurrentIndex(prev => (prev + 1) % cards.length)
   }
 
   const prevSlide = () => {
-    const newIndex = (currentIndex - 1 + cards.length) % cards.length
-    scrollToIndex(newIndex)
+    setCurrentIndex(prev => (prev - 1 + cards.length) % cards.length)
   }
 
   return (
@@ -509,14 +513,6 @@ function FeaturedOpportunities() {
           ))}
         </div>
         
-        {/* Mobile navigation arrows */}
-        <div className="absolute top-1/2 left-2 transform -translate-y-1/2">
-          <ArrowButton direction="left" onClick={prevSlide} label="Previous opportunity" />
-        </div>
-        <div className="absolute top-1/2 right-2 transform -translate-y-1/2">
-          <ArrowButton direction="right" onClick={nextSlide} label="Next opportunity" />
-        </div>
-        
         {/* Mobile dots indicator - same as desktop */}
         <div className="mt-3 flex justify-center">
           <Dots total={cards.length} active={currentIndex} onDot={scrollToIndex} />
@@ -554,7 +550,7 @@ function FeaturedOpportunities() {
         </div>
         
         <div className="mt-4">
-          <Dots total={cards.length} active={currentIndex} onDot={scrollToIndex} />
+          <Dots total={cards.length} active={currentIndex} onDot={(index) => setCurrentIndex(index)} />
         </div>
       </div>
     </section>
