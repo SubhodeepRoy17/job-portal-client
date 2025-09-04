@@ -669,37 +669,6 @@ function FeaturedOpportunities() {
   )
 }
 
-function ArrowButton({ direction, onClick, label }) {
-  return (
-    <button 
-      onClick={onClick} 
-      className="rounded-full bg-white p-2 shadow-md transition hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-      aria-label={label}
-    >
-      <svg className={`h-5 w-5 text-gray-900 ${direction === 'left' ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-      </svg>
-    </button>
-  );
-}
-
-function Dots({ total, active, onDot }) {
-  return (
-    <div className="flex gap-1.5">
-      {Array.from({ length: total }).map((_, i) => (
-        <button
-          key={i}
-          onClick={() => onDot(i)}
-          className={`h-2 rounded-full transition-all ${
-            i === active ? 'w-6 bg-indigo-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
-          }`}
-          aria-label={`Go to slide ${i + 1}`}
-        />
-      ))}
-    </div>
-  );
-}
-
 /* Shared horizontal rail with overlay arrows - Hidden on mobile */
 function ScrollRail({ children }) {
   const scrollerRef = useRef(null)
