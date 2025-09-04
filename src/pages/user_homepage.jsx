@@ -243,7 +243,7 @@ function ProfileCompletion({ user }) {
   )
 }
 
-/* 1) Top banner carousel - Horizontal scroll for mobile */
+/* 1) Top banner carousel */
 function BannerCarousel() {
   const banners = useMemo(
     () => [
@@ -262,41 +262,37 @@ function BannerCarousel() {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 768)
     checkIsMobile()
     window.addEventListener('resize', checkIsMobile)
     return () => window.removeEventListener('resize', checkIsMobile)
   }, [])
 
-  // Infinite scroll for mobile
+  // Auto-scroll for both mobile & desktop
   useEffect(() => {
-    if (!isMobile) return
     const el = scrollerRef.current
-    if (!el) return
+    if (!el && isMobile) return
 
     const interval = setInterval(() => {
-      if (el.scrollLeft >= el.scrollWidth / 2) {
-        el.scrollLeft = 0 // reset silently
+      if (isMobile) {
+        if (el.scrollLeft >= el.scrollWidth / 2) {
+          el.scrollLeft = 0
+        }
+        el.scrollBy({ left: el.offsetWidth, behavior: "smooth" })
+      } else {
+        setCurrentIndex(prev => (prev + 1) % banners.length)
       }
-      el.scrollBy({ left: el.offsetWidth, behavior: "smooth" })
     }, 4000)
 
     return () => clearInterval(interval)
-  }, [isMobile])
+  }, [isMobile, banners.length])
 
-  // Desktop navigation
-  const nextSlide = () => {
-    setCurrentIndex(prev => (prev + 1) % banners.length)
-  }
-  const prevSlide = () => {
-    setCurrentIndex(prev => (prev - 1 + banners.length) % banners.length)
-  }
+  const nextSlide = () => setCurrentIndex(prev => (prev + 1) % banners.length)
+  const prevSlide = () => setCurrentIndex(prev => (prev - 1 + banners.length) % banners.length)
 
   return (
     <section className="relative mx-auto w-full">
-      {/* Mobile view - Infinite scroll */}
+      {/* Mobile view */}
       <div className="md:hidden relative">
         <div 
           ref={scrollerRef}
@@ -304,10 +300,7 @@ function BannerCarousel() {
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {[...banners, ...banners].map((b, i) => (
-            <div
-              key={`${b.id}-${i}`}
-              className="banner-card flex-shrink-0 w-[85vw] snap-start"
-            >
+            <div key={`${b.id}-${i}`} className="banner-card flex-shrink-0 w-[85vw] snap-start">
               <div className={`rounded-xl bg-gradient-to-r ${b.color} p-4 text-white h-40 flex items-end`}>
                 <div>
                   <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
@@ -323,14 +316,11 @@ function BannerCarousel() {
         </div>
       </div>
 
-      {/* Desktop view - Navigation */}
+      {/* Desktop view */}
       <div className="hidden md:block relative">
         <div className="flex gap-4 relative">
           {banners.slice(currentIndex, currentIndex + 2).map((b) => (
-            <div
-              key={b.id}
-              className={`flex-shrink-0 w-1/2 rounded-2xl bg-gradient-to-r ${b.color} p-6 text-white h-60 flex items-end`}
-            >
+            <div key={b.id} className={`flex-shrink-0 w-1/2 rounded-2xl bg-gradient-to-r ${b.color} p-6 text-white h-60 flex items-end`}>
               <div>
                 <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
                 <h3 className="text-2xl font-semibold max-w-[28ch] text-pretty">{b.title}</h3>
@@ -343,23 +333,23 @@ function BannerCarousel() {
           ))}
         </div>
         
-        {/* Desktop navigation arrows */}
+        {/* Arrows */}
         <div className="absolute top-1/2 -translate-y-1/2 left-0 -translate-x-4">
-          <ArrowButton direction="left" onClick={prevSlide} label="Previous banner" />
+          <ArrowButton direction="left" onClick={prevSlide} />
         </div>
         <div className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-4">
-          <ArrowButton direction="right" onClick={nextSlide} label="Next banner" />
+          <ArrowButton direction="right" onClick={nextSlide} />
         </div>
         
         <div className="mt-4">
-          <Dots total={banners.length} active={currentIndex} onDot={(index) => setCurrentIndex(index)} />
+          <Dots total={banners.length} active={currentIndex} onDot={setCurrentIndex} />
         </div>
       </div>
     </section>
   )
 }
 
-/* 2) Featured Opportunities with Horizontal scroll for mobile */
+/* 2) Featured Opportunities */
 function FeaturedOpportunities() {
   const cards = [
     { id: 1, badge: "Online", badge2: "Free", title: "Win dream internships with TATA Group!", desc: "Curious minds, here's your time to shine!", stats: "22,660 Registered", time: "1 month left", color: "from-fuchsia-500 to-pink-400" },
@@ -375,31 +365,31 @@ function FeaturedOpportunities() {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 768)
     checkIsMobile()
     window.addEventListener('resize', checkIsMobile)
     return () => window.removeEventListener('resize', checkIsMobile)
   }, [])
 
-  // Infinite scroll for mobile
+  // Auto-scroll for both mobile & desktop
   useEffect(() => {
-    if (!isMobile) return
     const el = scrollerRef.current
-    if (!el) return
+    if (!el && isMobile) return
 
     const interval = setInterval(() => {
-      if (el.scrollLeft >= el.scrollWidth / 2) {
-        el.scrollLeft = 0
+      if (isMobile) {
+        if (el.scrollLeft >= el.scrollWidth / 2) {
+          el.scrollLeft = 0
+        }
+        el.scrollBy({ left: el.offsetWidth, behavior: "smooth" })
+      } else {
+        setCurrentIndex(prev => (prev + 1) % cards.length)
       }
-      el.scrollBy({ left: el.offsetWidth, behavior: "smooth" })
     }, 4000)
 
     return () => clearInterval(interval)
-  }, [isMobile])
+  }, [isMobile, cards.length])
 
-  // Desktop navigation
   const nextSlide = () => setCurrentIndex(prev => (prev + 1) % cards.length)
   const prevSlide = () => setCurrentIndex(prev => (prev - 1 + cards.length) % cards.length)
 
@@ -418,31 +408,19 @@ function FeaturedOpportunities() {
         </div>
       </div>
 
-      {/* Mobile view - Infinite scroll */}
+      {/* Mobile view */}
       <div className="md:hidden relative">
         <div 
           ref={scrollerRef}
           className="flex overflow-x-auto scrollbar-hide gap-4 pb-4 snap-x snap-mandatory no-scrollbar"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {[...cards, ...cards].map((c, i) => (
-            <article
-              key={`${c.id}-${i}`}
-              className="opportunity-card flex-shrink-0 w-[85vw] snap-start"
-            >
+            <article key={`${c.id}-${i}`} className="opportunity-card flex-shrink-0 w-[85vw] snap-start">
               <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
                 <div className={`h-32 bg-gradient-to-r ${c.color} p-3`}>
                   <div className="flex gap-1.5">
-                    {c.badge && (
-                      <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
-                        {c.badge}
-                      </span>
-                    )}
-                    {c.badge2 && (
-                      <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
-                        {c.badge2}
-                      </span>
-                    )}
+                    {c.badge && <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900">{c.badge}</span>}
+                    {c.badge2 && <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900">{c.badge2}</span>}
                   </div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -467,16 +445,8 @@ function FeaturedOpportunities() {
               <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
                 <div className={`h-40 bg-gradient-to-r ${c.color} p-3`}>
                   <div className="flex gap-2">
-                    {c.badge && (
-                      <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
-                        {c.badge}
-                      </span>
-                    )}
-                    {c.badge2 && (
-                      <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
-                        {c.badge2}
-                      </span>
-                    )}
+                    {c.badge && <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900">{c.badge}</span>}
+                    {c.badge2 && <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900">{c.badge2}</span>}
                   </div>
                 </div>
                 <div className="space-y-2 p-4">
@@ -491,9 +461,8 @@ function FeaturedOpportunities() {
             </div>
           ))}
         </div>
-        
         <div className="mt-4">
-          <Dots total={cards.length} active={currentIndex} onDot={(index) => setCurrentIndex(index)} />
+          <Dots total={cards.length} active={currentIndex} onDot={setCurrentIndex} />
         </div>
       </div>
     </section>
