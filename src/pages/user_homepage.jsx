@@ -275,7 +275,7 @@ function BannerCarousel() {
     }
   }, [])
 
-  // Auto-scroll for both mobile and desktop - 4 seconds, infinite clockwise (always forward)
+  // Auto-scroll for both mobile and desktop - infinite loop
   useEffect(() => {
     autoPlayRef.current = setInterval(() => {
       setCurrentIndex(prev => {
@@ -360,10 +360,16 @@ function BannerCarousel() {
       {/* Desktop view - Horizontal layout with navigation */}
       <div className="hidden md:block relative">
         <div className="flex gap-4 relative">
-          {banners.slice(currentIndex, currentIndex + 2).map((b) => (
+          {[
+            banners[currentIndex % banners.length],
+            banners[(currentIndex + 1) % banners.length]
+          ].map((b) => (
             <div
               key={b.id}
-              className={`flex-shrink-0 w-1/2 rounded-2xl bg-gradient-to-r ${b.color} p-6 text-white h-60 flex items-end`}
+              className="flex-shrink-0 w-1/2 rounded-2xl bg-gradient-to-r p-6 text-white h-60 flex items-end"
+              style={{ 
+                background: `linear-gradient(to right, ${b.color.split(' ')[0].replace('from-', '')}, ${b.color.split(' ')[1].replace('to-', '')})`
+              }}
             >
               <div>
                 <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
@@ -476,7 +482,7 @@ function FeaturedOpportunities() {
     }
   }, [])
 
-  // Auto-scroll for mobile - 4 seconds, infinite clockwise (always forward)
+  // Auto-scroll for mobile - infinite loop
   useEffect(() => {
     if (!isMobile) return
 
@@ -518,7 +524,9 @@ function FeaturedOpportunities() {
   const nextSlide = () => {
     setCurrentIndex(prev => {
       const newIndex = (prev + 1) % cards.length
-      scrollToIndex(newIndex)
+      if (isMobile) {
+        scrollToIndex(newIndex)
+      }
       return newIndex
     })
   }
@@ -526,7 +534,9 @@ function FeaturedOpportunities() {
   const prevSlide = () => {
     setCurrentIndex(prev => {
       const newIndex = (prev - 1 + cards.length) % cards.length
-      scrollToIndex(newIndex)
+      if (isMobile) {
+        scrollToIndex(newIndex)
+      }
       return newIndex
     })
   }
@@ -592,37 +602,50 @@ function FeaturedOpportunities() {
         </div>
       </div>
 
-      {/* Desktop view - Grid layout */}
-      <div className="hidden md:grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.slice(0, 4).map((c) => (
-          <article
-            key={c.id}
-            className="overflow-hidden rounded-xl md:rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
-          >
-            <div className={`h-32 md:h-40 bg-gradient-to-r ${c.color} p-3`}>
-              <div className="flex gap-1.5 md:gap-2">
-                {c.badge && (
-                  <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
-                    {c.badge}
-                  </span>
-                )}
-                {c.badge2 && (
-                  <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
-                    {c.badge2}
-                  </span>
-                )}
-              </div>
+      {/* Desktop view - Infinite carousel */}
+      <div className="hidden md:block relative">
+        <div className="flex gap-4 relative">
+          {[
+            cards[currentIndex % cards.length],
+            cards[(currentIndex + 1) % cards.length],
+            cards[(currentIndex + 2) % cards.length],
+            cards[(currentIndex + 3) % cards.length]
+          ].map((c, i) => (
+            <div
+              key={`${c.id}-${i}`}
+              className="flex-shrink-0 w-1/4"
+            >
+              <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
+                <div className={`h-40 bg-gradient-to-r ${c.color} p-3`}>
+                  <div className="flex gap-2">
+                    {c.badge && (
+                      <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+                        {c.badge}
+                      </span>
+                    )}
+                    {c.badge2 && (
+                      <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+                        {c.badge2}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-2 p-4">
+                  <h3 className="text-base font-semibold text-gray-900">{c.title}</h3>
+                  <p className="text-sm text-gray-600">{c.desc}</p>
+                  <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+                    <span>{c.stats}</span>
+                    <span>{c.time}</span>
+                  </div>
+                </div>
+              </article>
             </div>
-            <div className="space-y-2 p-3 md:p-4">
-              <h3 className="text-sm md:text-base font-semibold text-gray-900">{c.title}</h3>
-              <p className="text-xs md:text-sm text-gray-600">{c.desc}</p>
-              <div className="mt-2 md:mt-3 flex items-center justify-between text-xs text-gray-500">
-                <span>{c.stats}</span>
-                <span>{c.time}</span>
-              </div>
-            </div>
-          </article>
-        ))}
+          ))}
+        </div>
+        
+        <div className="mt-4">
+          <Dots total={cards.length} active={currentIndex} onDot={(index) => setCurrentIndex(index)} />
+        </div>
       </div>
     </section>
   )
