@@ -243,39 +243,22 @@ function ProfileCompletion({ user }) {
   )
 }
 
-/* 1) Top banner carousel (two banners side-by-side) + Featured Opportunities */
+/* 1) Top banner carousel - Horizontal scroll for mobile */
 function BannerCarousel() {
-  // For mobile, we'll show one banner at a time, for desktop two side-by-side
-  const slides = useMemo(
+  const banners = useMemo(
     () => [
-      // Mobile slides (single banners)
-      [
-        { id: "a1", color: "from-slate-900 to-indigo-900", title: "Hiring Challenge Season 4", cta: "Register Now" },
-      ],
-      [
-        { id: "a2", color: "from-emerald-500 to-teal-400", title: "Where can your imagination take you?", cta: "Registration" },
-      ],
-      [
-        { id: "b1", color: "from-fuchsia-600 to-rose-500", title: "CodeFest 2025", cta: "Join" },
-      ],
-      [
-        { id: "b2", color: "from-blue-600 to-cyan-500", title: "Designathon", cta: "Apply" },
-      ],
-      // Desktop slides (two banners side-by-side)
-      [
-        { id: "a1", color: "from-slate-900 to-indigo-900", title: "Hiring Challenge Season 4", cta: "Register Now" },
-        { id: "a2", color: "from-emerald-500 to-teal-400", title: "Where can your imagination take you?", cta: "Registration" },
-      ],
-      [
-        { id: "b1", color: "from-fuchsia-600 to-rose-500", title: "CodeFest 2025", cta: "Join" },
-        { id: "b2", color: "from-blue-600 to-cyan-500", title: "Designathon", cta: "Apply" },
-      ],
+      { id: "a1", color: "from-slate-900 to-indigo-900", title: "Hiring Challenge Season 4", cta: "Register Now" },
+      { id: "a2", color: "from-emerald-500 to-teal-400", title: "Where can your imagination take you?", cta: "Registration" },
+      { id: "b1", color: "from-fuchsia-600 to-rose-500", title: "CodeFest 2025", cta: "Join" },
+      { id: "b2", color: "from-blue-600 to-cyan-500", title: "Designathon", cta: "Apply" },
     ],
     [],
   )
   
-  const [index, setIndex] = useState(0)
+  const scrollerRef = useRef(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const autoPlayRef = useRef()
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -290,55 +273,101 @@ function BannerCarousel() {
     }
   }, [])
 
-  const mobileSlidesCount = 4 // Number of mobile slides
-  const desktopSlidesCount = 2 // Number of desktop slides
-  
-  const currentSlides = isMobile ? slides.slice(0, mobileSlidesCount) : slides.slice(mobileSlidesCount)
-  const currentSlidesCount = isMobile ? mobileSlidesCount : desktopSlidesCount
+  // Auto-scroll for mobile
+  useEffect(() => {
+    if (!isMobile) return
 
-  const prev = () => setIndex((i) => (i - 1 + currentSlidesCount) % currentSlidesCount)
-  const next = () => setIndex((i) => (i + 1) % currentSlidesCount)
+    autoPlayRef.current = setInterval(() => {
+      setCurrentIndex(prev => {
+        const newIndex = (prev + 1) % banners.length
+        scrollToIndex(newIndex)
+        return newIndex
+      })
+    }, 2000)
+
+    return () => clearInterval(autoPlayRef.current)
+  }, [isMobile, banners.length])
+
+  const scrollToIndex = (index) => {
+    const el = scrollerRef.current
+    if (!el) return
+    
+    const cardWidth = el.querySelector('.banner-card')?.offsetWidth || 0
+    el.scrollTo({
+      left: index * (cardWidth + 16), // cardWidth + gap
+      behavior: 'smooth'
+    })
+  }
+
+  const handleScroll = () => {
+    const el = scrollerRef.current
+    if (!el) return
+    
+    const scrollPosition = el.scrollLeft
+    const cardWidth = el.querySelector('.banner-card')?.offsetWidth || 0
+    const newIndex = Math.round(scrollPosition / (cardWidth + 16))
+    
+    if (newIndex !== currentIndex) {
+      setCurrentIndex(newIndex)
+    }
+  }
 
   return (
     <section className="relative mx-auto w-full">
-      <div className="relative grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-        {currentSlides[index].map((b) => (
+      {/* Mobile view - Horizontal scroll */}
+      <div className="md:hidden relative">
+        <div 
+          ref={scrollerRef}
+          className="flex overflow-x-auto scrollbar-hide gap-4 pb-4 snap-x snap-mandatory"
+          onScroll={handleScroll}
+        >
+          {banners.map((b) => (
+            <div
+              key={b.id}
+              className="banner-card flex-shrink-0 w-[85vw] snap-start"
+            >
+              <div className={`rounded-xl bg-gradient-to-r ${b.color} p-4 text-white h-40 flex items-end`}>
+                <div>
+                  <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
+                  <h3 className="text-lg font-semibold max-w-[28ch] text-pretty">{b.title}</h3>
+                  <button className="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-900">
+                    {b.cta}
+                    <Chevron className="h-3 w-3 text-gray-900" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div className="mt-3">
+          <Dots total={banners.length} active={currentIndex} onDot={(index) => scrollToIndex(index)} />
+        </div>
+      </div>
+
+      {/* Desktop view - two banners vertically */}
+      <div className="hidden md:grid grid-cols-1 gap-4">
+        {banners.slice(0, 2).map((b) => (
           <div
             key={b.id}
-            className={`rounded-xl md:rounded-2xl bg-gradient-to-r ${b.color} p-4 md:p-6 text-white h-40 md:h-60 lg:h-64 flex items-end`}
+            className={`rounded-2xl bg-gradient-to-r ${b.color} p-6 text-white h-60 flex items-end`}
           >
             <div>
               <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
-              <h3 className="text-lg md:text-2xl font-semibold max-w-[28ch] text-pretty">{b.title}</h3>
-              <button className="mt-2 md:mt-3 inline-flex items-center gap-1 md:gap-2 rounded-full bg-white px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-gray-900">
+              <h3 className="text-2xl font-semibold max-w-[28ch] text-pretty">{b.title}</h3>
+              <button className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900">
                 {b.cta}
-                <Chevron className="h-3 w-3 md:h-4 md:w-4 text-gray-900" />
+                <Chevron className="h-4 w-4 text-gray-900" />
               </button>
             </div>
           </div>
         ))}
       </div>
-
-      {/* Hide arrows on mobile */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 hidden md:flex items-center pl-1 md:pl-2 md:-left-6">
-        <div className="pointer-events-auto">
-          <ArrowButton direction="left" onClick={prev} />
-        </div>
-      </div>
-      <div className="pointer-events-none absolute inset-y-0 right-0 hidden md:flex items-center pr-1 md:pr-2 md:-right-6">
-        <div className="pointer-events-auto">
-          <ArrowButton direction="right" onClick={next} />
-        </div>
-      </div>
-
-      <div className="mt-3 md:mt-4">
-        <Dots total={currentSlidesCount} active={index} onDot={setIndex} />
-      </div>
     </section>
   )
 }
 
-/* Featured Opportunities with Carousel Effect */
+/* Featured Opportunities with Horizontal scroll for mobile */
 function FeaturedOpportunities() {
   const cards = [
     {
@@ -403,63 +432,84 @@ function FeaturedOpportunities() {
     },
   ]
 
+  const scrollerRef = useRef(null)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const autoPlayRef = useRef()
 
-  // Number of cards to show based on screen size
-  const getCardsToShow = () => {
-    if (typeof window === 'undefined') return 4
-    if (window.innerWidth < 640) return 1
-    if (window.innerWidth < 1024) return 2
-    return 4
-  }
-
-  const [cardsToShow, setCardsToShow] = useState(getCardsToShow())
-  
   useEffect(() => {
-    const handleResize = () => {
-      setCardsToShow(getCardsToShow())
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768)
     }
     
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    checkIsMobile()
+    window.addEventListener('resize', checkIsMobile)
+    
+    return () => {
+      window.removeEventListener('resize', checkIsMobile)
+    }
   }, [])
 
-  const totalSlides = Math.ceil(cards.length / cardsToShow)
-
+  // Auto-scroll for mobile
   useEffect(() => {
-    if (!isAutoPlaying) return
+    if (!isMobile || !isAutoPlaying) return
 
     autoPlayRef.current = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % totalSlides)
-    }, 5000)
+      setCurrentIndex(prev => {
+        const newIndex = (prev + 1) % cards.length
+        scrollToIndex(newIndex)
+        return newIndex
+      })
+    }, 2000)
 
     return () => clearInterval(autoPlayRef.current)
-  }, [isAutoPlaying, totalSlides])
+  }, [isMobile, isAutoPlaying, cards.length])
+
+  const scrollToIndex = (index) => {
+    const el = scrollerRef.current
+    if (!el) return
+    
+    const cardWidth = el.querySelector('.opportunity-card')?.offsetWidth || 0
+    el.scrollTo({
+      left: index * (cardWidth + 16), // cardWidth + gap
+      behavior: 'smooth'
+    })
+  }
+
+  const handleScroll = () => {
+    const el = scrollerRef.current
+    if (!el) return
+    
+    const scrollPosition = el.scrollLeft
+    const cardWidth = el.querySelector('.opportunity-card')?.offsetWidth || 0
+    const newIndex = Math.round(scrollPosition / (cardWidth + 16))
+    
+    if (newIndex !== currentIndex) {
+      setCurrentIndex(newIndex)
+      setIsAutoPlaying(false)
+      setTimeout(() => setIsAutoPlaying(true), 5000)
+    }
+  }
 
   const nextSlide = () => {
     setIsAutoPlaying(false)
-    setCurrentIndex(prev => (prev + 1) % totalSlides)
-    setTimeout(() => setIsAutoPlaying(true), 10000)
+    setCurrentIndex(prev => {
+      const newIndex = (prev + 1) % cards.length
+      scrollToIndex(newIndex)
+      return newIndex
+    })
+    setTimeout(() => setIsAutoPlaying(true), 5000)
   }
 
   const prevSlide = () => {
     setIsAutoPlaying(false)
-    setCurrentIndex(prev => (prev - 1 + totalSlides) % totalSlides)
-    setTimeout(() => setIsAutoPlaying(true), 10000)
-  }
-
-  const goToSlide = (index) => {
-    setIsAutoPlaying(false)
-    setCurrentIndex(index)
-    setTimeout(() => setIsAutoPlaying(true), 10000)
-  }
-
-  // Get current slide cards
-  const getCurrentSlideCards = () => {
-    const start = currentIndex * cardsToShow
-    return cards.slice(start, start + cardsToShow)
+    setCurrentIndex(prev => {
+      const newIndex = (prev - 1 + cards.length) % cards.length
+      scrollToIndex(newIndex)
+      return newIndex
+    })
+    setTimeout(() => setIsAutoPlaying(true), 5000)
   }
 
   return (
@@ -477,70 +527,131 @@ function FeaturedOpportunities() {
         </div>
       </div>
 
-      <div className="relative overflow-hidden">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 transition-transform duration-500 ease-in-out">
-          {getCurrentSlideCards().map((c) => (
+      {/* Mobile view - Horizontal scroll */}
+      <div className="md:hidden relative">
+        <div 
+          ref={scrollerRef}
+          className="flex overflow-x-auto scrollbar-hide gap-4 pb-4 snap-x snap-mandatory"
+          onScroll={handleScroll}
+        >
+          {cards.map((c) => (
             <article
               key={c.id}
-              className="overflow-hidden rounded-xl md:rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
+              className="opportunity-card flex-shrink-0 w-[85vw] snap-start"
             >
-              <div className={`h-32 md:h-40 bg-gradient-to-r ${c.color} p-3`}>
-                <div className="flex gap-1.5 md:gap-2">
-                  {c.badge && (
-                    <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
-                      {c.badge}
-                    </span>
-                  )}
-                  {c.badge2 && (
-                    <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
-                      {c.badge2}
-                    </span>
-                  )}
+              <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
+                <div className={`h-32 bg-gradient-to-r ${c.color} p-3`}>
+                  <div className="flex gap-1.5">
+                    {c.badge && (
+                      <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+                        {c.badge}
+                      </span>
+                    )}
+                    {c.badge2 && (
+                      <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+                        {c.badge2}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2 p-3 md:p-4">
-                <h3 className="text-sm md:text-base font-semibold text-gray-900">{c.title}</h3>
-                <p className="text-xs md:text-sm text-gray-600">{c.desc}</p>
-                <div className="mt-2 md:mt-3 flex items-center justify-between text-xs text-gray-500">
-                  <span>{c.stats}</span>
-                  <span>{c.time}</span>
+                <div className="space-y-2 p-3">
+                  <h3 className="text-sm font-semibold text-gray-900">{c.title}</h3>
+                  <p className="text-xs text-gray-600">{c.desc}</p>
+                  <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                    <span>{c.stats}</span>
+                    <span>{c.time}</span>
+                  </div>
                 </div>
               </div>
             </article>
           ))}
         </div>
+        
+        <div className="mt-3">
+          <Dots total={cards.length} active={currentIndex} onDot={(index) => scrollToIndex(index)} />
+        </div>
       </div>
 
-      <div className="mt-4 md:mt-6">
-        <Dots total={totalSlides} active={currentIndex} onDot={goToSlide} />
+      {/* Desktop view - Grid layout */}
+      <div className="hidden md:grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {cards.slice(0, 4).map((c) => (
+          <article
+            key={c.id}
+            className="overflow-hidden rounded-xl md:rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
+          >
+            <div className={`h-32 md:h-40 bg-gradient-to-r ${c.color} p-3`}>
+              <div className="flex gap-1.5 md:gap-2">
+                {c.badge && (
+                  <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+                    {c.badge}
+                  </span>
+                )}
+                {c.badge2 && (
+                  <span className="rounded-md bg-white/90 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+                    {c.badge2}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2 p-3 md:p-4">
+              <h3 className="text-sm md:text-base font-semibold text-gray-900">{c.title}</h3>
+              <p className="text-xs md:text-sm text-gray-600">{c.desc}</p>
+              <div className="mt-2 md:mt-3 flex items-center justify-between text-xs text-gray-500">
+                <span>{c.stats}</span>
+                <span>{c.time}</span>
+              </div>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   )
 }
 
-/* Shared horizontal rail with overlay arrows */
+/* Shared horizontal rail with overlay arrows - Hidden on mobile */
 function ScrollRail({ children }) {
   const scrollerRef = useRef(null)
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkIsMobile()
+    window.addEventListener('resize', checkIsMobile)
+    
+    return () => {
+      window.removeEventListener('resize', checkIsMobile)
+    }
+  }, [])
+  
   const scrollBy = (amount) => {
     const el = scrollerRef.current
     if (!el) return
     el.scrollBy({ left: amount, behavior: "smooth" })
   }
+  
   return (
     <div className="relative">
       <div ref={scrollerRef} className="scroll-smooth overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none]">
         <div className="flex min-w-full gap-4 md:gap-6 pb-2">{children}</div>
       </div>
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center">
-        <div className="pointer-events-auto -ml-2 md:-ml-3">
-          <ArrowButton direction="left" onClick={() => scrollBy(-300)} />
-        </div>
-      </div>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center">
-        <div className="pointer-events-auto -mr-2 md:-mr-3">
-          <ArrowButton direction="right" onClick={() => scrollBy(300)} />
-        </div>
-      </div>
+      {/* Hide arrows on mobile */}
+      {!isMobile && (
+        <>
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center">
+            <div className="pointer-events-auto -ml-2 md:-ml-3">
+              <ArrowButton direction="left" onClick={() => scrollBy(-300)} />
+            </div>
+          </div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center">
+            <div className="pointer-events-auto -mr-2 md:-mr-3">
+              <ArrowButton direction="right" onClick={() => scrollBy(300)} />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
