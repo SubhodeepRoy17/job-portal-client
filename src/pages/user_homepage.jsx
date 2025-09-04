@@ -359,6 +359,17 @@ function BannerCarousel() {
     setCurrentIndex(prev => (prev - 1 + banners.length) % banners.length)
   }
 
+  // Auto-scroll for desktop
+  useEffect(() => {
+    if (isMobile) return; // Skip if mobile
+    
+    autoPlayRef.current = setInterval(() => {
+      nextSlide();
+    }, 4000)
+
+    return () => clearInterval(autoPlayRef.current)
+  }, [isMobile])
+
   return (
     <section className="relative mx-auto w-full">
       {/* Mobile view */}
@@ -559,6 +570,17 @@ function FeaturedOpportunities() {
   const prevSlide = () => {
     setCurrentIndex(prev => (prev - 1 + cards.length) % cards.length)
   }
+
+  // Auto-scroll for desktop
+  useEffect(() => {
+    if (isMobile) return; // Skip if mobile
+    
+    autoPlayRef.current = setInterval(() => {
+      nextSlide();
+    }, 4000)
+
+    return () => clearInterval(autoPlayRef.current)
+  }, [isMobile, currentIndex]) // Added currentIndex to dependencies
 
   return (
     <section className="relative rounded-xl md:rounded-3xl bg-gradient-to-b from-white to-gray-50 p-4 md:p-6 lg:p-8">
