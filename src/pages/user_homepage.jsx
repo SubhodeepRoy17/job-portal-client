@@ -1038,7 +1038,7 @@ function TopMentors() {
 
             <div className="relative -mt-8 px-4 pb-4">
               {/* Profile image */}
-              <div className="mx-auto mb-3 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-gray-100">
+              <div className="mx-auto mb-3 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-100">
                 <img
                   src={mentor.image || "/placeholder.svg"}
                   alt={mentor.name}
