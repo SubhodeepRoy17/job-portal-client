@@ -913,7 +913,7 @@ function ListingCard({ item }) {
         <img
           src="https://bluestock.in/static/assets/logo/logo-android.webp"
           alt="logo"
-          className="absolute right-2 top-2 md:right-3 md:top-3 w-8 h-8 md:w-10 md:h-10 rounded-md bg-white p-1 shadow-sm"
+          className="absolute right-2 top-2 md:right-3 md:top-3 w-12 h-12 md:w-14 md:h-14 rounded-lg bg-white p-1.5 shadow-md"
         />
       </div>
 
