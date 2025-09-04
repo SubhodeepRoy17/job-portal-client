@@ -275,7 +275,7 @@ function BannerCarousel() {
     }
   }, [])
 
-  // Auto-scroll for both mobile and desktop - 4 seconds, infinite clockwise
+  // Auto-scroll for both mobile and desktop - 4 seconds, infinite clockwise (always forward)
   useEffect(() => {
     autoPlayRef.current = setInterval(() => {
       setCurrentIndex(prev => {
@@ -476,7 +476,7 @@ function FeaturedOpportunities() {
     }
   }, [])
 
-  // Auto-scroll for mobile - 4 seconds, infinite clockwise
+  // Auto-scroll for mobile - 4 seconds, infinite clockwise (always forward)
   useEffect(() => {
     if (!isMobile) return
 
