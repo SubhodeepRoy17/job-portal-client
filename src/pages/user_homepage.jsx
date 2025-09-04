@@ -260,82 +260,52 @@ function BannerCarousel() {
   const scrollerRef = useRef(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
-  const autoPlayRef = useRef()
 
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
-    
     checkIsMobile()
     window.addEventListener('resize', checkIsMobile)
-    
-    return () => {
-      window.removeEventListener('resize', checkIsMobile)
-    }
+    return () => window.removeEventListener('resize', checkIsMobile)
   }, [])
 
-  // Auto-scroll for both mobile and desktop - 4 seconds, infinite clockwise (always forward)
+  // Infinite scroll for mobile
   useEffect(() => {
-    autoPlayRef.current = setInterval(() => {
-      setCurrentIndex(prev => {
-        const newIndex = (prev + 1) % banners.length
-        if (isMobile) {
-          scrollToIndex(newIndex)
-        }
-        return newIndex
-      })
+    if (!isMobile) return
+    const el = scrollerRef.current
+    if (!el) return
+
+    const interval = setInterval(() => {
+      if (el.scrollLeft >= el.scrollWidth / 2) {
+        el.scrollLeft = 0 // reset silently
+      }
+      el.scrollBy({ left: el.offsetWidth, behavior: "smooth" })
     }, 4000)
 
-    return () => clearInterval(autoPlayRef.current)
-  }, [isMobile, banners.length])
+    return () => clearInterval(interval)
+  }, [isMobile])
 
-  const scrollToIndex = (index) => {
-    const el = scrollerRef.current
-    if (!el) return
-    
-    const cardWidth = el.querySelector('.banner-card')?.offsetWidth || 0
-    el.scrollTo({
-      left: index * (cardWidth + 16), // cardWidth + gap
-      behavior: 'smooth'
-    })
-  }
-
-  const handleScroll = () => {
-    const el = scrollerRef.current
-    if (!el) return
-    
-    const scrollPosition = el.scrollLeft
-    const cardWidth = el.querySelector('.banner-card')?.offsetWidth || 0
-    const newIndex = Math.round(scrollPosition / (cardWidth + 16))
-    
-    if (newIndex !== currentIndex) {
-      setCurrentIndex(newIndex)
-    }
-  }
-
-  // Desktop navigation functions
+  // Desktop navigation
   const nextSlide = () => {
     setCurrentIndex(prev => (prev + 1) % banners.length)
   }
-
   const prevSlide = () => {
     setCurrentIndex(prev => (prev - 1 + banners.length) % banners.length)
   }
 
   return (
     <section className="relative mx-auto w-full">
-      {/* Mobile view - Horizontal scroll */}
+      {/* Mobile view - Infinite scroll */}
       <div className="md:hidden relative">
         <div 
           ref={scrollerRef}
           className="flex overflow-x-auto scrollbar-hide gap-4 pb-4 snap-x snap-mandatory no-scrollbar"
-          onScroll={handleScroll}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {banners.map((b) => (
+          {[...banners, ...banners].map((b, i) => (
             <div
-              key={b.id}
+              key={`${b.id}-${i}`}
               className="banner-card flex-shrink-0 w-[85vw] snap-start"
             >
               <div className={`rounded-xl bg-gradient-to-r ${b.color} p-4 text-white h-40 flex items-end`}>
@@ -351,13 +321,9 @@ function BannerCarousel() {
             </div>
           ))}
         </div>
-        
-        <div className="mt-3">
-          <Dots total={banners.length} active={currentIndex} onDot={(index) => scrollToIndex(index)} />
-        </div>
       </div>
 
-      {/* Desktop view - Horizontal layout with navigation */}
+      {/* Desktop view - Navigation */}
       <div className="hidden md:block relative">
         <div className="flex gap-4 relative">
           {banners.slice(currentIndex, currentIndex + 2).map((b) => (
@@ -393,153 +359,55 @@ function BannerCarousel() {
   )
 }
 
-/* Featured Opportunities with Horizontal scroll for mobile */
+/* 2) Featured Opportunities with Horizontal scroll for mobile */
 function FeaturedOpportunities() {
   const cards = [
-    {
-      id: 1,
-      badge: "Online",
-      badge2: "Free",
-      title: "Win dream internships with TATA Group!",
-      desc: "Curious minds, here's your time to shine!",
-      stats: "22,660 Registered",
-      time: "1 month left",
-      color: "from-fuchsia-500 to-pink-400",
-    },
-    {
-      id: 2,
-      badge: "Online",
-      badge2: "Free",
-      title: "Win Cash Prizes worth upto INR 1.8 Lakhs",
-      desc: "Aspire 2.0 by HDFC Life",
-      stats: "14 Registered",
-      time: "18 days left",
-      color: "from-rose-400 to-orange-300",
-    },
-    {
-      id: 3,
-      badge: "Online",
-      badge2: "Free",
-      title: "UST D3CODE 2025",
-      desc: "UST Hackathon",
-      stats: "21,519 Registered",
-      time: "7 days left",
-      color: "from-indigo-500 to-blue-400",
-    },
-    {
-      id: 4,
-      badge: "Festival",
-      badge2: null,
-      title: "Meesho DICE Challenge 2.0",
-      desc: "Compete with the sharpest minds",
-      stats: "1,342 Registered",
-      time: "—",
-      color: "from-amber-400 to-yellow-300",
-    },
-    {
-      id: 5,
-      badge: "Hackathon",
-      badge2: "Prize",
-      title: "AI Innovation Challenge 2025",
-      desc: "Build the next big AI solution",
-      stats: "5,230 Registered",
-      time: "12 days left",
-      color: "from-purple-500 to-blue-400",
-    },
-    {
-      id: 6,
-      badge: "Competition",
-      badge2: "Scholarship",
-      title: "National Coding Championship",
-      desc: "Showcase your coding skills",
-      stats: "18,450 Registered",
-      time: "25 days left",
-      color: "from-green-500 to-teal-400",
-    },
+    { id: 1, badge: "Online", badge2: "Free", title: "Win dream internships with TATA Group!", desc: "Curious minds, here's your time to shine!", stats: "22,660 Registered", time: "1 month left", color: "from-fuchsia-500 to-pink-400" },
+    { id: 2, badge: "Online", badge2: "Free", title: "Win Cash Prizes worth upto INR 1.8 Lakhs", desc: "Aspire 2.0 by HDFC Life", stats: "14 Registered", time: "18 days left", color: "from-rose-400 to-orange-300" },
+    { id: 3, badge: "Online", badge2: "Free", title: "UST D3CODE 2025", desc: "UST Hackathon", stats: "21,519 Registered", time: "7 days left", color: "from-indigo-500 to-blue-400" },
+    { id: 4, badge: "Festival", badge2: null, title: "Meesho DICE Challenge 2.0", desc: "Compete with the sharpest minds", stats: "1,342 Registered", time: "—", color: "from-amber-400 to-yellow-300" },
+    { id: 5, badge: "Hackathon", badge2: "Prize", title: "AI Innovation Challenge 2025", desc: "Build the next big AI solution", stats: "5,230 Registered", time: "12 days left", color: "from-purple-500 to-blue-400" },
+    { id: 6, badge: "Competition", badge2: "Scholarship", title: "National Coding Championship", desc: "Showcase your coding skills", stats: "18,450 Registered", time: "25 days left", color: "from-green-500 to-teal-400" },
   ]
 
   const scrollerRef = useRef(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
-  const autoPlayRef = useRef()
 
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
-    
     checkIsMobile()
     window.addEventListener('resize', checkIsMobile)
-    
-    return () => {
-      window.removeEventListener('resize', checkIsMobile)
-    }
+    return () => window.removeEventListener('resize', checkIsMobile)
   }, [])
 
-  // Auto-scroll for mobile - infinite loop
+  // Infinite scroll for mobile
   useEffect(() => {
     if (!isMobile) return
+    const el = scrollerRef.current
+    if (!el) return
 
-    autoPlayRef.current = setInterval(() => {
-      setCurrentIndex(prev => {
-        const newIndex = (prev + 1) % cards.length
-        scrollToIndex(newIndex)
-        return newIndex
-      })
+    const interval = setInterval(() => {
+      if (el.scrollLeft >= el.scrollWidth / 2) {
+        el.scrollLeft = 0
+      }
+      el.scrollBy({ left: el.offsetWidth, behavior: "smooth" })
     }, 4000)
 
-    return () => clearInterval(autoPlayRef.current)
-  }, [isMobile, cards.length])
+    return () => clearInterval(interval)
+  }, [isMobile])
 
-  const scrollToIndex = (index) => {
-    const el = scrollerRef.current
-    if (!el) return
-    
-    const cardWidth = el.querySelector('.opportunity-card')?.offsetWidth || 0
-    el.scrollTo({
-      left: index * (cardWidth + 16), // cardWidth + gap
-      behavior: 'smooth'
-    })
-  }
-
-  const handleScroll = () => {
-    const el = scrollerRef.current
-    if (!el) return
-    
-    const scrollPosition = el.scrollLeft
-    const cardWidth = el.querySelector('.opportunity-card')?.offsetWidth || 0
-    const newIndex = Math.round(scrollPosition / (cardWidth + 16))
-    
-    if (newIndex !== currentIndex) {
-      setCurrentIndex(newIndex)
-    }
-  }
-
-  const nextSlide = () => {
-    setCurrentIndex(prev => {
-      const newIndex = (prev + 1) % cards.length
-      if (isMobile) {
-        scrollToIndex(newIndex)
-      }
-      return newIndex
-    })
-  }
-
-  const prevSlide = () => {
-    setCurrentIndex(prev => {
-      const newIndex = (prev - 1 + cards.length) % cards.length
-      if (isMobile) {
-        scrollToIndex(newIndex)
-      }
-      return newIndex
-    })
-  }
+  // Desktop navigation
+  const nextSlide = () => setCurrentIndex(prev => (prev + 1) % cards.length)
+  const prevSlide = () => setCurrentIndex(prev => (prev - 1 + cards.length) % cards.length)
 
   return (
     <section className="relative rounded-xl md:rounded-3xl bg-gradient-to-b from-white to-gray-50 p-4 md:p-6 lg:p-8">
       <div className="mb-4 md:mb-6 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-balance text-xl md:text-2xl font-semibold text-gray-900 sm:text-2xl md:sm:text-3xl">Featured Opportunities</h2>
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Featured Opportunities</h2>
           <p className="mt-1 md:mt-2 text-xs md:text-sm text-gray-600">
             Check out the curated opportunities handpicked for you from top organizations.
           </p>
@@ -550,17 +418,16 @@ function FeaturedOpportunities() {
         </div>
       </div>
 
-      {/* Mobile view - Horizontal scroll */}
+      {/* Mobile view - Infinite scroll */}
       <div className="md:hidden relative">
         <div 
           ref={scrollerRef}
           className="flex overflow-x-auto scrollbar-hide gap-4 pb-4 snap-x snap-mandatory no-scrollbar"
-          onScroll={handleScroll}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {cards.map((c) => (
+          {[...cards, ...cards].map((c, i) => (
             <article
-              key={c.id}
+              key={`${c.id}-${i}`}
               className="opportunity-card flex-shrink-0 w-[85vw] snap-start"
             >
               <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
@@ -590,25 +457,13 @@ function FeaturedOpportunities() {
             </article>
           ))}
         </div>
-        
-        <div className="mt-3">
-          <Dots total={cards.length} active={currentIndex} onDot={(index) => scrollToIndex(index)} />
-        </div>
       </div>
 
-      {/* Desktop view - Infinite carousel */}
+      {/* Desktop view */}
       <div className="hidden md:block relative">
         <div className="flex gap-4 relative">
-          {[
-            cards[currentIndex % cards.length],
-            cards[(currentIndex + 1) % cards.length],
-            cards[(currentIndex + 2) % cards.length],
-            cards[(currentIndex + 3) % cards.length]
-          ].map((c, i) => (
-            <div
-              key={`${c.id}-${i}`}
-              className="flex-shrink-0 w-1/4"
-            >
+          {[cards[currentIndex % cards.length], cards[(currentIndex + 1) % cards.length], cards[(currentIndex + 2) % cards.length], cards[(currentIndex + 3) % cards.length]].map((c, i) => (
+            <div key={`${c.id}-${i}`} className="flex-shrink-0 w-1/4">
               <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
                 <div className={`h-40 bg-gradient-to-r ${c.color} p-3`}>
                   <div className="flex gap-2">
