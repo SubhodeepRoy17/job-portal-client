@@ -251,6 +251,8 @@ function BannerCarousel() {
       { id: "a2", color: "from-emerald-500 to-teal-400", title: "Where can your imagination take you?", cta: "Registration" },
       { id: "b1", color: "from-fuchsia-600 to-rose-500", title: "CodeFest 2025", cta: "Join" },
       { id: "b2", color: "from-blue-600 to-cyan-500", title: "Designathon", cta: "Apply" },
+      { id: "c1", color: "from-orange-500 to-red-500", title: "Startup Pitch Competition", cta: "Apply Now" },
+      { id: "c2", color: "from-purple-600 to-pink-500", title: "Data Science Hackathon", cta: "Participate" },
     ],
     [],
   )
@@ -312,6 +314,15 @@ function BannerCarousel() {
     }
   }
 
+  // Desktop navigation functions
+  const nextSlide = () => {
+    setCurrentIndex(prev => (prev + 1) % banners.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentIndex(prev => (prev - 1 + banners.length) % banners.length)
+  }
+
   return (
     <section className="relative mx-auto w-full">
       {/* Mobile view - Horizontal scroll */}
@@ -345,23 +356,37 @@ function BannerCarousel() {
         </div>
       </div>
 
-      {/* Desktop view - two banners vertically */}
-      <div className="hidden md:grid grid-cols-1 gap-4">
-        {banners.slice(0, 2).map((b) => (
-          <div
-            key={b.id}
-            className={`rounded-2xl bg-gradient-to-r ${b.color} p-6 text-white h-60 flex items-end`}
-          >
-            <div>
-              <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
-              <h3 className="text-2xl font-semibold max-w-[28ch] text-pretty">{b.title}</h3>
-              <button className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900">
-                {b.cta}
-                <Chevron className="h-4 w-4 text-gray-900" />
-              </button>
+      {/* Desktop view - two banners vertically with navigation */}
+      <div className="hidden md:block relative">
+        <div className="grid grid-cols-1 gap-4 relative">
+          {banners.slice(currentIndex, currentIndex + 2).map((b) => (
+            <div
+              key={b.id}
+              className={`rounded-2xl bg-gradient-to-r ${b.color} p-6 text-white h-60 flex items-end`}
+            >
+              <div>
+                <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
+                <h3 className="text-2xl font-semibold max-w-[28ch] text-pretty">{b.title}</h3>
+                <button className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900">
+                  {b.cta}
+                  <Chevron className="h-4 w-4 text-gray-900" />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        
+        {/* Desktop navigation arrows */}
+        <div className="absolute top-1/2 -translate-y-1/2 left-0 -translate-x-4">
+          <ArrowButton direction="left" onClick={prevSlide} label="Previous banner" />
+        </div>
+        <div className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-4">
+          <ArrowButton direction="right" onClick={nextSlide} label="Next banner" />
+        </div>
+        
+        <div className="mt-4">
+          <Dots total={banners.length} active={currentIndex} onDot={(index) => setCurrentIndex(index)} />
+        </div>
       </div>
     </section>
   )
