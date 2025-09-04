@@ -1414,6 +1414,7 @@ export default function UserHomepage() {
       <div className="mt-8 md:mt-12 lg:mt-16 space-y-8 md:space-y-12">
         <RailSection title="Internships" items={internships} />
         <RailSection title="Jobs" items={jobs} />
+        <TopMentors />
       </div>
     </main>
   )
