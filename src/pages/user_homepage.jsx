@@ -1002,23 +1002,18 @@ function TopMentors() {
         </a>
       </div>
 
-      {/* Mobile: horizontal scroll with 2 cards visible */}
+      {/* Mobile: horizontal scroll with 2 full cards visible */}
       <div className="block sm:hidden">
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-hide">
+        <div className="flex gap-4 overflow-x-auto scrollbar-hide">
           {mentors.map((mentor) => (
             <article
               key={mentor.id}
-              className="w-[85%] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+              className="w-[calc(50%-0.5rem)] shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
             >
               {/* Header gradient */}
-              <div className="relative h-28 bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-500 p-3">
-                <div className="absolute inset-0 opacity-20">
-                  <div className="absolute top-2 right-6 h-6 w-6 rounded-full bg-white/30"></div>
-                  <div className="absolute bottom-3 left-6 h-3 w-3 rounded-full bg-white/20"></div>
-                </div>
-
+              <div className="relative h-24 bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-500 p-2">
                 <div className="relative flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-2 py-0.5 text-[10px] font-medium text-white">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-1.5 py-0.5 text-[10px] font-medium text-white">
                     <div className="h-1.5 w-1.5 rounded-full bg-green-400"></div>
                     Available
                   </span>
@@ -1035,8 +1030,8 @@ function TopMentors() {
               </div>
 
               {/* Profile Content */}
-              <div className="relative -mt-10 px-4 pb-4">
-                <div className="mx-auto mb-2 h-20 w-20 overflow-hidden rounded-full border-4 border-white bg-gray-100">
+              <div className="relative -mt-8 px-3 pb-3">
+                <div className="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-gray-100">
                   <img
                     src={mentor.image || "/placeholder.svg"}
                     alt={mentor.name}
@@ -1046,7 +1041,7 @@ function TopMentors() {
 
                 {/* Rating */}
                 <div className="mb-1 flex items-center justify-center gap-1">
-                  <svg className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="h-3.5 w-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                   <span className="text-xs font-semibold text-gray-900">{mentor.rating}</span>
@@ -1059,8 +1054,8 @@ function TopMentors() {
                 </div>
 
                 {/* Button */}
-                <div className="mt-3">
-                  <button className="w-full rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50">
+                <div className="mt-2">
+                  <button className="w-full rounded-full border border-gray-300 bg-white px-2 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50">
                     View Profile
                   </button>
                 </div>
