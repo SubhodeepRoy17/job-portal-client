@@ -1,7 +1,7 @@
+//src/components/shared/BottomNav.jsx
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useUserContext } from "../../context/UserContext";
-import { FiHome, FiSearch, FiFileText, FiBookmark, FiHelpCircle } from "react-icons/fi";
 
 const BottomNav = () => {
     const { user } = useUserContext();
@@ -14,67 +14,106 @@ const BottomNav = () => {
     const isRecruiterOrUser = user?.role === 2 || user?.role === 3;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg flex justify-around items-center py-2 lg:hidden">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg flex justify-around items-center py-2 sm:hidden">
             {/* Home */}
             <NavLink
                 to="/"
                 className={({ isActive }) =>
-                    "flex flex-col items-center text-xs " +
+                    "flex flex-col items-center text-sm " +
                     (isActive ? "text-blue-600" : "text-gray-500")
                 }
                 end
             >
-                <FiHome className="h-5 w-5 mb-1" />
+                <ion-icon name="home-outline" style={{ fontSize: "24px" }}></ion-icon>
                 Home
             </NavLink>
 
-            {/* Find */}
+            {/* Jobs */}
             <NavLink
-                to="/find-jobs"
+                to="/dashboard/all-jobs"
                 className={({ isActive }) =>
-                    "flex flex-col items-center text-xs " +
+                    "flex flex-col items-center text-sm " +
                     (isActive ? "text-blue-600" : "text-gray-500")
                 }
             >
-                <FiSearch className="h-5 w-5 mb-1" />
-                Find
+                <ion-icon name="briefcase-outline" style={{ fontSize: "24px" }}></ion-icon>
+                Jobs
             </NavLink>
 
-            {/* Dashboard */}
+            {/* Applications (Recruiter or User) */}
+            {isRecruiterOrUser && (
+                <NavLink
+                    to="/dashboard/my-jobs"
+                    className={({ isActive }) =>
+                        "flex flex-col items-center text-sm " +
+                        (isActive ? "text-blue-600" : "text-gray-500")
+                    }
+                >
+                    <ion-icon name="apps-outline" style={{ fontSize: "24px" }}></ion-icon>
+                    Applications
+                </NavLink>
+            )}
+
+            {/* Manage (Only Recruiter) */}
+            {isRecruiter && (
+                <NavLink
+                    to="/dashboard/manage-jobs"
+                    className={({ isActive }) =>
+                        "flex flex-col items-center text-sm " +
+                        (isActive ? "text-blue-600" : "text-gray-500")
+                    }
+                >
+                    <ion-icon name="settings-outline" style={{ fontSize: "24px" }}></ion-icon>
+                    Manage
+                </NavLink>
+            )}
+
+            {/* Admin Links */}
+            {isAdmin && (
+                <>
+                    <NavLink
+                        to="/dashboard/admin"
+                        className={({ isActive }) =>
+                            "flex flex-col items-center text-sm " +
+                            (isActive ? "text-blue-600" : "text-gray-500")
+                        }
+                    >
+                        <ion-icon name="shield-outline" style={{ fontSize: "24px" }}></ion-icon>
+                        Info
+                    </NavLink>
+
+                    <NavLink
+                        to="/dashboard/stats"
+                        className={({ isActive }) =>
+                            "flex flex-col items-center text-sm " +
+                            (isActive ? "text-blue-600" : "text-gray-500")
+                        }
+                    >
+                        <ion-icon name="stats-chart-outline" style={{ fontSize: "24px" }}></ion-icon>
+                        Stats
+                    </NavLink>
+                </>
+            )}
+
+            {/* Profile */}
             <NavLink
                 to="/dashboard"
-                className={({ isActive }) =>
-                    "flex flex-col items-center text-xs " +
-                    (isActive ? "text-blue-600" : "text-gray-500")
-                }
                 end
-            >
-                <FiFileText className="h-5 w-5 mb-1" />
-                Dashboard
-            </NavLink>
-
-            {/* Saved */}
-            <NavLink
-                to="/dashboard/saved"
                 className={({ isActive }) =>
-                    "flex flex-col items-center text-xs " +
+                    "flex flex-col items-center text-sm " +
                     (isActive ? "text-blue-600" : "text-gray-500")
                 }
             >
-                <FiBookmark className="h-5 w-5 mb-1" />
-                Saved
-            </NavLink>
-
-            {/* Support */}
-            <NavLink
-                to="/support"
-                className={({ isActive }) =>
-                    "flex flex-col items-center text-xs " +
-                    (isActive ? "text-blue-600" : "text-gray-500")
-                }
-            >
-                <FiHelpCircle className="h-5 w-5 mb-1" />
-                Support
+                {profilePhoto ? (
+                    <img
+                        src={profilePhoto}
+                        alt="Profile"
+                        className="w-6 h-6 rounded-full"
+                    />
+                ) : (
+                    <ion-icon name="person-outline" style={{ fontSize: "24px" }}></ion-icon>
+                )}
+                Profile
             </NavLink>
         </div>
     );
