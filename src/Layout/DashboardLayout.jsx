@@ -94,7 +94,7 @@ const DashboardLayout = () => {
                     </div>
                 </main>
                 {/* Show BottomNav on mobile for main dashboard pages */}
-                {isMobile && isMainDashboardPage && <BottomNav />}
+                {isMobile && <BottomNav />}
             </Wrapper>
         </DashboardContext.Provider>
     );
