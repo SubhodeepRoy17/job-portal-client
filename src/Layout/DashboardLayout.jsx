@@ -52,6 +52,7 @@ const DashboardLayout = () => {
     // Check if this is a main dashboard page (including company dashboard)
     const isMainDashboardPage = 
         location.pathname === "/company-dashboard" ||
+        location.pathname === "/" ||
         location.pathname === "/dashboard" ||
         location.pathname.startsWith("/dashboard/my-jobs") ||
         location.pathname.startsWith("/dashboard/all-jobs") ||
@@ -117,7 +118,7 @@ const DashboardLayout = () => {
                     </div>
                 </main>
                 {/* Show BottomNav on mobile for main dashboard pages */}
-                {isMobile && <BottomNav />}
+                {isMobile && isMainDashboardPage && <BottomNav />}
             </Wrapper>
         </DashboardContext.Provider>
     );
