@@ -12,6 +12,7 @@ import Logo from "../components/Logo";
 import DashboardNavbar from "../components/shared/DashboardNavbar";
 import LargeSidebar from "../components/shared/LargeSidebar";
 import BottomNav from "../components/shared/BottomNav";
+import { DashboardProvider } from "../context/DashboardContext";
 import { 
   faBriefcase, 
   faBuilding, 
@@ -28,14 +29,14 @@ import {
   faUsers
 } from "@fortawesome/free-solid-svg-icons";
 
-export default function CompanyDashboard() {
+// Create a wrapper component that provides the dashboard context
+function CompanyDashboardContent() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { company } = useSelector((state) => state.auth);
   const { stats, jobs, loading } = useSelector((state) => state.company);
   
   const [activeJob, setActiveJob] = useState(null);
-  const [showSidebar, setShowSidebar] = useState(false);
 
   useEffect(() => {
     if (company) {
@@ -48,24 +49,13 @@ export default function CompanyDashboard() {
     navigate("/company-login");
   };
 
-  // Mock user context for the sidebar (you might need to adjust this based on your actual user context)
+  // Mock user context for the sidebar
   const mockUser = {
     username: company?.company_name || "Company",
     role: 2, // Recruiter role
     ac_status: true,
     profile_photo: null
   };
-
-  const sidebarItems = [
-    { icon: faFileAlt, label: "Overview", active: true, path: "/company-dashboard" },
-    { icon: faUser, label: "Employers Profile", path: "/company-profile" },
-    { icon: faPlus, label: "Post a Job", path: "/post-job" },
-    { icon: faBriefcase, label: "My Jobs", path: "/my-jobs" },
-    { icon: faHeart, label: "Saved Candidate", path: "/saved-candidates" },
-    { icon: faCreditCard, label: "Plans & Billing", path: "/billing" },
-    { icon: faBuilding, label: "All Companies", path: "/companies" },
-    { icon: faCog, label: "Settings", path: "/settings" },
-  ];
 
   const LogoContainer = styled.div`
     max-width: 120px;
@@ -116,7 +106,7 @@ export default function CompanyDashboard() {
                   </div>
                 </div>
               </div>
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div className="bg-white rounded-lg shadowSm overflow-hidden">
                 <div className="p-4 lg:p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -236,5 +226,14 @@ export default function CompanyDashboard() {
         </div>
       </footer>
     </div>
-  )
+  );
+}
+
+// Main export wrapped with DashboardProvider
+export default function CompanyDashboard() {
+  return (
+    <DashboardProvider>
+      <CompanyDashboardContent />
+    </DashboardProvider>
+  );
 }

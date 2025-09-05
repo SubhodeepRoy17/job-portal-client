@@ -4,6 +4,7 @@ import Logo from "../Logo";
 import { useDashboardContext } from "../../Layout/DashboardLayout";
 import { Link } from "react-router-dom";
 import { FiBell } from "react-icons/fi";
+import { useDashboardContext } from "../context/DashboardContext";
 
 const DashboardNavbar = () => {
     const { showSidebar, setShowSidebar } = useDashboardContext();
