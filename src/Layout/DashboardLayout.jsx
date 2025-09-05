@@ -35,21 +35,11 @@ const DashboardLayout = () => {
         `/dashboard/job/${id}`,
     ];
 
-    // List of paths where we always want to show BottomNav (including company dashboard)
-    const alwaysShowBottomNavPaths = [
-        "/company-dashboard",
-        "/dashboard",
-        "/dashboard/my-jobs",
-        "/dashboard/all-jobs",
-        "/dashboard/manage-jobs"
-    ];
-
     useEffect(() => {
         const checkScreenSize = () => {
-            setIsMobile(window.innerWidth < 768); // 768px is a common breakpoint for mobile
+            setIsMobile(window.innerWidth < 768);
         };
 
-        // Check on mount and on resize
         checkScreenSize();
         window.addEventListener('resize', checkScreenSize);
 
@@ -59,10 +49,13 @@ const DashboardLayout = () => {
     const isEditProfilePage = location.pathname === "/edit-profile";
     const shouldHideNavbar = isMobile && mobileHiddenPaths.includes(location.pathname);
     
-    // Check if we should always show BottomNav (for company dashboard and other main pages)
-    const shouldAlwaysShowBottomNav = alwaysShowBottomNavPaths.some(path => 
-        location.pathname.startsWith(path)
-    );
+    // Check if this is a main dashboard page (including company dashboard)
+    const isMainDashboardPage = 
+        location.pathname === "/company-dashboard" ||
+        location.pathname === "/dashboard" ||
+        location.pathname.startsWith("/dashboard/my-jobs") ||
+        location.pathname.startsWith("/dashboard/all-jobs") ||
+        location.pathname.startsWith("/dashboard/manage-jobs");
 
     const handleLogout = async () => {
         try {
@@ -100,8 +93,8 @@ const DashboardLayout = () => {
                         </div>
                     </div>
                 </main>
-                {/* Always show BottomNav for company dashboard and other main pages */}
-                {(shouldAlwaysShowBottomNav || !shouldHideNavbar) && <BottomNav />}
+                {/* Show BottomNav on mobile for main dashboard pages */}
+                {isMobile && isMainDashboardPage && <BottomNav />}
             </Wrapper>
         </DashboardContext.Provider>
     );
