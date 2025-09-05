@@ -48,15 +48,6 @@ const DashboardLayout = () => {
 
     const isEditProfilePage = location.pathname === "/edit-profile";
     const shouldHideNavbar = isMobile && mobileHiddenPaths.includes(location.pathname);
-    
-    // Check if this is a main dashboard page (including company dashboard)
-    const isMainDashboardPage = 
-        location.pathname === "/company-dashboard" ||
-        location.pathname === "/" ||
-        location.pathname === "/dashboard" ||
-        location.pathname.startsWith("/dashboard/my-jobs") ||
-        location.pathname.startsWith("/dashboard/all-jobs") ||
-        location.pathname.startsWith("/dashboard/manage-jobs");
 
     const handleLogout = async () => {
         try {
@@ -118,7 +109,7 @@ const DashboardLayout = () => {
                     </div>
                 </main>
                 {/* Show BottomNav on mobile for main dashboard pages */}
-                {isMobile && isMainDashboardPage && <BottomNav />}
+                {!shouldHideNavbar && <BottomNav />}
             </Wrapper>
         </DashboardContext.Provider>
     );

@@ -8,7 +8,7 @@ import { logout } from "../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styled from "styled-components";
-import { BottomNav } from "../components";
+import BottomNav  from "../components/shared/BottomNav";
 import Logo from "../components/Logo";
 import { 
   faBriefcase, 
