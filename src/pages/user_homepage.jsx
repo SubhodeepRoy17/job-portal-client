@@ -1006,7 +1006,7 @@ function TopMentors() {
         {mentors.map((mentor) => (
           <article
             key={mentor.id}
-            className="w-[50vw] sm:w-80 shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+            className="w-[calc(50vw-0.75rem)] sm:w-80 shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
           >
             <div className="relative h-32 bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-500 p-4">
               {/* Decorative elements */}
