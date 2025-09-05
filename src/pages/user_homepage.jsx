@@ -988,6 +988,29 @@ function TopMentors() {
     },
   ]
 
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const scrollerRef = useRef(null)
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 640 : false
+
+  // Auto-scroll for mobile
+  useEffect(() => {
+    if (!isMobile) return
+    
+    const interval = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % mentors.length)
+    }, 4000)
+
+    return () => clearInterval(interval)
+  }, [isMobile, mentors.length])
+
+  const nextSlide = () => {
+    setCurrentIndex(prev => (prev + 1) % mentors.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentIndex(prev => (prev - 1 + mentors.length) % mentors.length)
+  }
+
   return (
     <section className="space-y-4">
       <div className="flex items-end justify-between">
@@ -1002,68 +1025,155 @@ function TopMentors() {
         </a>
       </div>
 
-      {/* Mobile: grid with 2 mentors per row */}
-      <div className="block sm:hidden">
-        <div className="grid grid-cols-2 gap-4">
-          {mentors.map((mentor) => (
-            <article
+      {/* Mobile: Carousel with 2 mentors per view */}
+      <div className="block sm:hidden relative">
+        <div 
+          ref={scrollerRef}
+          className="flex overflow-x-auto scrollbar-hide gap-4 pb-4 snap-x snap-mandatory no-scrollbar"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {mentors.map((mentor, index) => (
+            <div
               key={mentor.id}
-              className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+              className="flex-shrink-0 w-[calc(100%-2rem)] snap-start"
+              style={{ 
+                transform: `translateX(-${currentIndex * 100}%)`,
+                transition: 'transform 0.3s ease-in-out'
+              }}
             >
-            <div className="relative h-32 bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-500 p-4">
-              <div className="absolute inset-0 opacity-20">
-                <div className="absolute top-2 right-8 h-8 w-8 rounded-full bg-white/30"></div>
-                <div className="absolute bottom-4 left-8 h-4 w-4 rounded-full bg-white/20"></div>
-                <div className="absolute top-8 left-12 h-2 w-8 rounded-full bg-white/25"></div>
-              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {/* First card in the pair */}
+                <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                  <div className="relative h-32 bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-500 p-4">
+                    <div className="absolute inset-0 opacity-20">
+                      <div className="absolute top-2 right-8 h-8 w-8 rounded-full bg-white/30"></div>
+                      <div className="absolute bottom-4 left-8 h-4 w-4 rounded-full bg-white/20"></div>
+                      <div className="absolute top-8 left-12 h-2 w-8 rounded-full bg-white/25"></div>
+                    </div>
 
-              <div className="relative flex items-center justify-between">
-                <span className="inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-2 py-1 text-xs font-medium text-white">
-                  <div className="h-1.5 w-1.5 rounded-full bg-green-400"></div>
-                  Available
-                </span>
-                <div className="rounded-full bg-amber-400 p-1.5">
-                  <svg className="h-4 w-4 text-amber-800" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 2L7.5 7H2l4.5 3.5L5 16l5-3 5 3-1.5-5.5L18 7h-5.5L10 2z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
+                    <div className="relative flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-2 py-1 text-xs font-medium text-white">
+                        <div className="h-1.5 w-1.5 rounded-full bg-green-400"></div>
+                        Available
+                      </span>
+                      <div className="rounded-full bg-amber-400 p-1.5">
+                        <svg className="h-4 w-4 text-amber-800" fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M10 2L7.5 7H2l4.5 3.5L5 16l5-3 5 3-1.5-5.5L18 7h-5.5L10 2z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="relative -mt-8 px-4 pb-4">
+                    <div className="mx-auto mb-3 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-100">
+                      <img
+                        src={mentor.image || "/placeholder.svg"}
+                        alt={mentor.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+
+                    <div className="mb-2 flex items-center justify-center gap-1">
+                      <svg className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span className="text-sm font-semibold text-gray-900">{mentor.rating}</span>
+                    </div>
+
+                    <div className="space-y-2 text-center">
+                      <h4 className="font-semibold text-gray-900">{mentor.name}</h4>
+                      <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">{mentor.title}</p>
+                    </div>
+
+                    <div className="mt-4">
+                      <button className="w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+                        View Profile
+                      </button>
+                    </div>
+                  </div>
+                </article>
+
+                {/* Second card in the pair - show next mentor or empty if at end */}
+                {index + 1 < mentors.length ? (
+                  <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                    <div className="relative h-32 bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-500 p-4">
+                      <div className="absolute inset-0 opacity-20">
+                        <div className="absolute top-2 right-8 h-8 w-8 rounded-full bg-white/30"></div>
+                        <div className="absolute bottom-4 left-8 h-4 w-4 rounded-full bg-white/20"></div>
+                        <div className="absolute top-8 left-12 h-2 w-8 rounded-full bg-white/25"></div>
+                      </div>
+
+                      <div className="relative flex items-center justify-between">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-2 py-1 text-xs font-medium text-white">
+                          <div className="h-1.5 w-1.5 rounded-full bg-green-400"></div>
+                          Available
+                        </span>
+                        <div className="rounded-full bg-amber-400 p-1.5">
+                          <svg className="h-4 w-4 text-amber-800" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                              fillRule="evenodd"
+                              d="M10 2L7.5 7H2l4.5 3.5L5 16l5-3 5 3-1.5-5.5L18 7h-5.5L10 2z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="relative -mt-8 px-4 pb-4">
+                      <div className="mx-auto mb-3 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-100">
+                        <img
+                          src={mentors[index + 1].image || "/placeholder.svg"}
+                          alt={mentors[index + 1].name}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+
+                      <div className="mb-2 flex items-center justify-center gap-1">
+                        <svg className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span className="text-sm font-semibold text-gray-900">{mentors[index + 1].rating}</span>
+                      </div>
+
+                      <div className="space-y-2 text-center">
+                        <h4 className="font-semibold text-gray-900">{mentors[index + 1].name}</h4>
+                        <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">{mentors[index + 1].title}</p>
+                      </div>
+
+                      <div className="mt-4">
+                        <button className="w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+                          View Profile
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                ) : (
+                  <div className="opacity-0">
+                    {/* Empty spacer when there's no second card */}
+                    <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                      <div className="h-32 bg-gray-100"></div>
+                      <div className="h-48 bg-white"></div>
+                    </article>
+                  </div>
+                )}
               </div>
             </div>
-
-            <div className="relative -mt-8 px-4 pb-4">
-              <div className="mx-auto mb-3 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-100">
-                <img
-                  src={mentor.image || "/placeholder.svg"}
-                  alt={mentor.name}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-
-              <div className="mb-2 flex items-center justify-center gap-1">
-                <svg className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <span className="text-sm font-semibold text-gray-900">{mentor.rating}</span>
-              </div>
-
-              <div className="space-y-2 text-center">
-                <h4 className="font-semibold text-gray-900">{mentor.name}</h4>
-                <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">{mentor.title}</p>
-              </div>
-
-              <div className="mt-4">
-                <button className="w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
-                  View Profile
-                </button>
-              </div>
-            </div>
-          </article>
-        ))}
-       </div> 
+          ))}
+        </div>
+        
+        {/* Mobile navigation dots */}
+        <div className="mt-3 flex justify-center">
+          <Dots 
+            total={Math.ceil(mentors.length / 2)} 
+            active={Math.floor(currentIndex / 2)} 
+            onDot={(index) => setCurrentIndex(index * 2)} 
+          />
+        </div>
       </div>
 
       {/* Tablet/Desktop: horizontal scroll */}
@@ -1109,7 +1219,7 @@ function TopMentors() {
 
               <div className="mb-2 flex items-center justify-center gap-1">
                 <svg className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h极客时间3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-极客时间1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
                 <span className="text-sm font-semibold text-gray-900">{mentor.rating}</span>
               </div>
