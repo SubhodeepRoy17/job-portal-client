@@ -35,6 +35,15 @@ const DashboardLayout = () => {
         `/dashboard/job/${id}`,
     ];
 
+    // List of paths where we always want to show BottomNav (including company dashboard)
+    const alwaysShowBottomNavPaths = [
+        "/company-dashboard",
+        "/dashboard",
+        "/dashboard/my-jobs",
+        "/dashboard/all-jobs",
+        "/dashboard/manage-jobs"
+    ];
+
     useEffect(() => {
         const checkScreenSize = () => {
             setIsMobile(window.innerWidth < 768); // 768px is a common breakpoint for mobile
@@ -49,6 +58,11 @@ const DashboardLayout = () => {
 
     const isEditProfilePage = location.pathname === "/edit-profile";
     const shouldHideNavbar = isMobile && mobileHiddenPaths.includes(location.pathname);
+    
+    // Check if we should always show BottomNav (for company dashboard and other main pages)
+    const shouldAlwaysShowBottomNav = alwaysShowBottomNavPaths.some(path => 
+        location.pathname.startsWith(path)
+    );
 
     const handleLogout = async () => {
         try {
@@ -86,7 +100,8 @@ const DashboardLayout = () => {
                         </div>
                     </div>
                 </main>
-                {!shouldHideNavbar && <BottomNav />}
+                {/* Always show BottomNav for company dashboard and other main pages */}
+                {(shouldAlwaysShowBottomNav || !shouldHideNavbar) && <BottomNav />}
             </Wrapper>
         </DashboardContext.Provider>
     );
