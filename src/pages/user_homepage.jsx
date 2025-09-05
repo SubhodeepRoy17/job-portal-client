@@ -1003,12 +1003,13 @@ function TopMentors() {
       </div>
 
       {/* Mobile: grid with 2 mentors per row */}
-      <div className="grid grid-cols-2 gap-4 sm:hidden">
-        {mentors.map((mentor) => (
-          <article
-            key={mentor.id}
-            className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
-          >
+      <div className="block sm:hidden">
+        <div className="grid grid-cols-2 gap-4">
+          {mentors.map((mentor) => (
+            <article
+              key={mentor.id}
+              className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+            >
             <div className="relative h-32 bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-500 p-4">
               <div className="absolute inset-0 opacity-20">
                 <div className="absolute top-2 right-8 h-8 w-8 rounded-full bg-white/30"></div>
@@ -1062,15 +1063,17 @@ function TopMentors() {
             </div>
           </article>
         ))}
+       </div> 
       </div>
 
       {/* Tablet/Desktop: horizontal scroll */}
-      <ScrollRail className="hidden sm:flex">
-        {mentors.map((mentor) => (
-          <article
-            key={mentor.id}
-            className="w-80 shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
-          >
+      <div className="hidden sm:block">
+        <ScrollRail>
+          {mentors.map((mentor) => (
+            <article
+              key={mentor.id}
+              className="w-80 shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+            >
             <div className="relative h-32 bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-500 p-4">
               <div className="absolute inset-0 opacity-20">
                 <div className="absolute top-2 right-8 h-8 w-8 rounded-full bg-white/30"></div>
@@ -1125,6 +1128,7 @@ function TopMentors() {
           </article>
         ))}
       </ScrollRail>
+      </div>
     </section>
   )
 }
