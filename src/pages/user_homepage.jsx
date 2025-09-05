@@ -1002,13 +1002,13 @@ function TopMentors() {
         </a>
       </div>
 
-      {/* Mobile: horizontal scroll instead of grid */}
+      {/* Mobile: horizontal scroll with 2 cards visible */}
       <div className="block sm:hidden">
-        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-hide">
           {mentors.map((mentor) => (
             <article
               key={mentor.id}
-              className="w-64 shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+              className="w-[85%] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
             >
               {/* Header gradient */}
               <div className="relative h-28 bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-500 p-3">
