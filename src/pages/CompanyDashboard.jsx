@@ -8,7 +8,6 @@ import { logout } from "../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styled from "styled-components";
-import BottomNav  from "../components/shared/BottomNav";
 import Logo from "../components/Logo";
 import { 
   faBriefcase, 
@@ -197,7 +196,6 @@ export default function CompanyDashboard() {
           </div>
         </div>
       </div>
-      <BottomNav/>
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 mt-12 hidden lg:block">
