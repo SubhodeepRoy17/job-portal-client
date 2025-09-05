@@ -10,20 +10,27 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styled from "styled-components";
 import Logo from "../components/Logo";
 import { 
+  faBell, 
   faBriefcase, 
   faBuilding, 
   faCalendarAlt, 
+  faChevronDown, 
   faCreditCard, 
   faEye, 
   faFileAlt, 
   faHeart, 
+  faSignOutAlt, 
   faEllipsisH, 
+  faPhone, 
   faPlus, 
   faCog, 
   faChartLine, 
-  faUser,
+  faUser, 
   faUsers,
-  faSignOutAlt
+  faHome,
+  faSearch,
+  faBookmark,
+  faHeadset
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function CompanyDashboard() {
@@ -33,6 +40,8 @@ export default function CompanyDashboard() {
   const { stats, jobs, loading } = useSelector((state) => state.company);
   
   const [activeJob, setActiveJob] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (company) {
@@ -45,16 +54,16 @@ export default function CompanyDashboard() {
     navigate("/company-login");
   };
 
-  // Example usage of handleLogout - you can use this in a button or menu item
-  const logoutButton = (
-    <button
-      onClick={handleLogout}
-      className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md w-full"
-    >
-      <FontAwesomeIcon icon={faSignOutAlt} className="mr-3 h-5 w-5" />
-      Log-out
-    </button>
-  );
+  const sidebarItems = [
+    { icon: faFileAlt, label: "Overview", active: true },
+    { icon: faUser, label: "Employers Profile" },
+    { icon: faPlus, label: "Post a Job" },
+    { icon: faBriefcase, label: "My Jobs" },
+    { icon: faHeart, label: "Saved Candidate" },
+    { icon: faCreditCard, label: "Plans & Billing" },
+    { icon: faBuilding, label: "All Companies" },
+    { icon: faCog, label: "Settings" },
+  ];
 
   const LogoContainer = styled.div`
     max-width: 120px;
@@ -70,10 +79,158 @@ export default function CompanyDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:ml-64">
+      {/* Mobile Top Navigation */}
+      <nav className="bg-white border-b border-gray-200 lg:hidden">
+        <div className="px-4">
+          <div className="flex justify-between items-center h-16">
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <LogoContainer>
+              <Logo />
+            </LogoContainer>
+            <div className="flex items-center space-x-4">
+              <button className="p-2 rounded-full hover:bg-gray-100 relative">
+                <FontAwesomeIcon icon={faBell} className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
+              </button>
+              <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-medium">{company?.company_name?.charAt(0) || "C"}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Desktop Top Navigation */}
+      <nav className="bg-white border-b border-gray-200 hidden lg:block">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex space-x-4 lg:space-x-8">
+              <a href="#" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                Home
+              </a>
+              <a href="#" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                Find Candidate
+              </a>
+              <a href="#" className="text-blue-600 border-b-2 border-blue-600 px-3 py-2 text-sm font-medium">
+                Dashboard
+              </a>
+              <a href="#" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                My Jobs
+              </a>
+              <a href="#" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                Applications
+              </a>
+              <a href="#" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                Customer Supports
+              </a>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="hidden lg:flex items-center text-gray-600">
+                <FontAwesomeIcon icon={faPhone} className="h-4 w-4 mr-2" />
+                <span className="text-sm">+1-202-555-0178</span>
+              </div>
+              <div className="hidden lg:flex items-center">
+                <img src="/placeholder.svg?height=20&width=30" alt="US Flag" className="h-4 w-6 mr-2" />
+                <span className="text-sm text-gray-600">English</span>
+                <FontAwesomeIcon icon={faChevronDown} className="h-4 w-4 ml-1 text-gray-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 hidden lg:block">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center">
+              <div className="flex items-center">
+                <LogoContainer>
+                  <Logo />
+                </LogoContainer>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button className="p-2 rounded-full hover:bg-gray-100 relative">
+                <FontAwesomeIcon icon={faBell} className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
+              </button>
+              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                Post A Job
+              </button>
+              <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-medium">{company?.company_name?.charAt(0) || "C"}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-8">
+          {/* Sidebar */}
+          <div 
+            className={`fixed lg:static inset-y-0 left-0 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out w-64 lg:w-80 bg-white rounded-lg shadow-sm z-30 lg:z-auto`}
+          >
+            <div className="p-6 h-full overflow-y-auto">
+              <div className="flex justify-between items-center lg:hidden mb-6">
+                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">MENU</h3>
+                <button 
+                  onClick={() => setSidebarOpen(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <h3 className="hidden lg:block text-sm font-medium text-gray-500 uppercase tracking-wide mb-6">EMPLOYERS DASHBOARD</h3>
+              <nav className="space-y-2">
+                {sidebarItems.map((item, index) => (
+                  <a
+                    key={index}
+                    href="#"
+                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                      item.active
+                        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={item.icon} className="mr-3 h-5 w-5" />
+                    {item.label}
+                  </a>
+                ))}
+              </nav>
+              <div className="border-t border-gray-200 pt-6 mt-6">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md w-full"
+                >
+                  <FontAwesomeIcon icon={faSignOutAlt} className="mr-3 h-5 w-5" />
+                  Log-out
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Main Content */}
-          <div className="flex-1 pb-16 lg:pb-0">
+          <div className={`flex-1 ${sidebarOpen ? 'ml-64 lg:ml-0' : ''} pb-16 lg:pb-0`}>
             <div className="mb-8">
                 <h1 className="text-xl lg:text-2xl font-bold text-gray-900 mb-2">
                   {company ? `Company - ${company.full_name}` : "Your Company Dashboard"}
@@ -96,7 +253,7 @@ export default function CompanyDashboard() {
                   </div>
                 </div>
               </div>
-              <div className="bg-white rounded-lg shadowSm overflow-hidden">
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div className="p-4 lg:p-6">
                   <div className="flex items-center justify-between">
                     <div>
