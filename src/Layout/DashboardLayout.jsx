@@ -61,7 +61,13 @@ const DashboardLayout = () => {
         try {
             const response = await axios.post(
                 "https://job-portal-server-six-eosin.vercel.app/api/auth/logout",
-                { withCredentials: true }
+                {}, // empty data object
+                { 
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
             );
             Swal.fire({
                 icon: "success",
@@ -70,10 +76,11 @@ const DashboardLayout = () => {
             });
             handleFetchMe();
         } catch (error) {
+            console.error('Logout error:', error);
             Swal.fire({
                 icon: "error",
                 title: "Oops...",
-                text: error?.response?.data,
+                text: error?.response?.data?.message || "Logout failed",
             });
         }
     };
