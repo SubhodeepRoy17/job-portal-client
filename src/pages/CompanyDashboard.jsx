@@ -22,7 +22,8 @@ import {
   faCog, 
   faChartLine, 
   faUser,
-  faUsers
+  faUsers,
+  faSignOutAlt
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function CompanyDashboard() {
@@ -43,6 +44,17 @@ export default function CompanyDashboard() {
     dispatch(logout());
     navigate("/company-login");
   };
+
+  // Example usage of handleLogout - you can use this in a button or menu item
+  const logoutButton = (
+    <button
+      onClick={handleLogout}
+      className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md w-full"
+    >
+      <FontAwesomeIcon icon={faSignOutAlt} className="mr-3 h-5 w-5" />
+      Log-out
+    </button>
+  );
 
   const LogoContainer = styled.div`
     max-width: 120px;
@@ -192,6 +204,12 @@ export default function CompanyDashboard() {
                   </table>
                 </div>
               </div>
+            </div>
+
+            {/* Example logout button using your handleLogout function */}
+            <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4">Account Actions</h3>
+              {logoutButton}
             </div>
           </div>
         </div>
