@@ -59,28 +59,44 @@ const DashboardLayout = () => {
 
     const handleLogout = async () => {
         try {
-            const response = await axios.post(
-                "https://job-portal-server-six-eosin.vercel.app/api/auth/logout",
-                {}, // empty data object
-                { 
-                    withCredentials: true,
-                    headers: {
-                        'Content-Type': 'application/json'
+            // First try the API logout
+            try {
+                const response = await axios.post(
+                    "https://job-portal-server-six-eosin.vercel.app/api/auth/logout",
+                    {},
+                    { 
+                        withCredentials: true,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
                     }
-                }
-            );
-            Swal.fire({
-                icon: "success",
-                title: "Logout...",
-                text: response?.data?.message,
-            });
-            handleFetchMe();
+                );
+                Swal.fire({
+                    icon: "success",
+                    title: "Logout Successful",
+                    text: response?.data?.message || "You have been logged out",
+                });
+            } catch (apiError) {
+                console.log('API logout failed, proceeding with client-side cleanup');
+                // If API logout fails, still proceed with client-side cleanup
+                Swal.fire({
+                    icon: "info",
+                    title: "Logged Out",
+                    text: "You have been logged out",
+                });
+            }
+            
+            // Always perform client-side cleanup
+            handleFetchMe(); // This should clear the user context
+            
         } catch (error) {
             console.error('Logout error:', error);
+            // Even if there's an error, proceed with client-side cleanup
+            handleFetchMe();
             Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: error?.response?.data?.message || "Logout failed",
+                icon: "info",
+                title: "Logged Out",
+                text: "You have been logged out",
             });
         }
     };
