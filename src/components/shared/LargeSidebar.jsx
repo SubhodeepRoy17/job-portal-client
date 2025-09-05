@@ -6,7 +6,7 @@ import styled from "styled-components";
 import DashboardNavLinks from "./DashboardNavLinks";
 import { useUserContext } from "../../context/UserContext";
 import { NavLink } from "react-router-dom";
-import { useDashboardContext } from "../context/DashboardContext";
+import { useDashboardContext } from "../../context/DashboardContext";
 
 const LargeSidebar = () => {
     const { user } = useUserContext();
