@@ -9,10 +9,6 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styled from "styled-components";
 import Logo from "../components/Logo";
-import DashboardNavbar from "../components/shared/DashboardNavbar";
-import LargeSidebar from "../components/shared/LargeSidebar";
-import BottomNav from "../components/shared/BottomNav";
-import { DashboardProvider } from "../context/DashboardContext";
 import { 
   faBriefcase, 
   faBuilding, 
@@ -29,8 +25,7 @@ import {
   faUsers
 } from "@fortawesome/free-solid-svg-icons";
 
-// Create a wrapper component that provides the dashboard context
-function CompanyDashboardContent() {
+export default function CompanyDashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { company } = useSelector((state) => state.auth);
@@ -49,14 +44,6 @@ function CompanyDashboardContent() {
     navigate("/company-login");
   };
 
-  // Mock user context for the sidebar
-  const mockUser = {
-    username: company?.company_name || "Company",
-    role: 2, // Recruiter role
-    ac_status: true,
-    profile_photo: null
-  };
-
   const LogoContainer = styled.div`
     max-width: 120px;
   `;
@@ -71,15 +58,6 @@ function CompanyDashboardContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Dashboard Navbar */}
-      <DashboardNavbar />
-
-      {/* Large Sidebar */}
-      <LargeSidebar />
-
-      {/* Bottom Navigation for Mobile */}
-      <BottomNav />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:ml-64">
         <div className="flex gap-8">
           {/* Main Content */}
@@ -226,14 +204,5 @@ function CompanyDashboardContent() {
         </div>
       </footer>
     </div>
-  );
-}
-
-// Main export wrapped with DashboardProvider
-export default function CompanyDashboard() {
-  return (
-    <DashboardProvider>
-      <CompanyDashboardContent />
-    </DashboardProvider>
   );
 }

@@ -4,9 +4,9 @@ import { BiUserCircle } from "react-icons/bi";
 import { FiSettings, FiHelpCircle, FiLogOut } from "react-icons/fi";
 import styled from "styled-components";
 import DashboardNavLinks from "./DashboardNavLinks";
+import { useDashboardContext } from "../../Layout/DashboardLayout";
 import { useUserContext } from "../../context/UserContext";
 import { NavLink } from "react-router-dom";
-import { useDashboardContext } from "../../context/DashboardContext";
 
 const LargeSidebar = () => {
     const { user } = useUserContext();

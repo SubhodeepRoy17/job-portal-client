@@ -90,7 +90,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "company-dashboard",
-                element: <CompanyDashboard />,
+                element: <DashboardLayout />,
             },
             {
                 path: "company-login",
