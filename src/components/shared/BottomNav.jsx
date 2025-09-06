@@ -14,13 +14,13 @@ const BottomNav = () => {
     const isRecruiterOrUser = user?.role === 2 || user?.role === 3;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 flex justify-around items-center py-2 sm:hidden">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10 flex justify-around items-center h-16 sm:hidden">
             {/* Home */}
             <NavLink
                 to="/"
                 className={({ isActive }) =>
                     "flex flex-col items-center text-xs " +
-                    (isActive ? "text-blue-600" : "text-gray-500")
+                    (isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700")
                 }
                 end
             >
@@ -33,7 +33,7 @@ const BottomNav = () => {
                 to="/dashboard/all-jobs"
                 className={({ isActive }) =>
                     "flex flex-col items-center text-xs " +
-                    (isActive ? "text-blue-600" : "text-gray-500")
+                    (isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700")
                 }
             >
                 <ion-icon name="briefcase-outline" style={{ fontSize: "20px" }}></ion-icon>
@@ -46,7 +46,7 @@ const BottomNav = () => {
                     to="/dashboard/my-jobs"
                     className={({ isActive }) =>
                         "flex flex-col items-center text-xs " +
-                        (isActive ? "text-blue-600" : "text-gray-500")
+                        (isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700")
                     }
                 >
                     <ion-icon name="apps-outline" style={{ fontSize: "20px" }}></ion-icon>
@@ -60,7 +60,7 @@ const BottomNav = () => {
                     to="/dashboard/manage-jobs"
                     className={({ isActive }) =>
                         "flex flex-col items-center text-xs " +
-                        (isActive ? "text-blue-600" : "text-gray-500")
+                        (isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700")
                     }
                 >
                     <ion-icon name="settings-outline" style={{ fontSize: "20px" }}></ion-icon>
@@ -75,7 +75,7 @@ const BottomNav = () => {
                         to="/dashboard/admin"
                         className={({ isActive }) =>
                             "flex flex-col items-center text-xs " +
-                            (isActive ? "text-blue-600" : "text-gray-500")
+                            (isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700")
                         }
                     >
                         <ion-icon name="shield-outline" style={{ fontSize: "20px" }}></ion-icon>
@@ -86,7 +86,7 @@ const BottomNav = () => {
                         to="/dashboard/stats"
                         className={({ isActive }) =>
                             "flex flex-col items-center text-xs " +
-                            (isActive ? "text-blue-600" : "text-gray-500")
+                            (isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700")
                         }
                     >
                         <ion-icon name="stats-chart-outline" style={{ fontSize: "20px" }}></ion-icon>
@@ -101,7 +101,7 @@ const BottomNav = () => {
                 end
                 className={({ isActive }) =>
                     "flex flex-col items-center text-xs " +
-                    (isActive ? "text-blue-600" : "text-gray-500")
+                    (isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-700")
                 }
             >
                 {profilePhoto ? (

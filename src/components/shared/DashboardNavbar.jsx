@@ -102,22 +102,6 @@ const Wrapper = styled.nav`
         border: 1px solid white;
     }
 
-    .badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background-color: var(--color-danger);
-        color: white;
-        border-radius: 50%;
-        width: 18px;
-        height: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.65rem;
-        font-weight: bold;
-    }
-
     @media (max-width: 600px) {
         padding: 0.5rem 0.8rem;
 
