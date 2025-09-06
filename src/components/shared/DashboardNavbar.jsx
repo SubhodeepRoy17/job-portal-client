@@ -1,12 +1,14 @@
-//src/components/shared/DashboardNavbar.jsx
+// src/components/shared/DashboardNavbar.jsx
 import styled from "styled-components";
 import Logo from "../Logo";
 import { useDashboardContext } from "../../Layout/DashboardLayout";
 import { Link } from "react-router-dom";
 import { FiBell } from "react-icons/fi";
+import { useUserContext } from "../../context/UserContext";
 
 const DashboardNavbar = () => {
     const { showSidebar, setShowSidebar } = useDashboardContext();
+    const { user } = useUserContext();
 
     return (
         <Wrapper>
@@ -27,6 +29,11 @@ const DashboardNavbar = () => {
                         <FiBell className="icon" />
                         <span className="notification-dot"></span>
                     </Link>
+                    <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center ml-3">
+                        <span className="text-white text-sm font-medium">
+                            {user?.username?.charAt(0)?.toUpperCase() || "U"}
+                        </span>
+                    </div>
                 </div>
             </div>
         </Wrapper>
@@ -42,6 +49,7 @@ const Wrapper = styled.nav`
     padding: 0.7rem 1rem;
     background-color: var(--color-white);
     z-index: 99;
+    border-bottom: 1px solid #e5e7eb;
 
     .nav-container {
         width: 100%;

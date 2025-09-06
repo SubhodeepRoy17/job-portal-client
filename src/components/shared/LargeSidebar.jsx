@@ -1,4 +1,4 @@
-//src/components/shared/LargeSidebar.jsx
+// src/components/shared/LargeSidebar.jsx
 import React from "react";
 import { BiUserCircle } from "react-icons/bi";
 import { FiSettings, FiHelpCircle, FiLogOut } from "react-icons/fi";
@@ -32,6 +32,33 @@ const LargeSidebar = () => {
                 <div className="content">
                     <DashboardNavLinks />
                 </div>
+                <div className="bottom-links px-6">
+                    <NavLink
+                        to="/dashboard/settings"
+                        className={({ isActive }) =>
+                            `nav-link ${isActive ? "active" : ""}`
+                        }
+                    >
+                        <FiSettings className="icon" />
+                        Settings
+                    </NavLink>
+                    <NavLink
+                        to="/dashboard/help"
+                        className={({ isActive }) =>
+                            `nav-link ${isActive ? "active" : ""}`
+                        }
+                    >
+                        <FiHelpCircle className="icon" />
+                        Help & Support
+                    </NavLink>
+                    <button
+                        onClick={handleLogout}
+                        className="nav-link text-left w-full"
+                    >
+                        <FiLogOut className="icon" />
+                        Logout
+                    </button>
+                </div>
             </div>
         </Wrapper>
     );
@@ -44,29 +71,29 @@ const Wrapper = styled.aside`
         display: flex;
         flex-direction: column;
         align-items: center;
+        padding: 2rem 0;
     }
 
     @media (min-width: 992px) {
         display: block;
         box-shadow: 1px 0px 0px 0px rgba(0, 0, 0, 0.1);
         position: relative;
-        height: 100vh; /* Full viewport height */
+        height: 100vh;
         width: 250px;
-        flex-shrink: 0; /* Prevent sidebar from shrinking */
-        overflow-y: hidden; /* Prevent scrolling on the wrapper */
+        flex-shrink: 0;
+        overflow-y: hidden;
 
         .sidebar-container {
             background: var(--background-secondary-color);
-            height: 100vh; /* Full viewport height */
+            height: 100vh;
             width: 250px;
             margin-left: -250px;
             transition: margin-left 0.3s ease-in-out;
-            padding: 2rem 0;
             display: flex;
             flex-direction: column;
             position: fixed;
             top: 0;
-            overflow-y: auto; /* Enable scrolling only for sidebar content */
+            overflow-y: auto;
         }
 
         .show-sidebar {
@@ -77,17 +104,17 @@ const Wrapper = styled.aside`
             flex: 1;
             display: flex;
             flex-direction: column;
-            min-height: 0; /* Crucial for overflow to work */
-            overflow-y: auto; /* Enable scrolling for sidebar content */
+            min-height: 0;
+            overflow-y: auto;
         }
 
         .bottom-links {
             margin-top: auto;
             padding-top: 1rem;
+            padding-bottom: 2rem;
             border-top: 1px solid rgba(0, 0, 0, 0.1);
         }
 
-        /* Rest of your styles remain unchanged */
         .nav-links {
             padding-top: 1.5rem;
             display: flex;
@@ -109,6 +136,10 @@ const Wrapper = styled.aside`
             font-weight: 400;
             font-size: 16px;
             opacity: 0.8;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
         }
 
         .nav-link:hover {
