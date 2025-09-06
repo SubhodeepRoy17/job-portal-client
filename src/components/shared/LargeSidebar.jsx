@@ -20,60 +20,17 @@ const LargeSidebar = () => {
                         : "sidebar-container"
                 }
             >
-                <div className="p-6 h-full overflow-y-auto">
-                    <div className="profile">
-                        <BiUserCircle className="text-5xl font-normal" />
-                        <h6 className="text-sm font-semibold capitalize mt-1">
-                            {user?.username}
-                        </h6>
-                        <p className="text-xs capitalize -mt-1 font-medium">
-                            {user?.role === 1 ? 'Admin' : user?.role === 2 ? 'Recruiter' : 'User'}
-                        </p>
-                    </div>
-                    
-                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-6">
-                        {user?.role === 2 ? 'EMPLOYERS DASHBOARD' : 'USER DASHBOARD'}
-                    </h3>
-                    
-                    <div className="content">
-                        <DashboardNavLinks />
-                    </div>
-                    
-                    <div className="border-t border-gray-200 pt-6 mt-6">
-                        <NavLink
-                            to="/dashboard/settings"
-                            className={({ isActive }) =>
-                                `flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                                    isActive
-                                        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                                }`
-                            }
-                        >
-                            <FiSettings className="mr-3 h-5 w-5" />
-                            Settings
-                        </NavLink>
-                        <NavLink
-                            to="/dashboard/help"
-                            className={({ isActive }) =>
-                                `flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                                    isActive
-                                        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                                }`
-                            }
-                        >
-                            <FiHelpCircle className="mr-3 h-5 w-5" />
-                            Help & Support
-                        </NavLink>
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md w-full"
-                        >
-                            <FiLogOut className="mr-3 h-5 w-5" />
-                            Logout
-                        </button>
-                    </div>
+                <div className="profile">
+                    <BiUserCircle className="text-5xl font-normal" />
+                    <h6 className="text-sm font-semibold capitalize mt-1">
+                        {user?.username}
+                    </h6>
+                    <p className="text-xs capitalize -mt-1 font-medium">
+                        {user?.role === 1 ? 'Admin' : user?.role === 2 ? 'Recruiter' : 'User'}
+                    </p>
+                </div>
+                <div className="content">
+                    <DashboardNavLinks />
                 </div>
             </div>
         </Wrapper>
@@ -83,26 +40,33 @@ const LargeSidebar = () => {
 const Wrapper = styled.aside`
     display: none;
 
+    .profile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
     @media (min-width: 992px) {
         display: block;
         box-shadow: 1px 0px 0px 0px rgba(0, 0, 0, 0.1);
         position: relative;
-        height: 100vh;
+        height: 100vh; /* Full viewport height */
         width: 250px;
-        flex-shrink: 0;
-        overflow-y: hidden;
+        flex-shrink: 0; /* Prevent sidebar from shrinking */
+        overflow-y: hidden; /* Prevent scrolling on the wrapper */
 
         .sidebar-container {
             background: var(--background-secondary-color);
-            height: 100vh;
+            height: 100vh; /* Full viewport height */
             width: 250px;
             margin-left: -250px;
             transition: margin-left 0.3s ease-in-out;
+            padding: 2rem 0;
             display: flex;
             flex-direction: column;
             position: fixed;
             top: 0;
-            overflow-y: auto;
+            overflow-y: auto; /* Enable scrolling only for sidebar content */
         }
 
         .show-sidebar {
@@ -113,6 +77,22 @@ const Wrapper = styled.aside`
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0; /* Crucial for overflow to work */
+            overflow-y: auto; /* Enable scrolling for sidebar content */
+        }
+
+        .bottom-links {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Rest of your styles remain unchanged */
+        .nav-links {
+            padding-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
             min-height: 0;
             overflow-y: auto;
         }
