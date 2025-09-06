@@ -1,4 +1,4 @@
-// src/components/shared/BottomNav.jsx
+//src/components/shared/BottomNav.jsx
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useUserContext } from "../../context/UserContext";
@@ -14,30 +14,30 @@ const BottomNav = () => {
     const isRecruiterOrUser = user?.role === 2 || user?.role === 3;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg flex justify-around items-center py-2 sm:hidden">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 flex justify-around items-center py-2 sm:hidden">
             {/* Home */}
             <NavLink
                 to="/"
                 className={({ isActive }) =>
-                    "flex flex-col items-center text-sm " +
+                    "flex flex-col items-center text-xs " +
                     (isActive ? "text-blue-600" : "text-gray-500")
                 }
                 end
             >
-                <ion-icon name="home-outline" style={{ fontSize: "24px" }}></ion-icon>
-                Home
+                <ion-icon name="home-outline" style={{ fontSize: "20px" }}></ion-icon>
+                <span className="mt-1">Home</span>
             </NavLink>
 
             {/* Jobs */}
             <NavLink
                 to="/dashboard/all-jobs"
                 className={({ isActive }) =>
-                    "flex flex-col items-center text-sm " +
+                    "flex flex-col items-center text-xs " +
                     (isActive ? "text-blue-600" : "text-gray-500")
                 }
             >
-                <ion-icon name="briefcase-outline" style={{ fontSize: "24px" }}></ion-icon>
-                Jobs
+                <ion-icon name="briefcase-outline" style={{ fontSize: "20px" }}></ion-icon>
+                <span className="mt-1">Jobs</span>
             </NavLink>
 
             {/* Applications (Recruiter or User) */}
@@ -45,12 +45,12 @@ const BottomNav = () => {
                 <NavLink
                     to="/dashboard/my-jobs"
                     className={({ isActive }) =>
-                        "flex flex-col items-center text-sm " +
+                        "flex flex-col items-center text-xs " +
                         (isActive ? "text-blue-600" : "text-gray-500")
                     }
                 >
-                    <ion-icon name="apps-outline" style={{ fontSize: "24px" }}></ion-icon>
-                    Applications
+                    <ion-icon name="apps-outline" style={{ fontSize: "20px" }}></ion-icon>
+                    <span className="mt-1">Applications</span>
                 </NavLink>
             )}
 
@@ -59,12 +59,12 @@ const BottomNav = () => {
                 <NavLink
                     to="/dashboard/manage-jobs"
                     className={({ isActive }) =>
-                        "flex flex-col items-center text-sm " +
+                        "flex flex-col items-center text-xs " +
                         (isActive ? "text-blue-600" : "text-gray-500")
                     }
                 >
-                    <ion-icon name="settings-outline" style={{ fontSize: "24px" }}></ion-icon>
-                    Manage
+                    <ion-icon name="settings-outline" style={{ fontSize: "20px" }}></ion-icon>
+                    <span className="mt-1">Manage</span>
                 </NavLink>
             )}
 
@@ -74,23 +74,23 @@ const BottomNav = () => {
                     <NavLink
                         to="/dashboard/admin"
                         className={({ isActive }) =>
-                            "flex flex-col items-center text-sm " +
+                            "flex flex-col items-center text-xs " +
                             (isActive ? "text-blue-600" : "text-gray-500")
                         }
                     >
-                        <ion-icon name="shield-outline" style={{ fontSize: "24px" }}></ion-icon>
-                        Info
+                        <ion-icon name="shield-outline" style={{ fontSize: "20px" }}></ion-icon>
+                        <span className="mt-1">Info</span>
                     </NavLink>
 
                     <NavLink
                         to="/dashboard/stats"
                         className={({ isActive }) =>
-                            "flex flex-col items-center text-sm " +
+                            "flex flex-col items-center text-xs " +
                             (isActive ? "text-blue-600" : "text-gray-500")
                         }
                     >
-                        <ion-icon name="stats-chart-outline" style={{ fontSize: "24px" }}></ion-icon>
-                        Stats
+                        <ion-icon name="stats-chart-outline" style={{ fontSize: "20px" }}></ion-icon>
+                        <span className="mt-1">Stats</span>
                     </NavLink>
                 </>
             )}
@@ -100,7 +100,7 @@ const BottomNav = () => {
                 to="/dashboard"
                 end
                 className={({ isActive }) =>
-                    "flex flex-col items-center text-sm " +
+                    "flex flex-col items-center text-xs " +
                     (isActive ? "text-blue-600" : "text-gray-500")
                 }
             >
@@ -108,12 +108,12 @@ const BottomNav = () => {
                     <img
                         src={profilePhoto}
                         alt="Profile"
-                        className="w-6 h-6 rounded-full"
+                        className="w-5 h-5 rounded-full"
                     />
                 ) : (
-                    <ion-icon name="person-outline" style={{ fontSize: "24px" }}></ion-icon>
+                    <ion-icon name="person-outline" style={{ fontSize: "20px" }}></ion-icon>
                 )}
-                Profile
+                <span className="mt-1">Profile</span>
             </NavLink>
         </div>
     );

@@ -1,4 +1,4 @@
-// src/components/shared/LargeSidebar.jsx
+//src/components/shared/LargeSidebar.jsx
 import React from "react";
 import { BiUserCircle } from "react-icons/bi";
 import { FiSettings, FiHelpCircle, FiLogOut } from "react-icons/fi";

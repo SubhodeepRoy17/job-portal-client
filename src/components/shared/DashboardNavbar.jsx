@@ -1,4 +1,4 @@
-// src/components/shared/DashboardNavbar.jsx
+//src/components/shared/DashboardNavbar.jsx
 import styled from "styled-components";
 import Logo from "../Logo";
 import { useDashboardContext } from "../../Layout/DashboardLayout";
@@ -18,15 +18,17 @@ const DashboardNavbar = () => {
                         className="toggler"
                         onClick={() => setShowSidebar(!showSidebar)}
                     >
-                        <ion-icon name="menu"></ion-icon>
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
                     </button>
                 </div>
                 <div className="center">
                     <Logo />
                 </div>
                 <div className="end">
-                    <Link to="/dashboard/notifications" className="notification-icon">
-                        <FiBell className="icon" />
+                    <Link to="/dashboard/notifications" className="notification-icon p-2 rounded-full hover:bg-gray-100 relative">
+                        <FiBell className="icon h-5 w-5" />
                         <span className="notification-dot"></span>
                     </Link>
                     <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center ml-3">
@@ -59,8 +61,6 @@ const Wrapper = styled.nav`
     }
 
     .start .toggler {
-        font-weight: 900;
-        font-size: 24px;
         color: var(--color-primary);
         cursor: pointer;
         border-radius: 6px;
@@ -87,15 +87,14 @@ const Wrapper = styled.nav`
         align-items: center;
         justify-content: center;
         color: var(--color-grey-700);
-        font-size: 1.5rem;
         position: relative;
         transition: all 0.3s ease;
     }
 
     .notification-dot {
         position: absolute;
-        top: -2px;
-        right: -2px;
+        top: 4px;
+        right: 4px;
         width: 8px;
         height: 8px;
         background-color: #FF3B30;
@@ -123,12 +122,7 @@ const Wrapper = styled.nav`
         padding: 0.5rem 0.8rem;
 
         .start .toggler {
-            font-size: 20px;
             padding: 3px 5px;
-        }
-
-        .notification-icon {
-            font-size: 1.3rem;
         }
 
         .center {
