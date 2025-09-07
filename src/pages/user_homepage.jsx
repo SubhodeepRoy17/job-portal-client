@@ -905,7 +905,7 @@ function ListingCard({ item }) {
             {item.tag}
           </span>
           {item.tag2 && (
-            <span className="ml-1 rounded-md bg-amber-400/95 px-1.5 py-1 text-xs font-medium text-gray-900 ring-1 ring-black/5">
+            <span className="ml-1 rounded-md bg-amber-400/95 px-1.5 py-1 text-xs font-medium text-gray-909 ring-1 ring-black/5">
               {item.tag2}
             </span>
           )}
@@ -1081,7 +1081,7 @@ function TopMentors() {
               </div>
 
               <div className="relative flex items-center justify-between">
-                <span className="inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-2 py-1 text-xs font-medium text-white">
+                <span className="inline-flex items-center gap-1 rounded-full bg-gray-909/80 px-2 py-1 text-xs font-medium text-white">
                   <div className="h-1.5 w-1.5 rounded-full bg-green-400"></div>
                   Available
                 </span>
@@ -1127,6 +1127,105 @@ function TopMentors() {
           </article>
         ))}
       </ScrollRail>
+      </div>
+    </section>
+  )
+}
+
+function PopularRightNow() {
+  const features = [
+    {
+      id: 1,
+      title: "Job Insights",
+      subtitle: "Daily Market",
+      description: "In-Depth Analysis",
+      icon: "📊",
+      color: "from-emerald-400 to-teal-500",
+      illustration: "💼",
+    },
+    {
+      id: 2,
+      title: "Career Tools",
+      subtitle: "Live Job",
+      description: "Updates and Notifications",
+      icon: "⚡",
+      color: "from-orange-400 to-red-500",
+      illustration: "🏆",
+    },
+    {
+      id: 3,
+      title: "Expert Lessons",
+      subtitle: "Engage with",
+      description: "Learning Modules",
+      icon: "🎓",
+      color: "from-pink-400 to-rose-500",
+      illustration: "💰",
+    },
+    {
+      id: 4,
+      title: "Career Chat",
+      subtitle: "Connect and",
+      description: "Collaborate with Professionals",
+      icon: "👥",
+      color: "from-purple-500 to-indigo-600",
+      illustration: "📋",
+    },
+  ]
+
+  return (
+    <section className="space-y-6 mt-8 md:mt-12 lg:mt-16">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold text-gray-900">Popular right now</h2>
+        <div className="flex items-center gap-1">
+          <span className="text-lg">⭐</span>
+          <span className="text-lg">⭐</span>
+          <span className="text-lg">⭐</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+        {features.map((feature) => (
+          <div
+            key={feature.id}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${feature.color} p-5 text-white min-h-[180px] flex flex-col justify-between`}
+          >
+            {/* Icon in top left */}
+            <div className="text-3xl mb-2">{feature.icon}</div>
+
+            {/* Main content */}
+            <div className="flex-1">
+              <h3 className="text-xl font-bold mb-1">{feature.title}</h3>
+              <p className="text-base font-medium opacity-90">{feature.subtitle}</p>
+              <p className="text-base font-medium opacity-90">{feature.description}</p>
+            </div>
+
+            {/* Illustration in bottom right */}
+            <div className="absolute bottom-4 right-4 text-2xl opacity-60">{feature.illustration}</div>
+
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
+            <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full translate-y-8 -translate-x-8"></div>
+          </div>
+        ))}
+      </div>
+
+      {/* Made for section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 p-6 text-white text-center">
+        <div className="relative z-10">
+          <h3 className="text-lg font-bold mb-2">
+            MADE FOR JOB SEEKERS <span className="text-gray-300">BY JOB SEEKERS</span> ❤️
+          </h3>
+          <button className="mt-3 rounded-full bg-white px-6 py-2.5 font-semibold text-purple-700 transition hover:bg-gray-100 text-sm">
+            Invite Job Seekers
+          </button>
+        </div>
+
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-4 left-8 w-12 h-12 bg-white rounded-full"></div>
+          <div className="absolute bottom-8 right-12 w-8 h-8 bg-white rounded-full"></div>
+          <div className="absolute top-1/2 right-4 w-6 h-6 bg-white rounded-full"></div>
+        </div>
       </div>
     </section>
   )
@@ -1473,6 +1572,7 @@ export default function UserHomepage() {
         <RailSection title="Internships" items={internships} />
         <RailSection title="Jobs" items={jobs} />
         <TopMentors />
+        <PopularRightNow />
       </div>
     </main>
   )
