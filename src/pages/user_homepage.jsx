@@ -1140,8 +1140,8 @@ function PopularRightNow() {
       subtitle: "Daily Market",
       description: "In-Depth Analysis",
       icon: "📊",
-      color: "from-emerald-400 to-teal-500",
-      illustration: "💼",
+      color: "from-emerald-100 to-teal-200",
+      illustration: "/winner.webp",
     },
     {
       id: 2,
@@ -1149,8 +1149,8 @@ function PopularRightNow() {
       subtitle: "Live Job",
       description: "Updates and Notifications",
       icon: "⚡",
-      color: "from-orange-400 to-red-500",
-      illustration: "🏆",
+      color: "from-orange-100 to-amber-200",
+      illustration: "/winner.webp",
     },
     {
       id: 3,
@@ -1158,8 +1158,8 @@ function PopularRightNow() {
       subtitle: "Engage with",
       description: "Learning Modules",
       icon: "🎓",
-      color: "from-pink-400 to-rose-500",
-      illustration: "💰",
+      color: "from-pink-100 to-rose-200",
+      illustration: "/winner.webp",
     },
     {
       id: 4,
@@ -1167,8 +1167,8 @@ function PopularRightNow() {
       subtitle: "Connect and",
       description: "Collaborate with Professionals",
       icon: "👥",
-      color: "from-purple-500 to-indigo-600",
-      illustration: "📋",
+      color: "from-purple-100 to-indigo-200",
+      illustration: "/winner.webp",
     },
   ]
 
@@ -1187,7 +1187,7 @@ function PopularRightNow() {
         {features.map((feature) => (
           <div
             key={feature.id}
-            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${feature.color} p-5 text-white min-h-[180px] flex flex-col justify-between`}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${feature.color} p-5 text-gray-800 min-h-[220px] flex flex-col justify-between`}
           >
             {/* Icon in top left */}
             <div className="text-3xl mb-2">{feature.icon}</div>
@@ -1199,29 +1199,35 @@ function PopularRightNow() {
               <p className="text-base font-medium opacity-90">{feature.description}</p>
             </div>
 
-            {/* Illustration in bottom right */}
-            <div className="absolute bottom-4 right-4 text-2xl opacity-60">{feature.illustration}</div>
+            {/* Image in bottom right */}
+            <div className="absolute bottom-4 right-4 w-16 h-16 opacity-80">
+              <img 
+                src={feature.illustration} 
+                alt="Feature illustration" 
+                className="w-full h-full object-contain"
+              />
+            </div>
 
             {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
-            <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full translate-y-8 -translate-x-8"></div>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-white/30 rounded-full -translate-y-10 translate-x-10"></div>
+            <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/20 rounded-full translate-y-8 -translate-x-8"></div>
           </div>
         ))}
       </div>
 
       {/* Made for section */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 p-6 text-white text-center">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-100 to-indigo-200 p-6 text-gray-800 text-center">
         <div className="relative z-10">
           <h3 className="text-lg font-bold mb-2">
-            MADE FOR JOB SEEKERS <span className="text-gray-300">BY JOB SEEKERS</span> ❤️
+            MADE FOR JOB SEEKERS <span className="text-gray-600">BY JOB SEEKERS</span> ❤️
           </h3>
-          <button className="mt-3 rounded-full bg-white px-6 py-2.5 font-semibold text-purple-700 transition hover:bg-gray-100 text-sm">
+          <button className="mt-3 rounded-full bg-white px-6 py-2.5 font-semibold text-purple-700 transition hover:bg-gray-100 text-sm shadow-sm">
             Invite Job Seekers
           </button>
         </div>
 
         {/* Decorative background elements */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-20">
           <div className="absolute top-4 left-8 w-12 h-12 bg-white rounded-full"></div>
           <div className="absolute bottom-8 right-12 w-8 h-8 bg-white rounded-full"></div>
           <div className="absolute top-1/2 right-4 w-6 h-6 bg-white rounded-full"></div>
