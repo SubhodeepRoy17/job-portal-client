@@ -1233,6 +1233,34 @@ function PopularRightNow() {
           <div className="absolute top-1/2 right-4 w-6 h-6 bg-white rounded-full"></div>
         </div>
       </div>
+
+      {/* New section with hiring statistics */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-100 to-cyan-200 p-6 text-gray-800">
+        <div className="relative z-10">
+          <p className="text-lg font-semibold text-center mb-4">
+            80% hiring without job postings, direct recruiter calls by viewing candidate profiles
+          </p>
+          
+          {/* Version info container */}
+          <div className="flex justify-center items-center mt-4">
+            <div className="bg-white/80 rounded-full px-4 py-2 text-sm font-medium text-gray-700 inline-flex items-center">
+              Version 1.0.0 
+              <a href="#" className="text-blue-600 hover:text-blue-800 ml-2 font-semibold flex items-center">
+                see what's new
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-6 right-8 w-10 h-10 bg-white rounded-full"></div>
+          <div className="absolute bottom-6 left-8 w-8 h-8 bg-white rounded-full"></div>
+        </div>
+      </div>
     </section>
   )
 }
