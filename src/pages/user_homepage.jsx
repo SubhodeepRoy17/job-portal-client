@@ -1187,7 +1187,9 @@ function PopularRightNow() {
         {features.map((feature) => (
           <div
             key={feature.id}
-            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${feature.color} p-5 text-gray-800 min-h-[220px] flex flex-col justify-between`}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${feature.color} 
+                        p-5 text-gray-800 min-h-[300px] md:min-h-[220px] 
+                        flex flex-col justify-between`}
           >
             {/* Icon in top left */}
             <div className="text-3xl mb-2">{feature.icon}</div>
