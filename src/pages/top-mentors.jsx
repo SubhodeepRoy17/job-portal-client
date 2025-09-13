@@ -12,74 +12,77 @@ const TopMentorsPage = () => {
   const fetchMentors = async (pageNum) => {
     setLoading(true);
     try {
-      // Simulate API call - replace with your actual API endpoint
-      setTimeout(() => {
-        // Mock data - in reality, fetch from your API filtering by type=3
-        const mockMentors = [
-          {
-            id: 1,
-            name: "Vedansh Dubey",
-            title: "Assistant Manager HR @Wipro | MBA @XIMB, Ex-TCS, Nestlé, Tata Media | ...",
-            rating: 4.9,
-            image: "/professional-man-in-suit-smiling.jpg",
-            type: 3
-          },
-          {
-            id: 2,
-            name: "Rutwik Borkar",
-            title: "Flipkart | Bain & Co.| Gold Medalist, IIT Madras | XLRI Jamshedpur-BM' 24 | ...",
-            rating: 4.9,
-            image: "/professional-businessman.png",
-            type: 3
-          },
-          {
-            id: 3,
-            name: "Yash Patel",
-            title: "Strategy Manager @ Parag Milk Foods [MD's Office] | 300k+ Impressions | 32x ...",
-            rating: 4.8,
-            image: "/professional-man-with-beard-smiling.png",
-            type: 3
-          },
-          {
-            id: 4,
-            name: "Shiri Agarwal",
-            title: "Product @Telstra | MBA @MDI Gurgaon'24 | Rank 6th Unstoppable ...",
-            rating: 4.9,
-            image: "/professional-woman-smiling.png",
-            type: 3
-          },
-          {
-            id: 5,
-            name: "Alex Johnson",
-            title: "Senior Product Manager @Google | Ex-Microsoft | Tech Lead",
-            rating: 4.8,
-            image: "/professional-man-smiling.jpg",
-            type: 3
-          },
-          {
-            id: 6,
-            name: "Sarah Williams",
-            title: "Data Scientist @Amazon | Machine Learning Expert | PhD in CS",
-            rating: 4.9,
-            image: "/professional-woman-smiling.jpg",
-            type: 3
-          },
-        ];
+      const response = await fetch(`/api/mentors?role=3&page=${pageNum}&limit=20&exclude_current=true`, {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
         
         if (pageNum === 1) {
-          setMentors(mockMentors);
+          setMentors(data.mentors);
         } else {
-          setMentors(prev => [...prev, ...mockMentors]);
+          setMentors(prev => [...prev, ...data.mentors]);
         }
         
-        // For demo purposes, we'll stop after 2 pages
-        setHasMore(pageNum < 2);
-        setLoading(false);
-      }, 1000);
+        setHasMore(data.hasMore);
+      } else {
+        console.error('Failed to fetch mentors');
+        // Fallback to mock data if API fails
+        useMockData(pageNum);
+      }
     } catch (error) {
       console.error('Error fetching mentors:', error);
+      // Fallback to mock data
+      useMockData(pageNum);
+    } finally {
       setLoading(false);
     }
+  };
+
+  const useMockData = (pageNum) => {
+    const mockMentors = [
+      {
+        id: 1,
+        full_name: "Vedansh Dubey",
+        headline: "Assistant Manager HR @Wipro | MBA @XIMB, Ex-TCS, Nestlé, Tata Media",
+        rating: 4.9,
+        profile_photo: "/professional-man-in-suit-smiling.jpg",
+        type: 3
+      },
+      {
+        id: 2,
+        full_name: "Rutwik Borkar",
+        headline: "Flipkart | Bain & Co.| Gold Medalist, IIT Madras | XLRI Jamshedpur-BM' 24",
+        rating: 4.9,
+        profile_photo: "/professional-businessman.png",
+        type: 3
+      },
+      {
+        id: 3,
+        full_name: "Yash Patel",
+        headline: "Strategy Manager @ Parag Milk Foods [MD's Office] | 300k+ Impressions | 32x",
+        rating: 4.8,
+        profile_photo: "/professional-man-with-beard-smiling.png",
+        type: 3
+      },
+      {
+        id: 4,
+        full_name: "Shiri Agarwal",
+        headline: "Product @Telstra | MBA @MDI Gurgaon'24 | Rank 6th Unstoppable",
+        rating: 4.9,
+        profile_photo: "/professional-woman-smiling.png",
+        type: 3
+      }
+    ];
+    
+    if (pageNum === 1) {
+      setMentors(mockMentors);
+    } else {
+      setMentors(prev => [...prev, ...mockMentors]);
+    }
+    
+    setHasMore(pageNum < 2);
   };
 
   useEffect(() => {
@@ -112,12 +115,12 @@ const TopMentorsPage = () => {
           className="mb-6 flex items-center text-blue-600 hover:text-blue-800"
         >
           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 极速赛车开奖直播 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
           Back
         </button>
         
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Connect People & Grow</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">All Top Mentors</h1>
         <p className="text-gray-600 mb-8">
           Browse through our community of highly-rated mentors as recognized by learners.
         </p>
@@ -133,7 +136,7 @@ const TopMentorsPage = () => {
 
         {/* Tablet/Desktop: 3-4 cards per row */}
         <div className="hidden sm:block">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:极速赛车开奖直播 grid-cols-4 gap-6">
             {mentors.map((mentor) => (
               <DesktopMentorCard key={mentor.id} mentor={mentor} />
             ))}
@@ -171,7 +174,7 @@ const MobileMentorCard = ({ mentor }) => {
             <svg className="h-3.5 w-3.5 text-amber-800" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
-                d="M10 2L7.5 7H2l4.5 3.5L5 16l5-3 5 3-1.5-5.5L18 7h-5.5L10 2z"
+                d="M10 2L7.5 7H2l4.5 3.5L5 16极速赛车开奖直播 l5-3 5 3-1.5-5.5L18 7h-5.5L10 2z"
                 clipRule="evenodd"
               />
             </svg>
@@ -183,8 +186,8 @@ const MobileMentorCard = ({ mentor }) => {
       <div className="relative -mt-8 px-3 pb-3">
         <div className="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-gray-100">
           <img
-            src={mentor.image || "/placeholder.svg"}
-            alt={mentor.name}
+            src={mentor.profile_photo || "/placeholder.svg"}
+            alt={mentor.full_name}
             className="h-full w-full object-cover"
           />
         </div>
@@ -192,15 +195,17 @@ const MobileMentorCard = ({ mentor }) => {
         {/* Rating */}
         <div className="mb-1 flex items-center justify-center gap-1">
           <svg className="h-3.5 w-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0极速赛车开奖直播 l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.极速赛车开奖直播 07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
           <span className="text-xs font-semibold text-gray-900">{mentor.rating}</span>
         </div>
 
         {/* Text Content */}
         <div className="space-y-1 text-center">
-          <h4 className="font-semibold text-gray-900 text-sm">{mentor.name}</h4>
-          <p className="text-[11px] text-gray-600 leading-snug line-clamp-2">{mentor.title}</p>
+          <h4 className="font-semibold text-gray-900 text-sm">{mentor.full_name}</h4>
+          <p className="text-[11px] text-gray-600 leading-snug line-clamp-2">
+            {mentor.headline}...
+          </p>
         </div>
 
         {/* Button */}
@@ -226,7 +231,7 @@ const DesktopMentorCard = ({ mentor }) => {
         </div>
 
         <div className="relative flex items-center justify-between">
-          <span className="inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-2 py-1 text-xs font-medium text-white">
+          <span className="inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-2极速赛车开奖直播 py-1 text-xs font-medium text-white">
             <div className="h-1.5 w-1.5 rounded-full bg-green-400"></div>
             Available
           </span>
@@ -245,22 +250,24 @@ const DesktopMentorCard = ({ mentor }) => {
       <div className="relative -mt-8 px-4 pb-4">
         <div className="mx-auto mb-3 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-100">
           <img
-            src={mentor.image || "/placeholder.svg"}
-            alt={mentor.name}
+            src={mentor.profile_photo || "/placeholder.svg"}
+            alt={mentor.full_name}
             className="h-full w-full object-cover"
           />
         </div>
 
         <div className="mb-2 flex items-center justify-center gap-1">
           <svg className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292极速赛车开奖直播 z" />
           </svg>
           <span className="text-sm font-semibold text-gray-900">{mentor.rating}</span>
         </div>
 
         <div className="space-y-2 text-center">
-          <h4 className="font-semibold text-gray-900">{mentor.name}</h4>
-          <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">{mentor.title}</p>
+          <h4 className="font-semibold text-gray-900">{mentor.full_name}</h4>
+          <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">
+            {mentor.headline}...
+          </p>
         </div>
 
         <div className="mt-4">
