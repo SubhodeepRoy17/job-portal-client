@@ -30,7 +30,7 @@ import {
     CompanyHomePage,
     Notifications,
     Settings,
-    TopMentorPage,
+    TopMentorsPage,
     FAQs,
     AboutUs,
     Certificates,
@@ -103,7 +103,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "top-mentors",
-                element: <TopMentorPage />,
+                element: <TopMentorsPage />,
             },
             {
                 path: "admin-home",
