@@ -997,7 +997,7 @@ function TopMentors() {
             In search of excellence? Explore the highest-rated mentors as recognized by the learner community.
           </p>
         </div>
-        <Link href="/top-mentors" className="shrink-0 text-sm font-medium text-blue-600 hover:underline">
+        <Link to={`/top-mentors`} className="shrink-0 text-sm font-medium text-blue-600 hover:underline">
           View all →
         </Link>
       </div>
