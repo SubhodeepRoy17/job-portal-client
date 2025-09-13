@@ -992,12 +992,12 @@ function TopMentors() {
     <section className="space-y-4">
       <div className="flex items-end justify-between">
         <div>
-          <h3 className="text-2xl font-semibold text-gray-900">Top Mentors</h3>
+          <h3 className="text-2xl font-semibold text-gray-900">Connect People & Grow</h3>
           <p className="mt-1 text-sm text-gray-600">
             In search of excellence? Explore the highest-rated mentors as recognized by the learner community.
           </p>
         </div>
-        <a href="#" className="shrink-0 text-sm font-medium text-blue-600 hover:underline">
+        <a href="/top-mentors" className="shrink-0 text-sm font-medium text-blue-600 hover:underline">
           View all →
         </a>
       </div>
