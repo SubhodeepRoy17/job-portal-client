@@ -17,6 +17,7 @@ export { default as CompanyRegister } from "./CompanyRegister"
 export  { default as CompanyDashboard } from "./CompanyDashboard";
 export { default as CompanyLogin } from "./CompanyLogin";
 export { default as Profile } from "./Profile";
+export { default as TopMentorPage } from "./top-mentors"
 export { default as EditProfile } from "./EditProfile";
 export { default as CompanyEditProfile } from "./CompanyEditProfile";
 export { default as ManageUsers } from "./ManageUsers";
