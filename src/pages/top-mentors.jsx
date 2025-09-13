@@ -117,7 +117,7 @@ const TopMentorsPage = () => {
           Back
         </button>
         
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">All Top Mentors</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Connect People & Grow</h1>
         <p className="text-gray-600 mb-8">
           Browse through our community of highly-rated mentors as recognized by learners.
         </p>
