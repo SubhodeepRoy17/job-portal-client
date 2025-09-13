@@ -20,7 +20,10 @@ const TopMentorsPage = () => {
       // First, try to get current user info to exclude them
       let currentUserId = null;
       try {
-        const userResponse = await fetch('/api/users/me', {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+        const userUrl = baseUrl ? `${baseUrl}/api/users/me` : '/api/users/me';
+        
+        const userResponse = await fetch(userUrl, {
           credentials: 'include'
         });
         
@@ -33,7 +36,10 @@ const TopMentorsPage = () => {
       }
 
       // Try the new API endpoint
-      const apiUrl = `/api/mentors?role=3&page=${pageNum}&limit=20&exclude_current=${!!currentUserId}`;
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const apiUrl = baseUrl 
+        ? `${baseUrl}/api/mentors?role=3&page=${pageNum}&limit=20&exclude_current=${!!currentUserId}`
+        : `/api/mentors?role=3&page=${pageNum}&limit=20&exclude_current=${!!currentUserId}`;
       console.log('API URL:', apiUrl);
       
       const response = await fetch(apiUrl, {
