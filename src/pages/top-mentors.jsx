@@ -33,6 +33,22 @@ const TopMentorsPage = () => {
             type: 3
           },
           {
+            id: 3,
+            name: "Yash Patel",
+            title: "Strategy Manager @ Parag Milk Foods [MD's Office] | 300k+ Impressions | 32x ...",
+            rating: 4.8,
+            image: "/professional-man-with-beard-smiling.png",
+            type: 3
+          },
+          {
+            id: 4,
+            name: "Shiri Agarwal",
+            title: "Product @Telstra | MBA @MDI Gurgaon'24 | Rank 6th Unstoppable ...",
+            rating: 4.9,
+            image: "/professional-woman-smiling.png",
+            type: 3
+          },
+          {
             id: 5,
             name: "Alex Johnson",
             title: "Senior Product Manager @Google | Ex-Microsoft | Tech Lead",
@@ -106,10 +122,22 @@ const TopMentorsPage = () => {
           Browse through our community of highly-rated mentors as recognized by learners.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {mentors.map((mentor) => (
-            <MentorCard key={mentor.id} mentor={mentor} />
-          ))}
+        {/* Mobile: 2 cards per row */}
+        <div className="block sm:hidden">
+          <div className="grid grid-cols-2 gap-4">
+            {mentors.map((mentor) => (
+              <MobileMentorCard key={mentor.id} mentor={mentor} />
+            ))}
+          </div>
+        </div>
+
+        {/* Tablet/Desktop: 3-4 cards per row */}
+        <div className="hidden sm:block">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {mentors.map((mentor) => (
+              <DesktopMentorCard key={mentor.id} mentor={mentor} />
+            ))}
+          </div>
         </div>
 
         {loading && (
@@ -128,7 +156,66 @@ const TopMentorsPage = () => {
   );
 };
 
-const MentorCard = ({ mentor }) => {
+// Mobile Mentor Card (2 per row)
+const MobileMentorCard = ({ mentor }) => {
+  return (
+    <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      {/* Header gradient */}
+      <div className="relative h-24 bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-500 p-2">
+        <div className="relative flex items-center justify-between">
+          <span className="inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-1.5 py-0.5 text-[10px] font-medium text-white">
+            <div className="h-1.5 w-1.5 rounded-full bg-green-400"></div>
+            Available
+          </span>
+          <div className="rounded-full bg-amber-400 p-1">
+            <svg className="h-3.5 w-3.5 text-amber-800" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M10 2L7.5 7H2l4.5 3.5L5 16l5-3 5 3-1.5-5.5L18 7h-5.5L10 2z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Profile Content */}
+      <div className="relative -mt-8 px-3 pb-3">
+        <div className="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-gray-100">
+          <img
+            src={mentor.image || "/placeholder.svg"}
+            alt={mentor.name}
+            className="h-full w-full object-cover"
+          />
+        </div>
+
+        {/* Rating */}
+        <div className="mb-1 flex items-center justify-center gap-1">
+          <svg className="h-3.5 w-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+          <span className="text-xs font-semibold text-gray-900">{mentor.rating}</span>
+        </div>
+
+        {/* Text Content */}
+        <div className="space-y-1 text-center">
+          <h4 className="font-semibold text-gray-900 text-sm">{mentor.name}</h4>
+          <p className="text-[11px] text-gray-600 leading-snug line-clamp-2">{mentor.title}</p>
+        </div>
+
+        {/* Button */}
+        <div className="mt-2">
+          <button className="w-full rounded-full border border-gray-300 bg-white px-2 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50">
+            View Profile
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+};
+
+// Desktop Mentor Card (3-4 per row)
+const DesktopMentorCard = ({ mentor }) => {
   return (
     <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="relative h-32 bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-500 p-4">
