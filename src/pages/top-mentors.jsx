@@ -40,19 +40,40 @@ const TopMentorsPage = () => {
         credentials: 'include',
         headers: {
           'Accept': 'application/json',
+          'Content-Type': 'application/json'
         }
       });
       
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
       // Check if response is JSON
       const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server returned non-JSON response');
+      console.log('Content-Type:', contentType);
+      
+      if (!response.ok) {
+        // Try to get error message from response
+        let errorMessage = `API returned ${response.status}: ${response.statusText}`;
+        try {
+          const errorText = await response.text();
+          console.log('Error response body:', errorText);
+          errorMessage += ` - ${errorText}`;
+        } catch (e) {
+          console.log('Could not read error response body');
+        }
+        throw new Error(errorMessage);
       }
       
-      if (response.ok) {
-        const data = await response.json();
-        console.log('API response:', data);
-        
+      if (!contentType || !contentType.includes('application/json')) {
+        const responseText = await response.text();
+        console.log('Non-JSON response body:', responseText);
+        throw new Error('Server returned non-JSON response: ' + responseText.substring(0, 200));
+      }
+      
+      const data = await response.json();
+      console.log('API response:', data);
+      
+      if (data.status === true) {
         if (pageNum === 1) {
           setMentors(data.mentors || []);
         } else {
@@ -61,11 +82,11 @@ const TopMentorsPage = () => {
         
         setHasMore(data.hasMore || false);
       } else {
-        throw new Error(`API returned ${response.status}: ${response.statusText}`);
+        throw new Error(data.message || 'API returned unsuccessful status');
       }
     } catch (error) {
       console.error('Error fetching mentors from API:', error);
-      setError('Could not load mentors from server. Using demo data.');
+      setError(`Could not load mentors from server: ${error.message}. Using demo data.`);
       // Fallback to mock data
       useMockData(pageNum);
     } finally {
@@ -246,7 +267,7 @@ const MobileMentorCard = ({ mentor }) => {
         {/* Rating */}
         <div className="mb-1 flex items-center justify-center gap-1">
           <svg className="h-3.5 w-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 10 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
           <span className="text-xs font-semibold text-gray-900">{mentor.rating}</span>
         </div>
@@ -255,7 +276,7 @@ const MobileMentorCard = ({ mentor }) => {
         <div className="space-y-1 text-center">
           <h4 className="font-semibold text-gray-900 text-sm">{mentor.full_name}</h4>
           <p className="text-[11px] text-gray-600 leading-snug line-clamp-2">
-            {mentor.headline}...
+            {mentor.headline}
           </p>
         </div>
 
@@ -309,7 +330,7 @@ const DesktopMentorCard = ({ mentor }) => {
 
         <div className="mb-2 flex items-center justify-center gap-1">
           <svg className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292 z" />
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
           <span className="text-sm font-semibold text-gray-900">{mentor.rating}</span>
         </div>
@@ -317,7 +338,7 @@ const DesktopMentorCard = ({ mentor }) => {
         <div className="space-y-2 text-center">
           <h4 className="font-semibold text-gray-900">{mentor.full_name}</h4>
           <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">
-            {mentor.headline}...
+            {mentor.headline}
           </p>
         </div>
 
