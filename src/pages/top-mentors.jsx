@@ -7,32 +7,65 @@ const TopMentorsPage = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const fetchMentors = async (pageNum) => {
     setLoading(true);
+    setError(null);
+    
     try {
-      const response = await fetch(`/api/mentors?role=3&page=${pageNum}&limit=20&exclude_current=true`, {
-        credentials: 'include'
+      console.log('Fetching mentors page:', pageNum);
+      
+      // First, try to get current user info to exclude them
+      let currentUserId = null;
+      try {
+        const userResponse = await fetch('/api/users/me', {
+          credentials: 'include'
+        });
+        
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          currentUserId = userData.result?.id;
+        }
+      } catch (userError) {
+        console.log('Could not fetch current user, proceeding without exclusion');
+      }
+
+      // Try the new API endpoint
+      const apiUrl = `/api/mentors?role=3&page=${pageNum}&limit=20&exclude_current=${!!currentUserId}`;
+      console.log('API URL:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        }
       });
+      
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server returned non-JSON response');
+      }
       
       if (response.ok) {
         const data = await response.json();
+        console.log('API response:', data);
         
         if (pageNum === 1) {
-          setMentors(data.mentors);
+          setMentors(data.mentors || []);
         } else {
-          setMentors(prev => [...prev, ...data.mentors]);
+          setMentors(prev => [...prev, ...(data.mentors || [])]);
         }
         
-        setHasMore(data.hasMore);
+        setHasMore(data.hasMore || false);
       } else {
-        console.error('Failed to fetch mentors');
-        // Fallback to mock data if API fails
-        useMockData(pageNum);
+        throw new Error(`API returned ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Error fetching mentors:', error);
+      console.error('Error fetching mentors from API:', error);
+      setError('Could not load mentors from server. Using demo data.');
       // Fallback to mock data
       useMockData(pageNum);
     } finally {
@@ -41,6 +74,7 @@ const TopMentorsPage = () => {
   };
 
   const useMockData = (pageNum) => {
+    console.log('Using mock data for page:', pageNum);
     const mockMentors = [
       {
         id: 1,
@@ -79,10 +113,15 @@ const TopMentorsPage = () => {
     if (pageNum === 1) {
       setMentors(mockMentors);
     } else {
-      setMentors(prev => [...prev, ...mockMentors]);
+      // For infinite scroll, add more mock data
+      const moreMentors = mockMentors.map(mentor => ({
+        ...mentor,
+        id: mentor.id + (pageNum * 10) // Make IDs unique for each page
+      }));
+      setMentors(prev => [...prev, ...moreMentors]);
     }
     
-    setHasMore(pageNum < 2);
+    setHasMore(pageNum < 3); // Allow 3 pages of mock data
   };
 
   useEffect(() => {
@@ -125,6 +164,12 @@ const TopMentorsPage = () => {
           Browse through our community of highly-rated mentors as recognized by learners.
         </p>
 
+        {error && (
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+
         {/* Mobile: 2 cards per row */}
         <div className="block sm:hidden">
           <div className="grid grid-cols-2 gap-4">
@@ -136,7 +181,7 @@ const TopMentorsPage = () => {
 
         {/* Tablet/Desktop: 3-4 cards per row */}
         <div className="hidden sm:block">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl: grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {mentors.map((mentor) => (
               <DesktopMentorCard key={mentor.id} mentor={mentor} />
             ))}
@@ -152,6 +197,12 @@ const TopMentorsPage = () => {
         {!hasMore && mentors.length > 0 && (
           <div className="text-center mt-8 text-gray-500">
             You've reached the end of the list
+          </div>
+        )}
+
+        {mentors.length === 0 && !loading && (
+          <div className="text-center mt-8 text-gray-500">
+            No mentors found
           </div>
         )}
       </div>
@@ -174,7 +225,7 @@ const MobileMentorCard = ({ mentor }) => {
             <svg className="h-3.5 w-3.5 text-amber-800" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
-                d="M10 2L7.5 7H2l4.5 3.5L5 16 l5-3 5 3-1.5-5.5L18 7h-5.5L10 2z"
+                d="M10 2L7.5 7H2l4.5 3.5L5 16l5-3 5 3-1.5-5.5L18 7h-5.5L10 2z"
                 clipRule="evenodd"
               />
             </svg>
@@ -195,7 +246,7 @@ const MobileMentorCard = ({ mentor }) => {
         {/* Rating */}
         <div className="mb-1 flex items-center justify-center gap-1">
           <svg className="h-3.5 w-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0 l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1. 07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 极速赛车开奖直播 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
           <span className="text-xs font-semibold text-gray-900">{mentor.rating}</span>
         </div>
