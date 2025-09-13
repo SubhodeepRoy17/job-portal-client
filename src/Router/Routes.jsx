@@ -30,6 +30,7 @@ import {
     CompanyHomePage,
     Notifications,
     Settings,
+    TopMentorPage,
     FAQs,
     AboutUs,
     Certificates,
@@ -99,6 +100,10 @@ const router = createBrowserRouter([
             {
                 path: "user-home",
                 element: <UserHomePage />,
+            },
+            {
+                path: "top-mentors",
+                element: <TopMentorPage />,
             },
             {
                 path: "admin-home",
