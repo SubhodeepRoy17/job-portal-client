@@ -1,14 +1,13 @@
-// pages/top-mentors.jsx
+// src/pages/top-mentors.jsx
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import Head from 'next/head';
+import { useNavigate } from 'react-router-dom';
 
 const TopMentorsPage = () => {
   const [mentors, setMentors] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const fetchMentors = async (pageNum) => {
     setLoading(true);
@@ -17,7 +16,6 @@ const TopMentorsPage = () => {
       setTimeout(() => {
         // Mock data - in reality, fetch from your API filtering by type=3
         const mockMentors = [
-          // Your initial mentors plus more
           {
             id: 1,
             name: "Vedansh Dubey",
@@ -34,7 +32,6 @@ const TopMentorsPage = () => {
             image: "/professional-businessman.png",
             type: 3
           },
-          // Add more mock mentors with type=3
           {
             id: 5,
             name: "Alex Johnson",
@@ -51,7 +48,6 @@ const TopMentorsPage = () => {
             image: "/professional-woman-smiling.jpg",
             type: 3
           },
-          // Add more as needed
         ];
         
         if (pageNum === 1) {
@@ -94,13 +90,9 @@ const TopMentorsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <Head>
-        <title>All Top Mentors</title>
-      </Head>
-      
       <div className="container mx-auto px-4">
         <button 
-          onClick={() => router.back()}
+          onClick={() => navigate(-1)}
           className="mb-6 flex items-center text-blue-600 hover:text-blue-800"
         >
           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
