@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Navbar from "../components/shared/Navbar";
 import BottomNav from "../components/shared/BottomNav";
-import ShimmerLoading from "../components/shared/ShimmerLoading";
 
 const TopMentorsPage = () => {
   const [mentors, setMentors] = useState([]);
@@ -125,6 +124,71 @@ const TopMentorsPage = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [loading, hasMore]);
+
+  // Mobile Shimmer Card
+  const MobileShimmerCard = () => {
+    return (
+      <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        {/* Header gradient shimmer */}
+        <div className="relative h-24 bg-gray-300 animate-pulse"></div>
+
+        {/* Profile Content */}
+        <div className="relative -mt-8 px-3 pb-3">
+          <div className="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-gray-300 animate-pulse"></div>
+
+          {/* Rating shimmer */}
+          <div className="mb-1 flex items-center justify-center gap-1">
+            <div className="h-3.5 w-3.5 bg-gray-300 rounded animate-pulse"></div>
+            <div className="h-3 w-8 bg-gray-300 rounded animate-pulse"></div>
+          </div>
+
+          {/* Text Content shimmer */}
+          <div className="space-y-1 text-center">
+            <div className="h-4 bg-gray-300 rounded mx-auto w-3/4 animate-pulse"></div>
+            <div className="h-3 bg-gray-300 rounded mx-auto w-5/6 animate-pulse"></div>
+            <div className="h-3 bg-gray-300 rounded mx-auto w-4/6 animate-pulse"></div>
+          </div>
+
+          {/* Button shimmer */}
+          <div className="mt-2">
+            <div className="w-full h-8 bg-gray-300 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </article>
+    );
+  };
+
+  // Desktop Shimmer Card
+  const DesktopShimmerCard = () => {
+    return (
+      <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        {/* Header gradient shimmer */}
+        <div className="relative h-32 bg-gray-300 animate-pulse"></div>
+
+        <div className="relative -mt-8 px-4 pb-4">
+          <div className="mx-auto mb-3 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-300 animate-pulse"></div>
+
+          {/* Rating shimmer */}
+          <div className="mb-2 flex items-center justify-center gap-1">
+            <div className="h-4 w-4 bg-gray-300 rounded animate-pulse"></div>
+            <div className="h-4 w-10 bg-gray-300 rounded animate-pulse"></div>
+          </div>
+
+          {/* Text Content shimmer */}
+          <div className="space-y-2 text-center">
+            <div className="h-5 bg-gray-300 rounded mx-auto w-3/4 animate-pulse"></div>
+            <div className="h-4 bg-gray-300 rounded mx-auto w-5/6 animate-pulse"></div>
+            <div className="h-4 bg-gray-300 rounded mx-auto w-4/6 animate-pulse"></div>
+          </div>
+
+          {/* Button shimmer */}
+          <div className="mt-4">
+            <div className="w-full h-10 bg-gray-300 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </article>
+    );
+  };
 
   // Mobile Mentor Card (2 per row)
   const MobileMentorCard = ({ mentor }) => {
@@ -275,8 +339,10 @@ const TopMentorsPage = () => {
             {loading && mentors.length === 0 ? (
               // Show shimmer cards when loading and no mentors yet
               <>
-                <ShimmerLoading type="mobile-mentor" count={2} />
-                <ShimmerLoading type="mobile-mentor" count={2} />
+                <MobileShimmerCard />
+                <MobileShimmerCard />
+                <MobileShimmerCard />
+                <MobileShimmerCard />
               </>
             ) : (
               // Show actual mentor cards
@@ -293,7 +359,14 @@ const TopMentorsPage = () => {
             {loading && mentors.length === 0 ? (
               // Show shimmer cards when loading and no mentors yet
               <>
-                <ShimmerLoading type="desktop-mentor" count={8} />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
               </>
             ) : (
               // Show actual mentor cards
