@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 const TopMentorsPage = () => {
@@ -8,7 +8,7 @@ const TopMentorsPage = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState('mentors');
   const navigate = useNavigate();
   
   // Get token and user ID at the top level
@@ -124,6 +124,43 @@ const TopMentorsPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [loading, hasMore]);
 
+  // Desktop Header Component
+  const DesktopHeader = () => (
+    <header className="hidden md:flex items-center justify-between bg-white shadow-md px-6 py-4">
+      <Link to="/dashboard" className="text-xl font-bold text-blue-600">
+        JobPortal
+      </Link>
+      
+      <nav className="flex items-center space-x-6">
+        <Link to="/dashboard" className="text-gray-700 hover:text-blue-600">Home</Link>
+        <Link to="/jobs" className="text-gray-700 hover:text-blue-600">Jobs</Link>
+        <Link to="/network" className="text-gray-700 hover:text-blue-600">Network</Link>
+        <Link to="/messages" className="text-gray-700 hover:text-blue-600">Messages</Link>
+        <Link to="/notifications" className="text-gray-700 hover:text-blue-600">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </Link>
+        
+        <Link to={`/dashboard/edit-profile/${user?.id}`} className="flex items-center">
+          {user?.profile_photo ? (
+            <img
+              src={user.profile_photo}
+              alt="Profile"
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+              <span className="text-sm font-medium text-gray-600">
+                {user?.full_name?.charAt(0) || 'U'}
+              </span>
+            </div>
+          )}
+        </Link>
+      </nav>
+    </header>
+  );
+
   // Mobile Header Component
   const MobileHeader = () => (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-50 md:hidden">
@@ -140,7 +177,11 @@ const TopMentorsPage = () => {
         
         <h1 className="text-xl font-bold text-gray-900">Top Mentors</h1>
         
-        <div className="w-10"></div> {/* Spacer for balance */}
+        <Link to="/notifications" className="text-gray-700">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </Link>
       </div>
     </header>
   );
@@ -150,7 +191,10 @@ const TopMentorsPage = () => {
     <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 md:hidden">
       <div className="flex justify-around items-center p-3">
         <button 
-          onClick={() => navigate('/dashboard')}
+          onClick={() => {
+            setActiveTab('home');
+            navigate('/dashboard');
+          }}
           className={`flex flex-col items-center p-2 ${activeTab === 'home' ? 'text-blue-600' : 'text-gray-600'}`}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,7 +204,10 @@ const TopMentorsPage = () => {
         </button>
         
         <button 
-          onClick={() => navigate('/jobs')}
+          onClick={() => {
+            setActiveTab('jobs');
+            navigate('/jobs');
+          }}
           className={`flex flex-col items-center p-2 ${activeTab === 'jobs' ? 'text-blue-600' : 'text-gray-600'}`}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +217,10 @@ const TopMentorsPage = () => {
         </button>
         
         <button 
-          onClick={() => navigate('/network')}
+          onClick={() => {
+            setActiveTab('network');
+            navigate('/network');
+          }}
           className={`flex flex-col items-center p-2 ${activeTab === 'network' ? 'text-blue-600' : 'text-gray-600'}`}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,13 +230,39 @@ const TopMentorsPage = () => {
         </button>
         
         <button 
-          onClick={() => navigate('/notifications')}
-          className={`flex flex-col items-center p-2 ${activeTab === 'notifications' ? 'text-blue-600' : 'text-gray-600'}`}
+          onClick={() => {
+            setActiveTab('mentors');
+            navigate('/top-mentors');
+          }}
+          className={`flex flex-col items-center p-2 ${activeTab === 'mentors' ? 'text-blue-600' : 'text-gray-600'}`}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
-          <span className="text-xs mt-1">Notifications</span>
+          <span className="text-xs mt-1">Mentors</span>
+        </button>
+        
+        <button 
+          onClick={() => {
+            setActiveTab('profile');
+            navigate(`/dashboard/edit-profile/${user?.id}`);
+          }}
+          className={`flex flex-col items-center p-2 ${activeTab === 'profile' ? 'text-blue-600' : 'text-gray-600'}`}
+        >
+          {user?.profile_photo ? (
+            <img
+              src={user.profile_photo}
+              alt="Profile"
+              className="w-6 h-6 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
+              <span className="text-xs font-medium text-gray-600">
+                {user?.full_name?.charAt(0) || 'U'}
+              </span>
+            </div>
+          )}
+          <span className="text-xs mt-1">Profile</span>
         </button>
       </div>
     </footer>
@@ -321,6 +397,9 @@ const TopMentorsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-0 pt-16 md:pt-0">
+      {/* Desktop Header */}
+      <DesktopHeader />
+      
       {/* Mobile Header */}
       <MobileHeader />
       
