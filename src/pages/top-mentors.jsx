@@ -14,6 +14,9 @@ const TopMentorsPage = () => {
   const { token, user } = useSelector((state) => state.auth);
   const currentUserId = user?.id;
 
+  // Define the base API URL
+  const API_BASE_URL = 'https://job-portal-server-six-eosin.vercel.app';
+
   const fetchMentors = async (pageNum) => {
     setLoading(true);
     setError(null);
@@ -21,8 +24,8 @@ const TopMentorsPage = () => {
     try {
       console.log('Fetching mentors page:', pageNum);
       
-      // Use the correct API endpoint with proper authentication
-      const apiUrl = `/api/mentors?page=${pageNum}&limit=20&exclude_current=${!!currentUserId}`;
+      // Use the absolute API URL with your backend domain
+      const apiUrl = `${API_BASE_URL}/api/mentors?page=${pageNum}&limit=20&exclude_current=${!!currentUserId}`;
       console.log('API URL:', apiUrl);
       
       const response = await fetch(apiUrl, {
@@ -30,7 +33,7 @@ const TopMentorsPage = () => {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : '' // Add authentication token if available
+          'Authorization': token ? `Bearer ${token}` : ''
         }
       });
       
@@ -82,22 +85,6 @@ const TopMentorsPage = () => {
         rating: 4.9,
         profile_photo: "/professional-businessman.png",
         type: 3
-      },
-      {
-        id: 3,
-        full_name: "Yash Patel",
-        headline: "Strategy Manager @ Parag Milk Foods [MD's Office] | 300k+ Impressions | 32x",
-        rating: 4.8,
-        profile_photo: "/professional-man-with-beard-smiling.png",
-        type: 3
-      },
-      {
-        id: 4,
-        full_name: "Shiri Agarwal",
-        headline: "Product @Telstra | MBA @MDI Gurgaon'24 | Rank 6th Unstoppable",
-        rating: 4.9,
-        profile_photo: "/professional-woman-smiling.png",
-        type: 3
       }
     ];
     
@@ -116,7 +103,7 @@ const TopMentorsPage = () => {
 
   useEffect(() => {
     fetchMentors(1);
-  }, []); // Empty dependency array since we only want to run this once on mount
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -163,9 +150,12 @@ const TopMentorsPage = () => {
         <div className="relative -mt-8 px-3 pb-3">
           <div className="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-gray-100">
             <img
-              src={mentor.profile_photo || "/placeholder.svg"}
+              src={mentor.profile_photo || "/avatar.jpg"}
               alt={mentor.full_name}
               className="h-full w-full object-cover"
+              onError={(e) => {
+                e.target.src = "/avatar.jpg";
+              }}
             />
           </div>
 
@@ -181,7 +171,7 @@ const TopMentorsPage = () => {
           <div className="space-y-1 text-center">
             <h4 className="font-semibold text-gray-900 text-sm">{mentor.full_name}</h4>
             <p className="text-[11px] text-gray-600 leading-snug line-clamp-2">
-              {mentor.headline}
+              {mentor.headline || 'Professional Mentor'}
             </p>
           </div>
 
@@ -227,9 +217,12 @@ const TopMentorsPage = () => {
         <div className="relative -mt-8 px-4 pb-4">
           <div className="mx-auto mb-3 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-100">
             <img
-              src={mentor.profile_photo || "/placeholder.svg"}
+              src={mentor.profile_photo || "/avatar.jpg"}
               alt={mentor.full_name}
               className="h-full w-full object-cover"
+              onError={(e) => {
+                e.target.src = "/avatar.jpg";
+              }}
             />
           </div>
 
@@ -243,7 +236,7 @@ const TopMentorsPage = () => {
           <div className="space-y-2 text-center">
             <h4 className="font-semibold text-gray-900">{mentor.full_name}</h4>
             <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">
-              {mentor.headline}
+              {mentor.headline || 'Professional Mentor'}
             </p>
           </div>
 
