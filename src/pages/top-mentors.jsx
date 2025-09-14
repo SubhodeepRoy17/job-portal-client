@@ -1,6 +1,7 @@
 // src/pages/top-mentors.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const TopMentorsPage = () => {
   const [mentors, setMentors] = useState([]);
@@ -9,6 +10,7 @@ const TopMentorsPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { token } = useSelector((state) => state.auth);
 
   const fetchMentors = async (pageNum) => {
     setLoading(true);
@@ -17,60 +19,26 @@ const TopMentorsPage = () => {
     try {
       console.log('Fetching mentors page:', pageNum);
       
-      // First, try to get current user info to exclude them
-      let currentUserId = null;
-      try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-        const userUrl = baseUrl ? `${baseUrl}/api/users/me` : '/api/users/me';
-        
-        const userResponse = await fetch(userUrl, {
-          credentials: 'include'
-        });
-        
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-          currentUserId = userData.result?.id;
-        }
-      } catch (userError) {
-        console.log('Could not fetch current user, proceeding without exclusion');
-      }
-
-      // Try the new API endpoint
-      const apiUrl = `/api/mentors?role=3&page=${pageNum}&limit=20&exclude_current=${!!currentUserId}`;
+      // Get current user ID from Redux store if available
+      const currentUserId = useSelector((state) => state.auth.user?.id);
+      
+      // Use the correct API endpoint with proper authentication
+      const apiUrl = `/api/mentors?page=${pageNum}&limit=20&exclude_current=${!!currentUserId}`;
       console.log('API URL:', apiUrl);
       
       const response = await fetch(apiUrl, {
         credentials: 'include',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Add authentication token
         }
       });
       
       console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-      
-      // Check if response is JSON
-      const contentType = response.headers.get('content-type');
-      console.log('Content-Type:', contentType);
       
       if (!response.ok) {
-        // Try to get error message from response
-        let errorMessage = `API returned ${response.status}: ${response.statusText}`;
-        try {
-          const errorText = await response.text();
-          console.log('Error response body:', errorText);
-          errorMessage += ` - ${errorText}`;
-        } catch (e) {
-          console.log('Could not read error response body');
-        }
-        throw new Error(errorMessage);
-      }
-      
-      if (!contentType || !contentType.includes('application/json')) {
-        const responseText = await response.text();
-        console.log('Non-JSON response body:', responseText);
-        throw new Error('Server returned non-JSON response: ' + responseText.substring(0, 200));
+        throw new Error(`API returned ${response.status}: ${response.statusText}`);
       }
       
       const data = await response.json();
@@ -89,7 +57,7 @@ const TopMentorsPage = () => {
       }
     } catch (error) {
       console.error('Error fetching mentors from API:', error);
-      setError(`Could not load mentors from server: ${error.message}. Using demo data.`);
+      setError(`Could not load mentors: ${error.message}. Using demo data.`);
       // Fallback to mock data
       useMockData(pageNum);
     } finally {
@@ -137,15 +105,14 @@ const TopMentorsPage = () => {
     if (pageNum === 1) {
       setMentors(mockMentors);
     } else {
-      // For infinite scroll, add more mock data
       const moreMentors = mockMentors.map(mentor => ({
         ...mentor,
-        id: mentor.id + (pageNum * 10) // Make IDs unique for each page
+        id: mentor.id + (pageNum * 10)
       }));
       setMentors(prev => [...prev, ...moreMentors]);
     }
     
-    setHasMore(pageNum < 3); // Allow 3 pages of mock data
+    setHasMore(pageNum < 3);
   };
 
   useEffect(() => {
