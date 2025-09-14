@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import Navbar from "../components/shared/Navbar";
+import BottomNav from "../components/shared/BottomNav";
 
 const TopMentorsPage = () => {
   const [mentors, setMentors] = useState([]);
@@ -252,6 +254,7 @@ const TopMentorsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <Navbar />
       <div className="container mx-auto px-4">
         <button 
           onClick={() => navigate(-1)}
@@ -310,6 +313,7 @@ const TopMentorsPage = () => {
           </div>
         )}
       </div>
+      <BottomNav />
     </div>
   );
 };
