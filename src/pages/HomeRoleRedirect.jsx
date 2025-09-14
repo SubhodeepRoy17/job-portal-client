@@ -1,6 +1,7 @@
 import { useUserContext } from "../context/UserContext";
 import Landing from "./Landing";
 import UserHomePage from "./user_homepage";
+import TopMentorsPage from "./top-mentors";
 import AdminHomePage from "./admin_homepage";
 import RecruiterHomePage from "./recruiter_homepage";
 import CompanyHomePage from "./company_homepage";
@@ -23,6 +24,7 @@ const HomeRoleRedirect = () => {
             {user.role === 3 && (
                 <>
                     <UserHomePage />
+                    <TopMentorsPage />
                 </>
             )}
             
