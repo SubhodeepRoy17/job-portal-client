@@ -320,20 +320,26 @@ const TopMentorsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <button 
-          onClick={() => navigate(-1)}
-          className="mb-6 flex items-center text-blue-600 hover:text-blue-800"
-        >
-          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back
-        </button>
+    <div className="min-h-screen bg-gray-50 pb-20 md:pb-0 pt-16 md:pt-0">
+      {/* Mobile Header */}
+      <MobileHeader />
+      
+      <div className="container mx-auto px-4 md:py-8">
+        {/* Desktop back button */}
+        <div className="hidden md:block mb-6">
+          <button 
+            onClick={() => navigate(-1)}
+            className="flex items-center text-blue-600 hover:text-blue-800"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+          </button>
+        </div>
         
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">All Top Mentors</h1>
-        <p className="text-gray-600 mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 mt-4 md:mt-0">All Top Mentors</h1>
+        <p className="text-gray-600 mb-8 text-sm md:text-base">
           Browse through our community of highly-rated mentors as recognized by learners.
         </p>
 
@@ -379,6 +385,9 @@ const TopMentorsPage = () => {
           </div>
         )}
       </div>
+      
+      {/* Mobile Footer */}
+      <MobileFooter />
     </div>
   );
 };
