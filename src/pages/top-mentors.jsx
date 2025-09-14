@@ -125,6 +125,71 @@ const TopMentorsPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [loading, hasMore]);
 
+  // Mobile Shimmer Card
+  const MobileShimmerCard = () => {
+    return (
+      <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        {/* Header gradient shimmer */}
+        <div className="relative h-24 bg-gray-300 animate-pulse"></div>
+
+        {/* Profile Content */}
+        <div className="relative -mt-8 px-3 pb-3">
+          <div className="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-gray-300 animate-pulse"></div>
+
+          {/* Rating shimmer */}
+          <div className="mb-1 flex items-center justify-center gap-1">
+            <div className="h-3.5 w-3.5 bg-gray-300 rounded animate-pulse"></div>
+            <div className="h-3 w-8 bg-gray-300 rounded animate-pulse"></div>
+          </div>
+
+          {/* Text Content shimmer */}
+          <div className="space-y-1 text-center">
+            <div className="h-4 bg-gray-300 rounded mx-auto w-3/4 animate-pulse"></div>
+            <div className="h-3 bg-gray-300 rounded mx-auto w-5/6 animate-pulse"></div>
+            <div className="h-3 bg-gray-300 rounded mx-auto w-4/6 animate-pulse"></div>
+          </div>
+
+          {/* Button shimmer */}
+          <div className="mt-2">
+            <div className="w-full h-8 bg-gray-300 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </article>
+    );
+  };
+
+  // Desktop Shimmer Card
+  const DesktopShimmerCard = () => {
+    return (
+      <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        {/* Header gradient shimmer */}
+        <div className="relative h-32 bg-gray-300 animate-pulse"></div>
+
+        <div className="relative -mt-8 px-4 pb-4">
+          <div className="mx-auto mb-3 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-300 animate-pulse"></div>
+
+          {/* Rating shimmer */}
+          <div className="mb-2 flex items-center justify-center gap-1">
+            <div className="h-4 w-4 bg-gray-300 rounded animate-pulse"></div>
+            <div className="h-4 w-10 bg-gray-300 rounded animate-pulse"></div>
+          </div>
+
+          {/* Text Content shimmer */}
+          <div className="space-y-2 text-center">
+            <div className="h-5 bg-gray-300 rounded mx-auto w-3/4 animate-pulse"></div>
+            <div className="h-4 bg-gray-300 rounded mx-auto w-5/6 animate-pulse"></div>
+            <div className="h-4 bg-gray-300 rounded mx-auto w-4/6 animate-pulse"></div>
+          </div>
+
+          {/* Button shimmer */}
+          <div className="mt-4">
+            <div className="w-full h-10 bg-gray-300 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </article>
+    );
+  };
+
   // Mobile Mentor Card (2 per row)
   const MobileMentorCard = ({ mentor }) => {
     return (
@@ -271,22 +336,49 @@ const TopMentorsPage = () => {
         {/* Mobile: 2 cards per row */}
         <div className="block sm:hidden">
           <div className="grid grid-cols-2 gap-4">
-            {mentors.map((mentor) => (
-              <MobileMentorCard key={mentor.id} mentor={mentor} />
-            ))}
+            {loading && mentors.length === 0 ? (
+              // Show shimmer cards when loading and no mentors yet
+              <>
+                <MobileShimmerCard />
+                <MobileShimmerCard />
+                <MobileShimmerCard />
+                <MobileShimmerCard />
+              </>
+            ) : (
+              // Show actual mentor cards
+              mentors.map((mentor) => (
+                <MobileMentorCard key={mentor.id} mentor={mentor} />
+              ))
+            )}
           </div>
         </div>
 
         {/* Tablet/Desktop: 3-4 cards per row */}
         <div className="hidden sm:block">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {mentors.map((mentor) => (
-              <DesktopMentorCard key={mentor.id} mentor={mentor} />
-            ))}
+            {loading && mentors.length === 0 ? (
+              // Show shimmer cards when loading and no mentors yet
+              <>
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+                <DesktopShimmerCard />
+              </>
+            ) : (
+              // Show actual mentor cards
+              mentors.map((mentor) => (
+                <DesktopMentorCard key={mentor.id} mentor={mentor} />
+              ))
+            )}
           </div>
         </div>
 
-        {loading && (
+        {/* Show loading spinner when loading more content */}
+        {loading && mentors.length > 0 && (
           <div className="flex justify-center mt-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
