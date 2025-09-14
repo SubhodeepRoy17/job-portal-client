@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Navbar from "../components/shared/Navbar";
 import BottomNav from "../components/shared/BottomNav";
-import ShimmerLoading from "../shared/ShimmerLoading";
+import ShimmerLoading from "../components/shared/ShimmerLoading";
 
 const TopMentorsPage = () => {
   const [mentors, setMentors] = useState([]);
