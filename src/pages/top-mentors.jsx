@@ -10,6 +10,7 @@ const TopMentorsPage = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const navigate = useNavigate();
   
   // Get token and user ID at the top level
@@ -66,6 +67,9 @@ const TopMentorsPage = () => {
       useMockData(pageNum);
     } finally {
       setLoading(false);
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
+      }
     }
   };
 
@@ -86,6 +90,30 @@ const TopMentorsPage = () => {
         headline: "Flipkart | Bain & Co.| Gold Medalist, IIT Madras | XLRI Jamshedpur-BM' 24",
         rating: 4.9,
         profile_photo: "/professional-businessman.png",
+        type: 3
+      },
+      {
+        id: 3,
+        full_name: "Sarah Johnson",
+        headline: "Senior Product Manager @Google | Ex-Microsoft | Stanford MBA",
+        rating: 4.8,
+        profile_photo: "/professional-woman.jpg",
+        type: 3
+      },
+      {
+        id: 4,
+        full_name: "Michael Chen",
+        headline: "Software Engineer @Facebook | MIT Computer Science | Open Source Contributor",
+        rating: 4.7,
+        profile_photo: "/professional-man-2.jpg",
+        type: 3
+      },
+      {
+        id: 5,
+        full_name: "Priya Sharma",
+        headline: "Data Scientist @Amazon | Machine Learning Specialist | IIT Delhi",
+        rating: 4.9,
+        profile_photo: "/professional-woman-2.jpg",
         type: 3
       }
     ];
@@ -191,10 +219,10 @@ const TopMentorsPage = () => {
   };
 
   // Generate shimmer cards for loading state
-  const generateShimmerCards = (isMobile = false, count = 8) => {
+  const generateShimmerCards = (isMobile = false, count = 20) => {
     const ShimmerComponent = isMobile ? MobileShimmerCard : DesktopShimmerCard;
     return Array.from({ length: count }).map((_, index) => (
-      <ShimmerComponent key={index} />
+      <ShimmerComponent key={`shimmer-${index}`} />
     ));
   };
 
@@ -252,7 +280,10 @@ const TopMentorsPage = () => {
 
           {/* Button */}
           <div className="mt-2">
-            <button className="w-full rounded-full border border-gray-300 bg-white px-2 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50">
+            <button 
+              className="w-full rounded-full border border-gray-300 bg-white px-2 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
+              onClick={() => navigate(`/mentor/${mentor.id}`)}
+            >
               View Profile
             </button>
           </div>
@@ -316,7 +347,10 @@ const TopMentorsPage = () => {
           </div>
 
           <div className="mt-4">
-            <button className="w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+            <button 
+              className="w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              onClick={() => navigate(`/mentor/${mentor.id}`)}
+            >
               View Profile
             </button>
           </div>
@@ -330,7 +364,7 @@ const TopMentorsPage = () => {
       <Navbar />
       <div className="container mx-auto px-4 py-3">
         
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">All Top Mentors</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Connect People & Grow</h1>
         <p className="text-gray-600 mb-8">
           Browse through our community of highly-rated mentors as recognized by learners.
         </p>
@@ -344,30 +378,36 @@ const TopMentorsPage = () => {
         {/* Mobile: 2 cards per row */}
         <div className="block sm:hidden">
           <div className="grid grid-cols-2 gap-4">
-            {loading && mentors.length === 0 ? (
-              // Show shimmer cards when loading and no mentors yet
-              generateShimmerCards(true, 8)
+            {isInitialLoad ? (
+              // Show shimmer cards when initially loading
+              generateShimmerCards(true, 20)
             ) : (
               // Show actual mentor cards
               mentors.map((mentor) => (
                 <MobileMentorCard key={mentor.id} mentor={mentor} />
               ))
             )}
+            
+            {/* Show shimmer cards when loading more content */}
+            {loading && mentors.length > 0 && generateShimmerCards(true, 20)}
           </div>
         </div>
 
         {/* Tablet/Desktop: 3-4 cards per row */}
         <div className="hidden sm:block">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {loading && mentors.length === 0 ? (
-              // Show shimmer cards when loading and no mentors yet
-              generateShimmerCards(false, 16)
+            {isInitialLoad ? (
+              // Show shimmer cards when initially loading
+              generateShimmerCards(false, 20)
             ) : (
               // Show actual mentor cards
               mentors.map((mentor) => (
                 <DesktopMentorCard key={mentor.id} mentor={mentor} />
               ))
             )}
+            
+            {/* Show shimmer cards when loading more content */}
+            {loading && mentors.length > 0 && generateShimmerCards(false, 20)}
           </div>
         </div>
 
@@ -384,7 +424,7 @@ const TopMentorsPage = () => {
           </div>
         )}
 
-        {mentors.length === 0 && !loading && (
+        {mentors.length === 0 && !loading && !isInitialLoad && (
           <div className="text-center mt-8 text-gray-500">
             No mentors found
           </div>
