@@ -11,14 +11,4 @@ export default defineConfig({
       external: [],
     },
   },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'https://job-portal-server-six-eosin.vercel.app',
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
-      }
-    }
-  }
 });

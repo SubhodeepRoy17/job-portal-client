@@ -36,10 +36,7 @@ const TopMentorsPage = () => {
       }
 
       // Try the new API endpoint
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const apiUrl = baseUrl 
-        ? `${baseUrl}/api/mentors?role=3&page=${pageNum}&limit=20&exclude_current=${!!currentUserId}`
-        : `/api/mentors?role=3&page=${pageNum}&limit=20&exclude_current=${!!currentUserId}`;
+      const apiUrl = `/api/mentors?role=3&page=${pageNum}&limit=20&exclude_current=${!!currentUserId}`;
       console.log('API URL:', apiUrl);
       
       const response = await fetch(apiUrl, {
