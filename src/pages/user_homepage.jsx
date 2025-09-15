@@ -464,7 +464,7 @@ function BannerCarousel() {
         </div>
       </div>
 
-      {/* Desktop view */}
+      {/* Desktop view - Updated to show full background images like mobile */}
       <div className="hidden md:block relative">
         <div className="flex gap-6 relative justify-center">
           {[
@@ -475,13 +475,13 @@ function BannerCarousel() {
               key={`${b.id}-${idx}`}
               className={`flex-shrink-0 w-[45%] rounded-2xl p-6 text-white h-60 flex items-end relative overflow-hidden`}
             >
-              {/* Background image */}
+              {/* Background image - full display like mobile */}
               <div 
                 className="absolute inset-0 bg-cover bg-center z-0"
                 style={{ backgroundImage: `url(${b.image})` }}
               />
-              {/* Gradient overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-r ${b.color} z-0`} />
+              {/* Subtle gradient overlay for better text readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/20 z-0" />
               
               <div className="relative z-10">
                 <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
