@@ -246,12 +246,48 @@ function ProfileCompletion({ user }) {
 function BannerCarousel() {
   const banners = useMemo(
     () => [
-      { id: "a1", color: "from-slate-900 to-indigo-900", title: "Hiring Challenge Season 4", cta: "Register Now" },
-      { id: "a2", color: "from-emerald-500 to-teal-400", title: "Where can your imagination take you?", cta: "Registration" },
-      { id: "b1", color: "from-fuchsia-600 to-rose-500", title: "CodeFest 2025", cta: "Join" },
-      { id: "b2", color: "from-blue-600 to-cyan-500", title: "Designathon", cta: "Apply" },
-      { id: "c1", color: "from-orange-500 to-red-500", title: "Startup Pitch Competition", cta: "Apply Now" },
-      { id: "c2", color: "from-purple-600 to-pink-500", title: "Data Science Hackathon", cta: "Participate" },
+      { 
+        id: "a1", 
+        color: "from-slate-900/70 to-indigo-900/70", 
+        title: "Hiring Challenge Season 4", 
+        cta: "Register Now",
+        image: "https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      },
+      { 
+        id: "a2", 
+        color: "from-emerald-500/70 to-teal-400/70", 
+        title: "Where can your imagination take you?", 
+        cta: "Registration",
+        image: "https://images.unsplash.com/photo-1512758017271-d7b84c2113f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      },
+      { 
+        id: "b1", 
+        color: "from-fuchsia-600/70 to-rose-500/70", 
+        title: "CodeFest 2025", 
+        cta: "Join",
+        image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      },
+      { 
+        id: "b2", 
+        color: "from-blue-600/70 to-cyan-500/70", 
+        title: "Designathon", 
+        cta: "Apply",
+        image: "https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      },
+      { 
+        id: "c1", 
+        color: "from-orange-500/70 to-red-500/70", 
+        title: "Startup Pitch Competition", 
+        cta: "Apply Now",
+        image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      },
+      { 
+        id: "c2", 
+        color: "from-purple-600/70 to-pink-500/70", 
+        title: "Data Science Hackathon", 
+        cta: "Participate",
+        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      },
     ],
     [],
   )
@@ -322,7 +358,7 @@ function BannerCarousel() {
       const scrollPosition = el.scrollLeft;
       const newIndex = Math.round((scrollPosition % (banners.length * (cardWidth + gap))) / (cardWidth + gap));
       setCurrentIndex(newIndex);
-    }, 6000) // Changed from 4000 to 6000
+    }, 6000)
 
     return () => clearInterval(autoPlayRef.current)
   }, [isMobile, banners.length])
@@ -365,13 +401,13 @@ function BannerCarousel() {
     
     autoPlayRef.current = setInterval(() => {
       nextSlide();
-    }, 6000) // Changed from 4000 to 6000
+    }, 6000)
 
     return () => clearInterval(autoPlayRef.current)
   }, [isMobile])
 
   return (
-    <section className="relative mx-auto w-full">
+    <section className="relative mx-auto w-full max-w-6xl px-4">
       {/* Mobile view */}
       <div className="md:hidden relative">
         <div 
@@ -385,8 +421,17 @@ function BannerCarousel() {
               key={`${b.id}-${index}`}
               className="banner-card flex-shrink-0 w-[85vw] snap-start"
             >
-              <div className={`rounded-xl bg-gradient-to-r ${b.color} p-4 text-white h-40 flex items-end`}>
-                <div>
+              <div 
+                className={`rounded-xl bg-gradient-to-r ${b.color} p-4 text-white h-40 flex items-end relative overflow-hidden`}
+              >
+                {/* Background image */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center z-0"
+                  style={{ backgroundImage: `url(${b.image})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/20 z-0" />
+                
+                <div className="relative z-10">
                   <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
                   <h3 className="text-lg font-semibold max-w-[28ch] text-pretty">{b.title}</h3>
                   <button className="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-900">
@@ -399,7 +444,7 @@ function BannerCarousel() {
           ))}
         </div>
         
-        {/* Mobile dots indicator - same as desktop */}
+        {/* Mobile dots indicator */}
         <div className="mt-3 flex justify-center">
           <Dots total={banners.length} active={currentIndex} onDot={(index) => {
             const el = scrollerRef.current;
@@ -421,16 +466,24 @@ function BannerCarousel() {
 
       {/* Desktop view */}
       <div className="hidden md:block relative">
-        <div className="flex gap-4 relative">
+        <div className="flex gap-6 relative justify-center">
           {[
             banners[currentIndex % banners.length],
             banners[(currentIndex + 1) % banners.length]
-          ].map((b) => (
+          ].map((b, idx) => (
             <div
-              key={b.id}
-              className={`flex-shrink-0 w-1/2 rounded-2xl bg-gradient-to-r ${b.color} p-6 text-white h-60 flex items-end`}
+              key={`${b.id}-${idx}`}
+              className={`flex-shrink-0 w-[45%] rounded-2xl p-6 text-white h-60 flex items-end relative overflow-hidden`}
             >
-              <div>
+              {/* Background image */}
+              <div 
+                className="absolute inset-0 bg-cover bg-center z-0"
+                style={{ backgroundImage: `url(${b.image})` }}
+              />
+              {/* Gradient overlay */}
+              <div className={`absolute inset-0 bg-gradient-to-r ${b.color} z-0`} />
+              
+              <div className="relative z-10">
                 <p className="text-xs/5 uppercase tracking-wide text-white/80">Featured</p>
                 <h3 className="text-2xl font-semibold max-w-[28ch] text-pretty">{b.title}</h3>
                 <button className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900">
@@ -1183,12 +1236,13 @@ function PopularRightNow() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* Updated grid layout for desktop */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {features.map((feature) => (
           <div
             key={feature.id}
             className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${feature.color} 
-                        p-5 text-gray-800 min-h-[300px] md:min-h-[220px] 
+                        p-5 text-gray-800 min-h-[300px] md:min-h-[340px] 
                         flex flex-col justify-between`}
           >
             {/* Icon in top left */}
@@ -1201,8 +1255,8 @@ function PopularRightNow() {
               <p className="text-base font-medium opacity-90">{feature.description}</p>
             </div>
 
-            {/* Image in bottom right */}
-            <div className="absolute bottom-4 right-4 w-16 h-16 opacity-80">
+            {/* Image in bottom right - larger on desktop */}
+            <div className="absolute bottom-4 right-4 w-16 h-16 md:w-24 md:h-24 opacity-80">
               <img 
                 src={feature.illustration} 
                 alt="Feature illustration" 
